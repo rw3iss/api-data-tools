@@ -1,0 +1,40 @@
+{
+    "users": {
+        "additionalProperties": true,      
+
+        "properties": {
+            "id": { 
+                "type": "int" ,
+                "primaryKey": true, 
+                "autoIncrement": true
+            },
+            "name": "string",
+            "email": {
+                "type": "email",
+                "isIndex": true
+            },
+            "registered": "date-time",
+            "role": {
+                "enum": ["user", "superuser", "admin"]
+            },
+            "lastLoggedIn": "date-time"
+        },
+
+        "required": [
+            "name", "email", "registered", "role"
+        ],
+        
+        "api": {
+            "generate": true
+        }
+    },
+    
+    "schema": {
+        "persistent": false,
+        "api": {
+            "generate": false,
+            "methods": ["get"]
+        }
+    }
+
+}

@@ -1,0 +1,39 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "incremental": true,
+
+        "baseUrl": "./",
+        "outDir": "build",
+        "sourceMap": true,          // allow sourcemap support
+        "strictNullChecks": true,   // enable strict null checks as a best practice
+        "module": "es6",            // specifiy module code generation
+        "moduleResolution": "node",
+        "target": "es6",         // specify ECMAScript target version
+        "noImplicitThis": true,
+        "noImplicitAny": false,
+        "noImplicitReturns": true,
+        "strict": true,
+        "resolveJsonModule": true,
+        
+        // Not sure if either of these are necessary:
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
+    },
+
+    "include": [
+        "./src/*"
+    ],
+    
+    "paths": {
+        "lib/*":        ["lib/*"],
+        "config/*":     ["config/*"],
+    },
+
+    "exclude": [
+        "./node_modules/**/*",
+        "./build/*"
+    ],
+
+    "types": [ "webpack-env", "node" ]
+}

@@ -4,7 +4,7 @@
 
 Must first define a 'config/config.json' file:
 
-`
+```
 {
     "apiEnabled": true,
     "autoRegisterRoutes": true,
@@ -20,12 +20,12 @@ Must first define a 'config/config.json' file:
         "multipleStatements": true
     }
 }
-`
+```
 
 
 And also a config/schema.json file with your schema. This uses the node-db-migrate property types, and the standard JSON specification, ie:
 
-`
+```
 {
     "users": {
         "properties": {
@@ -55,13 +55,12 @@ And also a config/schema.json file with your schema. This uses the node-db-migra
         }
     }
 }
-`
+```
 
 
 Then to use it in your application, ie. vanilla node:
 
-`
-import { RestAPI } from 'api-schema-tools';
+```import { RestAPI } from 'api-schema-tools';
 
 let api = new RestAPI();
 
@@ -70,15 +69,15 @@ function requestResponseHandler(request, response) {
 }
 
 let apiServer = http.createServer(requestResponseHandler);
-`
+```
 
 Or within an Express-like application, just pass the API handler:
 
-`
+```
 import { RestAPI } from 'api-schema-tools';
 
 let app = express();
 let api = new RestAPI();
 
 app.use(api.handle);
-`
+```

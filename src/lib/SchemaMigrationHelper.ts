@@ -4,19 +4,20 @@
     https://db-migrate.readthedocs.io/en/latest/API/SQL/
 */
 
-import * as config from 'config/config.json';
+import Config from './Config';
 import { lpad } from '../utils';
 import SchemaHelper from './SchemaHelper';
 import { writeFile } from 'fs';
 import { resolve } from 'path';
 import { isEqual } from 'lodash';
 
-let configPath = require(resolve(process.cwd(), 'config'));
-console.log("config path", configPath);
-
 export default class SchemaMigrationHelper {
     
     generateMigration(currSchema, newSchema, schemaBasePath) {
+        if (typeof Config.migrationPath == 'undefined') {
+            throw "migrationPath property not found in Config. Cannot write migrations";
+        }
+
         if (currSchema != newSchema) {
             let { up, down } = this.generateDiffOperations(currSchema, newSchema);
 
@@ -32,7 +33,7 @@ export default class SchemaMigrationHelper {
     }
 
     writeFiles(migrationCode, newSchema, schemaBasePath) {
-        let migrationFilePath =  resolve(process.cwd(), config.migrationPath, this._formatDate(new Date()) + '-generated.js');
+        let migrationFilePath =  resolve(process.cwd(), Config.migrationPath, this._formatDate(new Date()) + '-generated.js');
         writeFile(migrationFilePath, migrationCode, (err) => {
             if (err) console.log(err);
             console.log("Successfully generated migration file.", migrationFilePath);
@@ -112,15 +113,11 @@ export default class SchemaMigrationHelper {
             }   
         }
 
-        // for each table, check if props exist and add/remove accordingly
         return ops;
     }
 
     generateMigrationCode(upOperations, downOperations) {
-        let self = this;
-        // write initial code
-        let upCode = '';
-        let downCode = '';
+        let self = this, upCode = '', downCode = '';
 
         upOperations.forEach(o => {
             upCode += self.generateOperationCode(o);
@@ -130,7 +127,6 @@ export default class SchemaMigrationHelper {
             downCode += self.generateOperationCode(o);
         });
 
-        //write code to file:
         let code = MIGRATION_TEMPLATE.replace('{{UP_CODE}}', upCode).replace('{{DOWN_CODE}}', downCode);
         return code;
     }
@@ -155,7 +151,7 @@ export default class SchemaMigrationHelper {
     }
 
     _generateCreateTableCode(o) {
-        // todo: wrap callback handler to add indexes based on schema:
+        // Todo: append ()=>{} callback handler, which can add indexes/etc based on schema:
         o.data.propreties = this._sanitizePropertyTypes(o.data.properties);
         return `\n\tdb.createTable('${o.name}', ${JSON.stringify(o.data.properties)});`;
     }

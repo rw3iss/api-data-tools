@@ -1,5 +1,10 @@
+/*  DBHelper
+ *  This class manages access to the underlying database. 
+ *  This is stricly for sql servers, but other adapters can be written to replace this class.
+ */
+
 import * as mysql from 'mysql';
-import * as config from 'config/config.json';
+import Config from './Config';
 import { mysqlDate } from '../utils';
 
 export class DbHelper {
@@ -8,11 +13,12 @@ export class DbHelper {
     static initialize() {
         var self = this;
 
-        if (typeof config['database'] == 'undefined') {
+        if (typeof Config.database == 'undefined') {
             throw "Config file does not have database configuration";
         }
 
-        let dbConfig = config['database'];
+        let dbConfig = Config.database;
+        console.log("Got DB conifg", dbConfig);
 
         // Todo: move this to config
         DbHelper._pool = mysql.createPool({

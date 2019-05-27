@@ -83,7 +83,7 @@ export default class RouteHelper {
         return h;
     }
 
-    // looks for handler if defined in the schema, otherwise wires up the default handler
+    // looks for handler if defined in the schema, otherwise returns the default handler
     private static _getSchemaHandler(methodDef) {
         let handler: undefined | ((...args)=>void) = undefined;
         let method = this._getSchemaMethod(methodDef);
@@ -94,14 +94,11 @@ export default class RouteHelper {
             if (!methodDef.handler) {
                 handler = this._getDefaultHandler(method);
             } else {
-                let h = methodDef.handler;
-                // try to locate the handler
-                console.log("Locate handler for", h);
+                handler = methodDef.handler;
             }
         } else {
             // assume handler is default
             handler = this._getDefaultHandler(method);
-
             if (!handler) {
                 throw "Could not obtain a handler for the given method: " + method;
             }

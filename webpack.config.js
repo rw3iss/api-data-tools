@@ -6,8 +6,6 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const SRC_DIR = path.resolve(__dirname, 'src');
 const BUILD_DIR = path.join(process.cwd(), 'build');
 
-console.log("Building to:", BUILD_DIR);
-
 var config = {
 
     mode: 'development',
@@ -24,7 +22,9 @@ var config = {
     output: {
         publicPath: '/',
         path: BUILD_DIR,
-        filename: '[name].js'
+        filename: '[name].js',
+        library: 'api-tools',
+        libraryTarget: 'umd'
     },
 
     resolve: {
@@ -39,13 +39,6 @@ var config = {
 
     module: {
         rules: [
-            {
-                test: /\.(json)$/,
-                include: [
-                    SRC_DIR
-                ],
-                loader: ['strip-json-comments-loader', 'json-loader']
-            },
             { 
                 test: /\.(t|j)s?$/, 
                 include: [

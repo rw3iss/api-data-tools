@@ -1,5 +1,5 @@
 import RouteHelper from './RouteHelper';
-import * as config from 'config/config.json';
+import Config from './Config';
 import { resolve } from 'path';
 
 export default class RestAPI {
@@ -7,7 +7,7 @@ export default class RestAPI {
     private routesRegistered = false;
 
     constructor() {
-        if (!config.apiEnabled) {
+        if (!Config.apiEnabled) {
             return;
         }
         
@@ -23,8 +23,8 @@ export default class RestAPI {
         });
 
         let registerRoutes = true;
-        if (typeof config.autoRegisterRoutes != 'undefined') {
-            if (!config.autoRegisterRoutes) {
+        if (typeof Config.autoRegisterRoutes != 'undefined') {
+            if (!Config.autoRegisterRoutes) {
                 registerRoutes = false;
             }
         }
@@ -34,7 +34,11 @@ export default class RestAPI {
         }
     }
 
-    registerRoutes() {
+    registerRoutes() {        
+        if (!Config.apiEnabled) {
+            throw "API is not enabled. Please set 'apiEnabled' to true in config.json";
+        }
+
         if (!this.routesRegistered) {
             // registers routes from the schema configuration
             RouteHelper.registerAPIRoutes(this.router);
@@ -45,15 +49,8 @@ export default class RestAPI {
     // Will try and handle the given request with default handlers generated from the schema.
     // Can be called directly, or passed into an application as middleware, ie. 'app.use(RestAPI.handle)' 
     handle(request, response, context?) {
-        console.log("Handing route...", resolve(process.cwd(), config.migrationPath));
-
-        if (!config.apiEnabled) {
-            throw "API is not enabled. Please set 'apiEnabled' to true in config.json";
-        }
- 
         // Todo: need to extend this method to not end the request if no route is found?
         this.router.lookup(request, response, context);
-        
         return true;
     }
 

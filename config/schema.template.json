@@ -1,7 +1,5 @@
 {
     "users": {
-        "additionalProperties": true,      
-
         "properties": {
             "id": { 
                 "type": "int" ,
@@ -27,14 +25,5 @@
         "api": {
             "generate": true
         }
-    },
-    
-    "schema": {
-        "persistent": false,
-        "api": {
-            "generate": false,
-            "methods": ["get"]
-        }
     }
-
 }

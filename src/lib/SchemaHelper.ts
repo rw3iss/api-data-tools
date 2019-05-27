@@ -1,4 +1,18 @@
-let schema = require('config/schema.json');
+import { resolve } from 'path';
+import { existsSync, readFileSync } from 'fs';
+
+let schema: {} | undefined = undefined;
+
+function loadSchema() {
+    let configPath = resolve(process.cwd(), 'config', 'schema.json');
+    if (!existsSync(configPath)) {
+        throw "Schema file not found at: " + configPath;
+    }
+    
+    let s = readFileSync(configPath, { encoding: 'utf-8' });
+    schema = JSON.parse(s);
+}
+loadSchema();
 
 export default class SchemaHelper {
     private _schemas;

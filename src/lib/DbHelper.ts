@@ -18,7 +18,6 @@ export class DbHelper {
         }
 
         let dbConfig = Config.database;
-        console.log("Got DB conifg", dbConfig);
 
         // Todo: move this to config
         DbHelper._pool = mysql.createPool({

@@ -11,31 +11,38 @@ export default class RouteHelper {
         let schema = SchemaHelper.getSchema();
         for (let p in schema) {
             let type = schema[p];
+
+            // register all type endpoints by default, unless the api configuration is defined for it
             if (type.api) {
-                if (!type.api.generate) {
+                if (typeof type.api.generate != 'undefined' && !type.api.generate) {
                     continue;
-                } else {
-                    let urlEndpoint = getdef(type.api.urlPrefix, p);
-                    // if this schema type has methods defined, register only those, otherwise register the defaults
-                    if (type.api.methods) {
-                        type.api.methods.forEach(m => {
-                            console.log("registering route handler:", p, m);
-                            let method = this._getSchemaMethod(m);
-                            let handler = this._getSchemaHandler(m);
-                            // collection handlers, only register GET, PUT, POST on collections
-                            if (!['GET', 'PUT', 'POST'].includes(m)) {
-                                router.on(method, '/'+urlEndpoint, handler);
-                            }
-                            // regsiter all method types for individual resources
-                            router.on(method, '/'+urlEndpoint+'/:id', handler);
-                        });
-                    } else {
-                        // register all default methods for this type
-                        this._registerDefaultRoutesForType(router, urlEndpoint);
-                    }
                 }
             }
+
+            let urlEndpoint = getdef(type.api.urlPrefix, p);
+            // if this schema type has methods defined, register only those, otherwise register the defaults
+            if (type.api.methods) {
+                type.api.methods.forEach(m => {
+                    let method = this._getSchemaMethod(m);
+                    let handler = this._getSchemaHandler(m);
+                    // collection handlers, only register GET, PUT, POST on collections
+                    if (!['GET', 'PUT', 'POST'].includes(m)) {
+                        router.on(method, '/'+urlEndpoint, handler);
+                    }
+                    // regsiter all method types for individual resources
+                    router.on(method, '/'+urlEndpoint+'/:id', handler);
+                });
+            } else {
+                // register all default methods for this type
+                this._registerDefaultRoutesForType(router, urlEndpoint);
+            }
         }
+
+        // register schema endpoint
+        // TODO: This should be wired up through custom handler, same as other config types
+        router.on('GET', '/schema', (req, res) => {
+            res.end(JSON.stringify(schema));
+        });
     }
 
     private static _registerDefaultRoutesForType(router, urlEndpoint) {
@@ -65,7 +72,7 @@ export default class RouteHelper {
                 m = methodDef.type.toUpperCase();
             }
         } else {
-            m = m.toUpperCase();
+            m = methodDef.toUpperCase();
         }
     
         if (!METHODS.includes(m)) {

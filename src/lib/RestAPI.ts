@@ -1,6 +1,5 @@
 import RouteHelper from './RouteHelper';
 import Config from './Config';
-import { resolve } from 'path';
 
 export default class RestAPI {
     private router;

@@ -1,10 +1,11 @@
-Usage:
+**Usage:**
 
 (Note: Currently only MySQL-based databases will work, but is extensible and easily adaptable to others)
 
 Must first define a 'config/config.json' file:
 
-`{
+`
+{
     "apiEnabled": true,
     "autoRegisterRoutes": true,
     
@@ -18,12 +19,14 @@ Must first define a 'config/config.json' file:
         "database": "",
         "multipleStatements": true
     }
-}`
+}
+`
 
 
 And also a config/schema.json file with your schema. This uses the node-db-migrate property types, and the standard JSON specification, ie:
 
-`{
+`
+{
     "users": {
         "properties": {
             "id": { 
@@ -51,12 +54,14 @@ And also a config/schema.json file with your schema. This uses the node-db-migra
             "generate": true
         }
     }
-}`
+}
+`
 
 
 Then to use it in your application, ie. vanilla node:
 
-`import { RestAPI } from 'api-schema-tools';
+`
+import { RestAPI } from 'api-schema-tools';
 
 let api = new RestAPI();
 
@@ -64,13 +69,16 @@ function requestResponseHandler(request, response) {
     api.handle(request, response);
 }
 
-let apiServer = http.createServer(requestResponseHandler);`
+let apiServer = http.createServer(requestResponseHandler);
+`
 
 Or within an Express-like application, just pass the API handler:
 
-`import { RestAPI } from 'api-schema-tools';
+`
+import { RestAPI } from 'api-schema-tools';
 
 let app = express();
 let api = new RestAPI();
 
-app.use(api.handle);`
+app.use(api.handle);
+`

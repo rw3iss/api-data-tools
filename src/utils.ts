@@ -35,3 +35,7 @@ export function mysqlDate(date?: Date): string {
     let d = date || new Date();
     return d.toISOString().slice(0, 19).replace('T', ' ');
 }
+
+export function stripFirstLastSlash(str) {
+    return str.replace(/^\/|\/$/g, '');
+}

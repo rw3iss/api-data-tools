@@ -5,6 +5,7 @@
 
 import ResourceDataMapper from './ResourceDataMapper';
 import SchemaHelper from './SchemaHelper';
+import RouteHelper from './RouteHelper';
 
 let schema = SchemaHelper.getSchema();
 
@@ -88,7 +89,11 @@ export default class ResourceHandler {
     }
 
     static getTypeFromRequestUrl(url) {
-        let type = url.match(/\/([a-zA-Z0-9]{0,})\/?/); 
+        let apiPrefix = RouteHelper.getApiPrefix();
+        url = url.replace(apiPrefix, '');
+        console.log("get type from url", url);
+
+        let type = url.match(/\/?([a-zA-Z0-9]{0,})\/?/); 
         return type[1];
     }
 }

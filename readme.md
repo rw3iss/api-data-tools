@@ -60,7 +60,8 @@ And also a config/schema.json file with your schema. This uses the node-db-migra
 
 Then to use it in your application, ie. vanilla node:
 
-```import { RestAPI } from 'api-schema-tools';
+```
+import { RestAPI } from 'api-schema-tools';
 
 let api = new RestAPI();
 
@@ -74,6 +75,7 @@ let apiServer = http.createServer(requestResponseHandler);
 Or within an Express-like application, just pass the API handler:
 
 ```
+import * as express from 'express';
 import { RestAPI } from 'api-schema-tools';
 
 let app = express();

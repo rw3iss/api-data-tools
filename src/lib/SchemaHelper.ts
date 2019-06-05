@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from 'fs';
 let schema: {} | undefined = undefined;
 
 (function loadSchema() {
-    let configPath = resolve(process.cwd(), 'config', 'schema.json');
+    let configPath = process.env.SCHEMA_PATH || resolve(process.cwd(), 'config', 'schema.json');
     if (!existsSync(configPath)) {
         throw "Schema file not found at: " + configPath;
     }

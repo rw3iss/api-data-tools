@@ -5,7 +5,12 @@ export default class RestAPI {
     private router;
     private routesRegistered = false;
 
-    constructor() {
+    constructor(configPath?, schemaPath?) {
+        
+        if (configPath && schemaPath) {
+            Config.setPaths(configPath, schemaPath);
+        }
+
         if (!Config.apiEnabled) {
             return;
         }

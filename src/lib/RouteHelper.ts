@@ -21,31 +21,33 @@ export default class RouteHelper {
         let schema = SchemaHelper.getSchema();
         for (let p in schema) {
             let type = schema[p];
+            let urlEndpoint = apiPrefix + p;
+            let registerDefaultRoutes = true;
 
             // register all type endpoints by default, unless the api configuration is defined for it
             if (type.api) {
                 if (typeof type.api.generate != 'undefined' && !type.api.generate) {
                     continue;
                 }
+                urlEndpoint = apiPrefix + getdef(type.api.urlPrefix, p);
+
+                // if this schema type has methods defined, register only those, otherwise register the defaults
+                if (type.api.methods) {
+                    type.api.methods.forEach(m => {
+                        let method = this._getSchemaMethod(m);
+                        let handler = this._getSchemaHandler(m);
+                        // collection handlers, only register GET, PUT, POST on collections
+                        if (!['GET', 'PUT', 'POST'].includes(m)) {
+                            router.on(method, urlEndpoint, handler);
+                        }
+                        // regsiter all method types for individual resources
+                        router.on(method, urlEndpoint+'/:id', handler);
+                    });
+                    registerDefaultRoutes = false;
+                }
             }
 
-
-            let urlEndpoint = apiPrefix + getdef(type.api.urlPrefix, p);
-            console.log("register", urlEndpoint);
-
-            // if this schema type has methods defined, register only those, otherwise register the defaults
-            if (type.api.methods) {
-                type.api.methods.forEach(m => {
-                    let method = this._getSchemaMethod(m);
-                    let handler = this._getSchemaHandler(m);
-                    // collection handlers, only register GET, PUT, POST on collections
-                    if (!['GET', 'PUT', 'POST'].includes(m)) {
-                        router.on(method, urlEndpoint, handler);
-                    }
-                    // regsiter all method types for individual resources
-                    router.on(method, urlEndpoint+'/:id', handler);
-                });
-            } else {
+            if (registerDefaultRoutes) {
                 // register all default methods for this type
                 this._registerDefaultRoutesForType(router, urlEndpoint);
             }

@@ -83,3 +83,11 @@ let api = new RestAPI();
 
 app.use(api.handle);
 ```
+
+
+
+**Other things this library does:**
+
+-Generates migration files whenever there is a change to the schema.json file (keeps track of the previous file and compares).
+
+-DB helper classes to automatically CRUD any arbitrary object defined in the schema.

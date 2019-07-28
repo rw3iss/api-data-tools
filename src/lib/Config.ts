@@ -5,6 +5,7 @@ import { existsSync, readFileSync } from 'fs';
 
 function getConfig() {
     let configPath = process.env.CONFIG_PATH || resolve(process.cwd(), 'config', 'config.json');
+    
     if (!existsSync(configPath)) {
         throw "Config file not found at: " + configPath;
     }

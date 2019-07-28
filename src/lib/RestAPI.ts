@@ -8,7 +8,9 @@ export default class RestAPI {
     constructor(configPath?, schemaPath?) {
         
         if (configPath && schemaPath) {
-            Config.setPaths(configPath, schemaPath);
+            // hack to pass to Config class, for now
+            process.env['CONFIG_PATH'] = configPath;
+            process.env['SCHEMA_PATH'] = schemaPath;
         }
 
         if (!Config.apiEnabled) {

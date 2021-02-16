@@ -45,20 +45,16 @@ export default class ResourceHandler {
         if (!_isValidTypeRequest(type, params, 'POST')) {
             throw "Invalid request for type: " + type;
         }
-
-        let body = '';
-        request.on('data', chunk => {
-            body += chunk.toString(); // convert Buffer to string
-        });
-        request.on('end', async () => {
-            try {
-                d = await ResourceDataMapper.save(type, JSON.parse(JSON.parse(body)));  
-                response.end(JSON.stringify({success: true, data: d}));
-            } catch(e) {
-                console.log("Error parsing request body JSON", e);
-                return response.end({ success: false, message: 'Error parsing request body JSON' });
-            }
-        });
+ 
+        try {
+            let data: any = await parseBody(request);
+            console.log('saving', type, data);
+            d = await ResourceDataMapper.save(type, data);
+            response.end(JSON.stringify({ success: true, data: d }));
+        } catch(e) {
+            console.log("Error parsing request body JSON", e);
+            return response.end({ success: false, message: 'Error parsing request body JSON' });
+        }
     }
 
     static async patch(request, response, params?) {
@@ -135,3 +131,41 @@ function _isValidTypeRequest(type, params?, method?) {
         return false;
     }
 }
+
+
+// adds .body property to request object, with the result of chunked post data.
+function parseBody(req) {
+    const FORM_DATA_TYPES = [
+        'application/x-www-form-urlencoded',
+        'multipart/form-data',
+        'application/json'
+    ];
+
+    function _isDataType(header) {
+        let types = FORM_DATA_TYPES.filter(t => {
+            return (header.indexOf(t) >= 0);
+        });
+        return types.length > 0;
+    }
+
+    return new Promise(resolve => {
+        if (_isDataType(req.headers['content-type'])) {
+            const chunks: any = [];
+            req.on('data', (chunk) => {
+                chunks.push(chunk);
+            });
+            req.on('end', () => {
+                req.body = Buffer.concat(chunks).toString();;
+                try {
+                    req.body = JSON.parse(req.body);
+                } catch(e) {
+                    throw "Error parsing POST body, not JSON? TODO";
+                }
+                resolve(req.body);
+            });
+        } else {
+            req.body = null;
+            resolve(null);
+        }
+    })
+};

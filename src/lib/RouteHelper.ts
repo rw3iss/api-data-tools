@@ -36,12 +36,14 @@ export default class RouteHelper {
                     type.api.methods.forEach(m => {
                         let method = this._getSchemaMethod(m);
                         let handler = this._getSchemaHandler(m);
-                        // collection handlers, only register GET, PUT, POST on collections
+                        // collection handlers, only register GET, PUT, POST on parent collection endpoints
                         if (!['GET', 'PUT', 'POST'].includes(m)) {
                             router.on(method, urlEndpoint, handler);
+                            console.log('route registerd', m, urlEndpoint);
                         }
-                        // regsiter all method types for individual resources
+                        // regsiter individual resource endpoints, accepts all method types
                         router.on(method, urlEndpoint+'/:id', handler);
+                        console.log('route registerd', m, urlEndpoint+'/:id');
                     });
                     registerDefaultRoutes = false;
                 }

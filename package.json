@@ -1,47 +1,43 @@
 {
-  "name": "api-schema-tools",
-  "version": "1.0.0",
-  "description": "Bundle of utilities for generating migration files, syncing schema with database, and wiring up a REST API for a vanilla node backend (or integrated with any framework), all based on a schema.json file that it will keep in sync.",
-  "main": "build/index.js",
-  "types": "build/src/index.d.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rw3iss/api-schema-tools.git"
-  },
-  "keywords": [
-    "schema",
-    "migrations",
-    "api",
-    "rest",
-    "database"
-  ],
-  "author": "Ryan Weiss <rw3iss@gmail.com>",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/rw3iss/api-tools/issues"
-  },
-  "homepage": "https://github.com/rw3iss/schema-tools#readme",
-  "dependencies": {
-    "@types/node": "latest",
-    "ajv": "^6.10.0",
-    "clean-webpack-plugin": "^2.0.2",
-    "find-my-way": "^2.0.1",
-    "json-loader": "^0.5.7",
-    "lodash": "^4.17.11",
-    "mysql": "^2.17.1",
-    "strip-json-comments-loader": "0.0.2",
-    "ts-loader": "^6.0.0",
-    "typescript": "^3.4.5",
-    "webpack": "latest",
-    "webpack-cli": "latest",
-    "webpack-node-externals": "^1.7.2",
-    "webpack-shell-plugin": "^0.5.0"
-  },
-  "devDependencies": {
-    "db-migrate-mysql": "^1.1.10",
-    "node-db-migrate": "^1.0.1"
-  }
+    "name": "api-tools",
+    "version": "1.1.0",
+    "description": "Bundle of utilities for generating migration files, syncing schema with database, and wiring up a REST API for a vanilla node backend (or integrated with any framework), all based on a schema.json file that it will keep in sync.",
+    "main": "build/index.js",
+    "types": "build/src/index.d.ts",
+    "scripts": {
+        "setup": "sudo npm install -g nodemon && npm install",
+        "dev": "nodemon --watch './src/**/*' -e ts,js,json --exec \"npm run build\"",
+        "build": "node scripts/build"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rw3iss/api-schema-tools.git"
+    },
+    "keywords": [
+        "schema",
+        "migrations",
+        "api",
+        "rest",
+        "database"
+    ],
+    "author": "Ryan Weiss <rw3iss@gmail.com>",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/rw3iss/api-tools/issues"
+    },
+    "homepage": "https://github.com/rw3iss/schema-tools#readme",
+    "dependencies": {
+        "ajv": "^6.10.2",
+        "command-line-args": "^5.1.1",
+        "find-my-way": "^2.1.0",
+        "lodash": "^4.17.15",
+        "mysql": "^2.17.1",
+        "typescript": "^3.5.3"
+    },
+    "devDependencies": {
+        "@types/node": "^12.6.8",
+        "db-migrate-mysql": "^1.1.10",
+        "esbuild": "^0.8.46",
+        "node-db-migrate": "^1.0.1"
+    }
 }

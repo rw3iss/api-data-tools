@@ -96,7 +96,7 @@ To use the automatically-generated REST API it in your application, ie. vanilla 
 
 ```
 import http from 'http';
-import { RestAPI } from 'api-tools';
+import { RestAPI } from 'api-data-tools';
 
 let api = new RestAPI();
 
@@ -118,7 +118,7 @@ Or within an Express-like application, just pass the API handler:
 
 ```
 import * as express from 'express';
-import { RestAPI } from 'api-tools';
+import { RestAPI } from 'api-data-tools';
 
 let app = express();
 let api = new RestAPI();
@@ -133,7 +133,7 @@ file.
 
 Example usage:
 ```
-import { DataMapper } from 'api-tools'
+import { DataMapper } from 'api-data-tools'
 
 // Get an object of type user:
 let user = await DataMapper.get('users', { id: 21 });

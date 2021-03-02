@@ -10,11 +10,10 @@ function build(entryFile, outFile) {
         outfile: outFile,
         platform: 'node',
         bundle: true,
-        define: { "process.env.NODE_ENV": IS_DEV ? "\"development\"" : "\"product\"" },
-        target: TARGET,
-        logLevel: 'silent'
+        define: { "process.env.NODE_ENV": IS_DEV ? "\"development\"" : "\"production\"" },
+        target: TARGET
     })
-    .then(r => { console.log("Build succeeded.") })
+    .then(r => { console.log(`Built ${outFile}.`) })
     .catch((e) => {
         console.log("Error building:", e.message);
         process.exit(1)

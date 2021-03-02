@@ -1,3 +1,5 @@
+import fs from 'fs';
+
 export function lpad(str, padChar, totalLength) {
     str = str.toString();
     var neededPadding = totalLength - str.length;
@@ -38,4 +40,19 @@ export function mysqlDate(date?: Date): string {
 
 export function stripFirstLastSlash(str) {
     return str.replace(/^\/|\/$/g, '');
+}
+
+export function mkDirSync(dir) {
+    if (fs.existsSync(dir)) {
+        return;
+    }
+
+    try {
+        fs.mkdirSync(dir);
+    } catch(err){
+        if(err.code == 'ENOENT'){
+            mkdirSync(path.dirname(dir))
+            mkdirSync(dir)
+        }
+    }
 }

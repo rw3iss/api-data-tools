@@ -1,4 +1,4 @@
-/*  ResourceDataMapper
+/*  DataMapper
     This class manages arbitrary CRUD operations to the data layer, based on a given JSON schema. 
 */
 
@@ -6,7 +6,8 @@ import SchemaHelper from './SchemaHelper';
 import { DbHelper as DB } from './DbHelper';
 
 // Does generic CRUD operations on arbitrary objects
-export class ResourceDataMapper {
+export class DataMapper {
+
     schema: any;
 
 	constructor() {
@@ -75,7 +76,7 @@ export class ResourceDataMapper {
 
             query = `UPDATE ${type} SET ${valString} WHERE id=${o['id']}`;
         } else {
-            // an insert
+            // assume an insert
             isInsert = true;
             var propString = '', valString = '', delim = '';
             for (var p in schema.properties) {
@@ -92,7 +93,7 @@ export class ResourceDataMapper {
                     SELECT LAST_INSERT_ID() as last_id;`;
         }
 
-		console.log("Attempting to save object", type, o, query);
+		console.log("Attempting to save object:", type, o, query);
 		
 		return new Promise((resolve, reject) => {
 			DB.query(query)
@@ -198,4 +199,4 @@ export class ResourceDataMapper {
     }
 }
 
-export default new ResourceDataMapper();
+export default new DataMapper();

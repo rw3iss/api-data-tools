@@ -1,27 +1,26 @@
-/*  ResourceHandler
+/*  ResourceHelper
     These are default CRUD endpoint handlers that the REST API utilizes based on the JSON schema.
-    This class utilizes the ResourceDataMapper to execute the CRUD operations.
+    This class utilizes the DataMapper to execute the CRUD operations.
 */
-
-import ResourceDataMapper from './ResourceDataMapper';
+import DataMapper from './DataMapper';
 import SchemaHelper from './SchemaHelper';
 import RouteHelper from './RouteHelper';
 
 let schema = SchemaHelper.getSchema();
 
-export default class ResourceHandler {
+export default class ResourceHelper {
     
     static async get(request, response, params?) {
         console.log("default object get", params);
         
         let d: any = null;
-        let type = ResourceHandler.getTypeFromRequestUrl(request.url);
+        let type = this.getTypeFromRequestUrl(request.url);
 
         if (!_isValidTypeRequest(type, params, 'GET')) {
             throw "Invalid request for type: " + type;
         }
 
-        d = await ResourceDataMapper.get(type, params);
+        d = await DataMapper.get(type, params);
         
         response.end(JSON.stringify({ success: true, data: d }));
     }
@@ -29,9 +28,9 @@ export default class ResourceHandler {
     static async put(request, response, params?) {
         console.log("default object put");
         
-        let type = ResourceHandler.getTypeFromRequestUrl(request.url);
+        let type = this.getTypeFromRequestUrl(request.url);
 
-        let d = await ResourceDataMapper.save(type, params);  
+        let d = await DataMapper.save(type, params);  
 
         response.end(JSON.stringify({ success: true, data: d }));
     }
@@ -40,7 +39,7 @@ export default class ResourceHandler {
         console.log("default object post");     
         
         let d: any = null;
-        let type = ResourceHandler.getTypeFromRequestUrl(request.url);
+        let type = this.getTypeFromRequestUrl(request.url);
 
         if (!_isValidTypeRequest(type, params, 'POST')) {
             throw "Invalid request for type: " + type;
@@ -49,7 +48,7 @@ export default class ResourceHandler {
         try {
             let data: any = await parseBody(request);
             console.log('saving', type, data);
-            d = await ResourceDataMapper.save(type, data);
+            d = await DataMapper.save(type, data);
             response.end(JSON.stringify({ success: true, data: d }));
         } catch(e) {
             console.log("Error parsing request body JSON", e);
@@ -60,26 +59,26 @@ export default class ResourceHandler {
     static async patch(request, response, params?) {
         console.log("default object patch");
         
-        let type = ResourceHandler.getTypeFromRequestUrl(request.url);
+        let type = this.getTypeFromRequestUrl(request.url);
 
         if (!params.id) {
             throw "Patch requires an id parameter";
         }
 
-        let d = await ResourceDataMapper.save(type, params);  
+        let d = await DataMapper.save(type, params);  
 
         response.end(JSON.stringify({ success: true, data: d }));
     }
 
     static async delete(request, response, params?) {
         console.log("default object delete");
-        let type = ResourceHandler.getTypeFromRequestUrl(request.url);
+        let type = this.getTypeFromRequestUrl(request.url);
 
         if (!params.id) {
             throw "Delete requires an id parameter";
         }
 
-        let d = await ResourceDataMapper.delete(type, params);  
+        let d = await DataMapper.delete(type, params);  
 
         response.end(JSON.stringify({ success: true, data: d }));
     }

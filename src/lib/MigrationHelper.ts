@@ -5,7 +5,7 @@
 */
 
 import Config from './Config';
-import { lpad } from '../utils';
+import { lpad, mkDirSync } from '../utils';
 import SchemaHelper from './SchemaHelper';
 import { writeFile } from 'fs';
 import { resolve } from 'path';
@@ -36,7 +36,11 @@ export default class MigrationHelper {
     }
 
     writeFiles(migrationCode, newSchema, schemaBasePath) {
-        let migrationFilePath =  resolve(process.cwd(), Config.migrationPath, this._formatDate(new Date()) + '-generated.js');
+        let migrationFolder = resolve(process.cwd(), Config.migrationPath);        
+        let migrationFilePath = resolve(migrationFolder, this._formatDate(new Date()) + '-generated.js');
+
+        mkDirSync(migrationFolder);
+
         writeFile(migrationFilePath, migrationCode, (err) => {
             if (err) console.log(err);
             console.log("Successfully generated migration file.", migrationFilePath);

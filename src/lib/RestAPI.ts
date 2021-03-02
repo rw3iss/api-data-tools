@@ -53,8 +53,8 @@ export default class RestAPI {
     }
 
     // Will try and handle the given request with default handlers generated from the schema.
-    // Can be called directly, or passed into an application as middleware, ie. 'app.use(RestAPI.handle)' 
-    handle(request, response, context?) {
+    // Can be called directly, or passed into an application as middleware, ie. 'app.use(RestAPI.handler)' 
+    handler(request, response, context?) {
         // Todo: need to extend this method to not end the request if no route is found?
         this.router.lookup(request, response, context);
         return true;

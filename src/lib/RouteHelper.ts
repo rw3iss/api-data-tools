@@ -1,5 +1,5 @@
 import SchemaHelper from './SchemaHelper';
-import ResourceHandler from './ResourceHandler';
+import ResourceHelper from './ResourceHelper';
 import Config from './Config';
 import { getdef, stripFirstLastSlash } from '../utils';
 
@@ -64,7 +64,7 @@ export default class RouteHelper {
 
     private static _registerDefaultRoutesForType(router, urlEndpoint) {
         METHODS.forEach(m => {
-            let handler = ResourceHandler[m.toLowerCase()];
+            let handler = ResourceHelper[m.toLowerCase()];
             if (typeof handler == 'function') {
                 // collection handlers, only register GET, PUT, POST on collections
                 if (['GET','PUT', 'POST'].includes(m)) {
@@ -100,7 +100,7 @@ export default class RouteHelper {
     }
 
     private static _getDefaultHandler(method) {
-        let h = ResourceHandler[method.toLowerCase()];
+        let h = ResourceHelper[method.toLowerCase()];
         if (typeof h != 'function') {
             throw "Error obtaining default handler for method: " + method;
         }

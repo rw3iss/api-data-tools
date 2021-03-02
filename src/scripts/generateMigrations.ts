@@ -12,7 +12,6 @@ let opts = commandLineArgs([
     { name: 'config', type: String, multiple: false, defaultOption: false }
 ]);
 
-
 let basePath = '';
 if (opts.config) {
     basePath = path.resolve(process.cwd(), opts.config);
@@ -23,6 +22,8 @@ if (opts.config) {
 let schemaPath = path.resolve(basePath, 'schema.json');
 let prevSchemaPath = path.resolve(basePath, '.curr.schema.json')
 let currSchema: any = {}, newSchema: any = {};
+
+///////////////////////////////////////////////////////////////////////////////
 
 async function main() {
     let helper = new MigrationHelper();

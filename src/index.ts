@@ -1,11 +1,20 @@
 import RestAPI from './lib/RestAPI';
-import SchemaHelper from './lib/SchemaHelper';
-import ResourceHandler from './lib/ResourceHandler';
-import ResourceDataMapper from './lib/ResourceDataMapper';
+import MigrationHelper from './lib/MigrationHelper';
+import ResourceHelper from './lib/ResourceHelper';
+import DataMapper from './lib/DataMapper';
 
 export { 
-    RestAPI, 
-    SchemaHelper, 
-    ResourceHandler, 
-    ResourceDataMapper 
+
+    // Generate a REST API from the schema.
+    RestAPI,
+
+    // Generate migration scripts from the schema.
+    MigrationHelper,
+
+    // Exposes CRUD API endpoints for models based on the schema.
+    //ResourceHelper,
+
+    // Object serialization interface to database.
+    DataMapper
+
 };

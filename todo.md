@@ -5,5 +5,5 @@
 -objectify "schema" property into a Schema class?
 
 # DONE:
--automatically make mgirations folder if it doesn't exist.
+-automatically make migrations folder if it doesn't exist.
 -changed RestAPI.handle() to RestApi.handler()

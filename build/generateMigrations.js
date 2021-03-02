@@ -38,9 +38,9 @@ var require_lodash = __commonJS((exports2, module2) => {
    */
   (function() {
     var undefined2;
-    var VERSION = "4.17.15";
+    var VERSION = "4.17.21";
     var LARGE_ARRAY_SIZE = 200;
-    var CORE_ERROR_TEXT = "Unsupported core-js use. Try https://npms.io/search?q=ponyfill.", FUNC_ERROR_TEXT = "Expected a function";
+    var CORE_ERROR_TEXT = "Unsupported core-js use. Try https://npms.io/search?q=ponyfill.", FUNC_ERROR_TEXT = "Expected a function", INVALID_TEMPL_VAR_ERROR_TEXT = "Invalid `variable` option passed into `_.template`";
     var HASH_UNDEFINED = "__lodash_hash_undefined__";
     var MAX_MEMOIZE_SIZE = 500;
     var PLACEHOLDER = "__lodash_placeholder__";
@@ -70,9 +70,11 @@ var require_lodash = __commonJS((exports2, module2) => {
     var reEscape = /<%-([\s\S]+?)%>/g, reEvaluate = /<%([\s\S]+?)%>/g, reInterpolate = /<%=([\s\S]+?)%>/g;
     var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/, reIsPlainProp = /^\w*$/, rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
     var reRegExpChar = /[\\^$.*+?()[\]{}|]/g, reHasRegExpChar = RegExp(reRegExpChar.source);
-    var reTrim = /^\s+|\s+$/g, reTrimStart = /^\s+/, reTrimEnd = /\s+$/;
+    var reTrimStart = /^\s+/;
+    var reWhitespace = /\s/;
     var reWrapComment = /\{(?:\n\/\* \[wrapped with .+\] \*\/)?\n?/, reWrapDetails = /\{\n\/\* \[wrapped with (.+)\] \*/, reSplitDetails = /,? & /;
     var reAsciiWord = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
+    var reForbiddenIdentifierChars = /[()=,{}\[\]\/\s]/;
     var reEscapeChar = /\\(\\)?/g;
     var reEsTemplate = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
     var reFlags = /\w*$/;
@@ -579,6 +581,9 @@ var require_lodash = __commonJS((exports2, module2) => {
         return [key, object[key]];
       });
     }
+    function baseTrim(string) {
+      return string ? string.slice(0, trimmedEndIndex(string) + 1).replace(reTrimStart, "") : string;
+    }
     function baseUnary(func) {
       return function(value) {
         return func(value);
@@ -694,6 +699,12 @@ var require_lodash = __commonJS((exports2, module2) => {
     }
     function stringToArray(string) {
       return hasUnicode(string) ? unicodeToArray(string) : asciiToArray(string);
+    }
+    function trimmedEndIndex(string) {
+      var index = string.length;
+      while (index-- && reWhitespace.test(string.charAt(index))) {
+      }
+      return index;
     }
     var unescapeHtmlChar = basePropertyOf(htmlUnescapes);
     function unicodeSize(string) {
@@ -1613,8 +1624,20 @@ var require_lodash = __commonJS((exports2, module2) => {
         return isIndex(n, length) ? array[n] : undefined2;
       }
       function baseOrderBy(collection, iteratees, orders) {
+        if (iteratees.length) {
+          iteratees = arrayMap(iteratees, function(iteratee2) {
+            if (isArray(iteratee2)) {
+              return function(value) {
+                return baseGet(value, iteratee2.length === 1 ? iteratee2[0] : iteratee2);
+              };
+            }
+            return iteratee2;
+          });
+        } else {
+          iteratees = [identity];
+        }
         var index = -1;
-        iteratees = arrayMap(iteratees.length ? iteratees : [identity], baseUnary(getIteratee()));
+        iteratees = arrayMap(iteratees, baseUnary(getIteratee()));
         var result2 = baseMap(collection, function(value, key, collection2) {
           var criteria = arrayMap(iteratees, function(iteratee2) {
             return iteratee2(value);
@@ -1724,6 +1747,9 @@ var require_lodash = __commonJS((exports2, module2) => {
         var index = -1, length = path3.length, lastIndex = length - 1, nested = object;
         while (nested != null && ++index < length) {
           var key = toKey(path3[index]), newValue = value;
+          if (key === "__proto__" || key === "constructor" || key === "prototype") {
+            return object;
+          }
           if (index != lastIndex) {
             var objValue = nested[key];
             newValue = customizer ? customizer(objValue, key, nested) : undefined2;
@@ -1792,8 +1818,12 @@ var require_lodash = __commonJS((exports2, module2) => {
         return baseSortedIndexBy(array, value, identity, retHighest);
       }
       function baseSortedIndexBy(array, value, iteratee2, retHighest) {
+        var low = 0, high = array == null ? 0 : array.length;
+        if (high === 0) {
+          return 0;
+        }
         value = iteratee2(value);
-        var low = 0, high = array == null ? 0 : array.length, valIsNaN = value !== value, valIsNull = value === null, valIsSymbol = isSymbol(value), valIsUndefined = value === undefined2;
+        var valIsNaN = value !== value, valIsNull = value === null, valIsSymbol = isSymbol(value), valIsUndefined = value === undefined2;
         while (low < high) {
           var mid = nativeFloor((low + high) / 2), computed = iteratee2(array[mid]), othIsDefined = computed !== undefined2, othIsNull = computed === null, othIsReflexive = computed === computed, othIsSymbol = isSymbol(computed);
           if (valIsNaN) {
@@ -2503,9 +2533,10 @@ var require_lodash = __commonJS((exports2, module2) => {
         if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
           return false;
         }
-        var stacked = stack.get(array);
-        if (stacked && stack.get(other)) {
-          return stacked == other;
+        var arrStacked = stack.get(array);
+        var othStacked = stack.get(other);
+        if (arrStacked && othStacked) {
+          return arrStacked == other && othStacked == array;
         }
         var index = -1, result2 = true, seen = bitmask & COMPARE_UNORDERED_FLAG ? new SetCache() : undefined2;
         stack.set(array, other);
@@ -2598,9 +2629,10 @@ var require_lodash = __commonJS((exports2, module2) => {
             return false;
           }
         }
-        var stacked = stack.get(object);
-        if (stacked && stack.get(other)) {
-          return stacked == other;
+        var objStacked = stack.get(object);
+        var othStacked = stack.get(other);
+        if (objStacked && othStacked) {
+          return objStacked == other && othStacked == object;
         }
         var result2 = true;
         stack.set(object, other);
@@ -4163,7 +4195,7 @@ var require_lodash = __commonJS((exports2, module2) => {
         if (typeof value != "string") {
           return value === 0 ? value : +value;
         }
-        value = value.replace(reTrim, "");
+        value = baseTrim(value);
         var isBinary = reIsBinary.test(value);
         return isBinary || reIsOctal.test(value) ? freeParseInt(value.slice(2), isBinary ? 2 : 8) : reIsBadHex.test(value) ? NAN : +value;
       }
@@ -4584,7 +4616,7 @@ var require_lodash = __commonJS((exports2, module2) => {
         var imports = assignInWith({}, options.imports, settings.imports, customDefaultsAssignIn), importsKeys = keys(imports), importsValues = baseValues(imports, importsKeys);
         var isEscaping, isEvaluating, index = 0, interpolate = options.interpolate || reNoMatch, source = "__p += '";
         var reDelimiters = RegExp2((options.escape || reNoMatch).source + "|" + interpolate.source + "|" + (interpolate === reInterpolate ? reEsTemplate : reNoMatch).source + "|" + (options.evaluate || reNoMatch).source + "|$", "g");
-        var sourceURL = "//# sourceURL=" + (hasOwnProperty.call(options, "sourceURL") ? (options.sourceURL + "").replace(/[\r\n]/g, " ") : "lodash.templateSources[" + ++templateCounter + "]") + "\n";
+        var sourceURL = "//# sourceURL=" + (hasOwnProperty.call(options, "sourceURL") ? (options.sourceURL + "").replace(/\s/g, " ") : "lodash.templateSources[" + ++templateCounter + "]") + "\n";
         string.replace(reDelimiters, function(match, escapeValue, interpolateValue, esTemplateValue, evaluateValue, offset) {
           interpolateValue || (interpolateValue = esTemplateValue);
           source += string.slice(index, offset).replace(reUnescapedString, escapeStringChar);
@@ -4606,6 +4638,8 @@ var require_lodash = __commonJS((exports2, module2) => {
         var variable = hasOwnProperty.call(options, "variable") && options.variable;
         if (!variable) {
           source = "with (obj) {\n" + source + "\n}\n";
+        } else if (reForbiddenIdentifierChars.test(variable)) {
+          throw new Error2(INVALID_TEMPL_VAR_ERROR_TEXT);
         }
         source = (isEvaluating ? source.replace(reEmptyStringLeading, "") : source).replace(reEmptyStringMiddle, "$1").replace(reEmptyStringTrailing, "$1;");
         source = "function(" + (variable || "obj") + ") {\n" + (variable ? "" : "obj || (obj = {});\n") + "var __t, __p = ''" + (isEscaping ? ", __e = _.escape" : "") + (isEvaluating ? ", __j = Array.prototype.join;\nfunction print() { __p += __j.call(arguments, '') }\n" : ";\n") + source + "return __p\n}";
@@ -4627,7 +4661,7 @@ var require_lodash = __commonJS((exports2, module2) => {
       function trim(string, chars, guard) {
         string = toString(string);
         if (string && (guard || chars === undefined2)) {
-          return string.replace(reTrim, "");
+          return baseTrim(string);
         }
         if (!string || !(chars = baseToString(chars))) {
           return string;
@@ -4638,7 +4672,7 @@ var require_lodash = __commonJS((exports2, module2) => {
       function trimEnd(string, chars, guard) {
         string = toString(string);
         if (string && (guard || chars === undefined2)) {
-          return string.replace(reTrimEnd, "");
+          return string.slice(0, trimmedEndIndex(string) + 1);
         }
         if (!string || !(chars = baseToString(chars))) {
           return string;

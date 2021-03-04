@@ -17765,9 +17765,7 @@ var DataMapper = class {
       }
     }
     return new Promise((resolve4, reject) => {
-      console.log("query", query);
       DbHelper.query(query).then((r) => {
-        console.log("query data", r);
         return resolve4(r);
       }).catch((e) => {
         throw e;
@@ -17812,12 +17810,9 @@ var DataMapper = class {
       query = `INSERT INTO ${type} (${propString}) VALUES (${valString});
                     SELECT LAST_INSERT_ID() as last_id;`;
     }
-    console.log("Attempting to save object:", type, o, query);
     return new Promise((resolve4, reject) => {
       DbHelper.query(query).then((r) => {
-        console.log("query result", r);
         if (isInsert) {
-          console.log("insert", r[1]);
           if (r[r.length - 1][0].last_id) {
             o.id = r[r.length - 1][0].last_id;
           }
@@ -17851,7 +17846,6 @@ var DataMapper = class {
     }
     return new Promise((resolve4, reject) => {
       DbHelper.query(query).then((r) => {
-        console.log("Get data", r);
         return resolve4(r);
       }).catch((e) => {
         throw e;

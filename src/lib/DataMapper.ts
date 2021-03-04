@@ -47,10 +47,8 @@ export class DataMapper {
         }
 
         return new Promise((resolve, reject) => {
-            console.log('query', query)
 			DB.query(query)
 				.then((r: any) => {
-                    console.log("query data", r);
 					return resolve(r);
 				})
 				.catch((e) => {
@@ -109,15 +107,11 @@ export class DataMapper {
                     SELECT LAST_INSERT_ID() as last_id;`;
         }
 
-		console.log("Attempting to save object:", type, o, query);
-		
 		return new Promise((resolve, reject) => {
 			DB.query(query)
 				.then((r: any) => {
 					// set inserted id
-					console.log("query result", r);
 					if (isInsert) {
-                        console.log('insert', r[1]);
 						if (r[r.length-1][0].last_id) {
                             o.id = r[r.length-1][0].last_id;
 						}
@@ -161,7 +155,6 @@ export class DataMapper {
         return new Promise((resolve, reject) => {
             DB.query(query)
                 .then((r: any) => {
-                    console.log("Get data", r);
                     return resolve(r);
                 })
                 .catch((e) => {

@@ -1,10 +1,14 @@
 # Description
 
-This is a suite of tools to help with automatically generating API's, DB migration files, and serialize schema objects to and from a database, all based on a schema.json file.
+This is a suite of tools to help with various data operations based on a single schema.json file.
 
-Each feature can be used independently (ie. you can just use this for generation DB migration files, or just use it to serialize an object model to/from the database, or to just host a REST API based on the schema file, etc).
+1. Automatically generate a REST API.
+2. Automatically generate DB migration files and manage them. 
+3. Serialize/CRUD schema objects to and from a database.
 
-#
+Each feature can be used independently from the others.
+
+See todo.md for more things to come.
 
 # Configuration:
 
@@ -38,7 +42,7 @@ You can also add options for the API generation:
 
 Then, also add a schema.json file to this directory, defining your schema. 
 See examples folder for example schemas.
-This uses the node-db-migrate property types, and the standard JSON specification, ie:
+This uses the node-db-migrate property types, and the standard JSON sp ecification, ie:
 
 ```
 {
@@ -92,7 +96,7 @@ Data types: https://github.com/db-migrate/shared/blob/master/data_type.js
 
 # Rest API:
 
-To use the automatically-generated REST API it in your application, ie. vanilla node:
+To automatically generate a REST API in your application, ie. vanilla node:
 
 ```
 import http from 'http';
@@ -114,7 +118,7 @@ For instance, if you have a user object, you will have a CRUD endpoint at which 
 `GET,POST,PUT,DELETE http://localhost:8080/user/:id`
 
 
-Or within an Express-like application, just pass the API handler:
+Or within an Express-like application, just pass the API handler as a middleware, ie:
 
 ```
 import * as express from 'express';

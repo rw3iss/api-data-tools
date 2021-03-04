@@ -23,6 +23,7 @@ export class DbHelper {
         DbHelper._pool = mysql.createPool({
             connectionLimit : 100,
             host            : dbConfig.host,
+            port            : 3306,
             user            : dbConfig.user,
             password        : dbConfig.password,
             database        : dbConfig.database,

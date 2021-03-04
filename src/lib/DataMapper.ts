@@ -16,6 +16,7 @@ export class DataMapper {
         this.schema = SchemaHelper.getSchema();
     }
 
+    // Get an instance of the given type, accoroding to parameters.
     get(type, params?) {
 		if (!type)
             throw "Cannot get without a type";
@@ -26,22 +27,30 @@ export class DataMapper {
         let query = `SELECT * FROM ${type}`;
 
         if (params) {
-            var delim = ' WHERE ';
-            for (var pName in params) {
-                if (params.hasOwnProperty(pName)) {
-                    let pVal = params[pName];
-                    let pDef = this.schema[type][pName];
-                    let pQuery = this._makePropQuery(pName, pVal, pDef);
-                    query += delim + pQuery;
-                    delim = ' AND';
+            if (typeof params == 'number') {
+                // todo: detect primary key property name
+                query += ` WHERE id=${params}`;
+            } else if (typeof params == 'object') {
+                var delim = ' WHERE ';
+                for (var pName in params) {
+                    if (params.hasOwnProperty(pName)) {
+                        let pVal = params[pName];
+                        let pDef = this.schema[type][pName];
+                        let pQuery = this._makePropQuery(pName, pVal, pDef);
+                        query += delim + pQuery;
+                        delim = ' AND';
+                    }
                 }
+            } else {
+                throw "Unknown parameter type to get() method. Only integer and object supported.";
             }
         }
 
         return new Promise((resolve, reject) => {
+            console.log('query', query)
 			DB.query(query)
 				.then((r: any) => {
-                    console.log("Get data", r);
+                    console.log("query data", r);
 					return resolve(r);
 				})
 				.catch((e) => {
@@ -49,6 +58,13 @@ export class DataMapper {
 					throw e;
 				})
 		});
+    }
+
+    async getOne(type, params?) {
+        let r = await this.get(type, params);
+        if (r.length)
+            return Promise.resolve(r[0]);
+        return Promise.resolve(null);
     }
 
 	save(type, o) {

@@ -17569,6 +17569,7 @@ var DbHelper = class {
     DbHelper._pool = mysql.createPool({
       connectionLimit: 100,
       host: dbConfig.host,
+      port: 3306,
       user: dbConfig.user,
       password: dbConfig.password,
       database: dbConfig.database,
@@ -17746,25 +17747,38 @@ var DataMapper = class {
       throw "Unknown object type for save: " + type;
     let query = `SELECT * FROM ${type}`;
     if (params) {
-      var delim = " WHERE ";
-      for (var pName in params) {
-        if (params.hasOwnProperty(pName)) {
-          let pVal = params[pName];
-          let pDef = this.schema[type][pName];
-          let pQuery = this._makePropQuery(pName, pVal, pDef);
-          query += delim + pQuery;
-          delim = " AND";
+      if (typeof params == "number") {
+        query += ` WHERE id=${params}`;
+      } else if (typeof params == "object") {
+        var delim = " WHERE ";
+        for (var pName in params) {
+          if (params.hasOwnProperty(pName)) {
+            let pVal = params[pName];
+            let pDef = this.schema[type][pName];
+            let pQuery = this._makePropQuery(pName, pVal, pDef);
+            query += delim + pQuery;
+            delim = " AND";
+          }
         }
+      } else {
+        throw "Unknown parameter type to get() method. Only integer and object supported.";
       }
     }
     return new Promise((resolve4, reject) => {
+      console.log("query", query);
       DbHelper.query(query).then((r) => {
-        console.log("Get data", r);
+        console.log("query data", r);
         return resolve4(r);
       }).catch((e) => {
         throw e;
       });
     });
+  }
+  async getOne(type, params) {
+    let r = await this.get(type, params);
+    if (r.length)
+      return Promise.resolve(r[0]);
+    return Promise.resolve(null);
   }
   save(type, o) {
     if (!type || !o)
@@ -18182,13 +18196,13 @@ var MigrationHelper = class {
     import_fs4.writeFile(migrationFilePath, migrationCode, (err) => {
       if (err)
         console.log(err);
-      console.log("Successfully generated migration file.", migrationFilePath);
+      console.log("Successfully generated migration file:\n", migrationFilePath);
     });
     let currSchemaFilePath = import_path3.resolve(schemaBasePath, ".curr.schema.json");
-    import_fs4.writeFile(currSchemaFilePath, JSON.stringify(newSchema), (err) => {
+    import_fs4.writeFile(currSchemaFilePath, JSON.stringify(newSchema, null, 4), (err) => {
       if (err)
         console.log(err);
-      console.log("Successfully saved current schema.", currSchemaFilePath);
+      console.log("Successfully saved current schema:\n", currSchemaFilePath);
     });
   }
   generateDiffOperations(currentSchema, newSchema) {
@@ -18250,10 +18264,10 @@ var MigrationHelper = class {
   generateMigrationCode(upOperations, downOperations) {
     let self2 = this, upCode = "", downCode = "";
     upOperations.forEach((o) => {
-      upCode += self2.generateOperationCode(o);
+      upCode += self2.generateOperationCode(o) + "\n";
     });
     downOperations.forEach((o) => {
-      downCode += self2.generateOperationCode(o);
+      downCode += self2.generateOperationCode(o) + "\n";
     });
     let code = MIGRATION_TEMPLATE.replace("{{UP_CODE}}", upCode).replace("{{DOWN_CODE}}", downCode);
     return code;
@@ -18279,7 +18293,7 @@ var MigrationHelper = class {
   _generateCreateTableCode(o) {
     o.data.properties = this._sanitizePropertyTypes(o.data.properties);
     return `
-	db.createTable('${o.name}', ${JSON.stringify(o.data.properties)});`;
+	db.createTable('${o.name}', ${JSON.stringify(o.data.properties, null, 4)});`;
   }
   _generateDropTableCode(o) {
     return `
@@ -18287,7 +18301,7 @@ var MigrationHelper = class {
   }
   _generateAddColumnCode(o) {
     return `
-	db.addColumn('${o.table}', '${o.name}', ${JSON.stringify(o.data)});`;
+	db.addColumn('${o.table}', '${o.name}', ${JSON.stringify(o.data, null, 4)});`;
   }
   _generateRemoveColumnCode(o) {
     return `
@@ -18332,11 +18346,13 @@ exports.setup = function(options, seedLink) {
   seed = seedLink;
 };
 
-exports.up = function(db) { {{UP_CODE}}
+exports.up = function(db) {
+    {{UP_CODE}}
 	return null;
 };
 
-exports.down = function(db) { {{DOWN_CODE}}
+exports.down = function(db) {
+    {{DOWN_CODE}}
     return null;
 }
 `;

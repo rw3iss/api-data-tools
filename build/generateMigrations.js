@@ -6569,13 +6569,13 @@ var MigrationHelper = class {
     import_fs4.writeFile(migrationFilePath, migrationCode, (err) => {
       if (err)
         console.log(err);
-      console.log("Successfully generated migration file.", migrationFilePath);
+      console.log("Successfully generated migration file:\n", migrationFilePath);
     });
     let currSchemaFilePath = import_path3.resolve(schemaBasePath, ".curr.schema.json");
-    import_fs4.writeFile(currSchemaFilePath, JSON.stringify(newSchema2), (err) => {
+    import_fs4.writeFile(currSchemaFilePath, JSON.stringify(newSchema2, null, 4), (err) => {
       if (err)
         console.log(err);
-      console.log("Successfully saved current schema.", currSchemaFilePath);
+      console.log("Successfully saved current schema:\n", currSchemaFilePath);
     });
   }
   generateDiffOperations(currentSchema, newSchema2) {
@@ -6637,10 +6637,10 @@ var MigrationHelper = class {
   generateMigrationCode(upOperations, downOperations) {
     let self2 = this, upCode = "", downCode = "";
     upOperations.forEach((o) => {
-      upCode += self2.generateOperationCode(o);
+      upCode += self2.generateOperationCode(o) + "\n";
     });
     downOperations.forEach((o) => {
-      downCode += self2.generateOperationCode(o);
+      downCode += self2.generateOperationCode(o) + "\n";
     });
     let code = MIGRATION_TEMPLATE.replace("{{UP_CODE}}", upCode).replace("{{DOWN_CODE}}", downCode);
     return code;
@@ -6666,7 +6666,7 @@ var MigrationHelper = class {
   _generateCreateTableCode(o) {
     o.data.properties = this._sanitizePropertyTypes(o.data.properties);
     return `
-	db.createTable('${o.name}', ${JSON.stringify(o.data.properties)});`;
+	db.createTable('${o.name}', ${JSON.stringify(o.data.properties, null, 4)});`;
   }
   _generateDropTableCode(o) {
     return `
@@ -6674,7 +6674,7 @@ var MigrationHelper = class {
   }
   _generateAddColumnCode(o) {
     return `
-	db.addColumn('${o.table}', '${o.name}', ${JSON.stringify(o.data)});`;
+	db.addColumn('${o.table}', '${o.name}', ${JSON.stringify(o.data, null, 4)});`;
   }
   _generateRemoveColumnCode(o) {
     return `
@@ -6719,11 +6719,13 @@ exports.setup = function(options, seedLink) {
   seed = seedLink;
 };
 
-exports.up = function(db) { {{UP_CODE}}
+exports.up = function(db) {
+    {{UP_CODE}}
 	return null;
 };
 
-exports.down = function(db) { {{DOWN_CODE}}
+exports.down = function(db) {
+    {{DOWN_CODE}}
     return null;
 }
 `;

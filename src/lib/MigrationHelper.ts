@@ -12,7 +12,7 @@ import { resolve } from 'path';
 import { isEqual } from 'lodash';
 
 export default class MigrationHelper {
-    
+
     generateMigration(currSchema, newSchema, schemaBasePath) {
         if (typeof Config.migrationPath == 'undefined') {
             throw "migrationPath property not found in Config. Cannot write migrations";
@@ -21,36 +21,36 @@ export default class MigrationHelper {
         if (currSchema != newSchema) {
             // save clone of newSchema:
             let newSchemaClone = JSON.parse(JSON.stringify(newSchema));;
-    
+
             let { up, down } = this.generateDiffOperations(currSchema, newSchema);
 
             if (!up.length && !down.length) {
                 console.log("No schema changes found.");
                 return;
             }
-            
+
             let migrationCode = this.generateMigrationCode(up, down);
-            
+
             this.writeFiles(migrationCode, newSchemaClone, schemaBasePath);
         }
     }
 
     writeFiles(migrationCode, newSchema, schemaBasePath) {
-        let migrationFolder = resolve(process.cwd(), Config.migrationPath);        
+        let migrationFolder = resolve(process.cwd(), Config.migrationPath);
         let migrationFilePath = resolve(migrationFolder, this._formatDate(new Date()) + '-generated.js');
 
         mkDirSync(migrationFolder);
 
         writeFile(migrationFilePath, migrationCode, (err) => {
             if (err) console.log(err);
-            console.log("Successfully generated migration file.", migrationFilePath);
+            console.log("Successfully generated migration file:\n", migrationFilePath);
         });
-        
+
         // save current schema to .curr.schema.json file
         let currSchemaFilePath = resolve(schemaBasePath, '.curr.schema.json');
-        writeFile(currSchemaFilePath, JSON.stringify(newSchema), (err) => {
+        writeFile(currSchemaFilePath, JSON.stringify(newSchema, null, 4), (err) => {
             if (err) console.log(err);
-            console.log("Successfully saved current schema.", currSchemaFilePath);
+            console.log("Successfully saved current schema:\n", currSchemaFilePath);
         });
     }
 
@@ -78,7 +78,7 @@ export default class MigrationHelper {
             if (currentSchema.hasOwnProperty(resourceName)) {
                 if (!newSchema.hasOwnProperty(resourceName)) {
                     // exists in current but not new, so drop table
-                    ops.up.push({ type: 'drop_table', name: resourceName});
+                    ops.up.push({ type: 'drop_table', name: resourceName });
                     ops.down.push({ type: 'create_table', name: resourceName, data: currentSchema[resourceName] });
                 }
             }
@@ -89,7 +89,7 @@ export default class MigrationHelper {
             if (newSchema.hasOwnProperty(resourceName)) {
                 if (currentSchema.hasOwnProperty(resourceName)) {
                     // check if columns being added
-                    for(var propName in newSchema[resourceName].properties) {
+                    for (var propName in newSchema[resourceName].properties) {
                         if (newSchema[resourceName].properties.hasOwnProperty(propName)) {
                             if (!currentSchema[resourceName].properties.hasOwnProperty(propName)) {
                                 ops.up.push({ type: 'add_column', table: resourceName, name: propName, data: newSchema[resourceName].properties[propName] });
@@ -108,7 +108,7 @@ export default class MigrationHelper {
                         }
                     }
                     // check if columns being removed
-                    for(var propName in currentSchema[resourceName].properties) {
+                    for (var propName in currentSchema[resourceName].properties) {
                         if (currentSchema[resourceName].properties.hasOwnProperty(propName)) {
                             if (!newSchema[resourceName].properties.hasOwnProperty(propName)) {
                                 ops.up.push({ type: 'remove_column', table: resourceName, name: propName })
@@ -117,7 +117,7 @@ export default class MigrationHelper {
                         }
                     }
                 }
-            }   
+            }
         }
 
         return ops;
@@ -127,11 +127,11 @@ export default class MigrationHelper {
         let self = this, upCode = '', downCode = '';
 
         upOperations.forEach(o => {
-            upCode += self.generateOperationCode(o);
+            upCode += self.generateOperationCode(o) + "\n";
         });
 
         downOperations.forEach(o => {
-            downCode += self.generateOperationCode(o);
+            downCode += self.generateOperationCode(o) + "\n";
         });
 
         let code = MIGRATION_TEMPLATE.replace('{{UP_CODE}}', upCode).replace('{{DOWN_CODE}}', downCode);
@@ -139,7 +139,7 @@ export default class MigrationHelper {
     }
 
     generateOperationCode(o) {
-        switch(o.type) {
+        switch (o.type) {
             case 'create_table':
                 return this._generateCreateTableCode(o);
                 break;
@@ -160,7 +160,7 @@ export default class MigrationHelper {
     _generateCreateTableCode(o) {
         // Todo: append ()=>{} callback handler, which can add indexes/etc based on schema:
         o.data.properties = this._sanitizePropertyTypes(o.data.properties);
-        return `\n\tdb.createTable('${o.name}', ${JSON.stringify(o.data.properties)});`;
+        return `\n\tdb.createTable('${o.name}', ${JSON.stringify(o.data.properties, null, 4)});`;
     }
 
     _generateDropTableCode(o) {
@@ -168,7 +168,7 @@ export default class MigrationHelper {
     }
 
     _generateAddColumnCode(o) {
-        return `\n\tdb.addColumn('${o.table}', '${o.name}', ${JSON.stringify(o.data)});`;
+        return `\n\tdb.addColumn('${o.table}', '${o.name}', ${JSON.stringify(o.data, null, 4)});`;
     }
 
     _generateRemoveColumnCode(o) {
@@ -217,11 +217,13 @@ exports.setup = function(options, seedLink) {
   seed = seedLink;
 };
 
-exports.up = function(db) { {{UP_CODE}}
+exports.up = function(db) {
+    {{UP_CODE}}
 	return null;
 };
 
-exports.down = function(db) { {{DOWN_CODE}}
+exports.down = function(db) {
+    {{DOWN_CODE}}
     return null;
 }
 `;

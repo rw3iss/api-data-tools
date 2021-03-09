@@ -43,6 +43,7 @@ export class DataMapper {
     // Returns the new or updated object.
 	save(type, o) {
         let query = this.upsertQueryString(type, o);
+        let isInsert = o['id'] ? false : true;
 		return new Promise((resolve, reject) => {
 			DB.query(query)
 				.then((r: any) => {

@@ -17794,6 +17794,7 @@ var DataMapper = class {
   }
   save(type, o) {
     let query = this.upsertQueryString(type, o);
+    let isInsert = o["id"] ? false : true;
     return new Promise((resolve4, reject) => {
       DbHelper.query(query).then((r) => {
         if (isInsert) {
@@ -17851,7 +17852,7 @@ var DataMapper = class {
       throw "Cannot save without a type and an object";
     if (typeof this.schema[type] == "undefined")
       throw "Unknown object type for save: " + type;
-    let query, data, schema3 = this.schema[type], isInsert2 = false;
+    let query, data, schema3 = this.schema[type], isInsert = false;
     if (typeof o != "object") {
       throw "Object parameter must be an object, " + typeof o + " found";
     }
@@ -17865,7 +17866,7 @@ var DataMapper = class {
       }
       query = `UPDATE ${type} SET ${valString} WHERE id=${o["id"]}`;
     } else {
-      isInsert2 = true;
+      isInsert = true;
       var propString = "", valString = "", delim = "";
       for (var p in schema3.properties) {
         if (o.hasOwnProperty(p)) {

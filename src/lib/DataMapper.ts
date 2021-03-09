@@ -17,8 +17,70 @@ export class DataMapper {
     }
 
     // Get an instance of the given type, accoroding to parameters.
-    get(type, params?) {
-		if (!type)
+    get(type, params?, limit?) {
+		let query = this.getQueryString(type, params, limit);
+        return new Promise((resolve, reject) => {
+			DB.query(query)
+				.then((r: any) => {
+					return resolve(r);
+				})
+				.catch((e) => {
+					// Todo: log
+					throw e;
+				})
+		});
+    }
+
+    // Shortcut to return the first element of a result set.
+    async getOne(type, params?) {
+        let r = await this.get(type, params, 1);
+        if (r.length)
+            return r[0];
+        return null;
+    }
+
+    // Updates an object if it exists, or otherwise inserts a new one.
+    // Returns the new or updated object.
+	save(type, o) {
+        let query = this.upsertQueryString(type, o);
+		return new Promise((resolve, reject) => {
+			DB.query(query)
+				.then((r: any) => {
+					// set inserted id
+					if (isInsert) {
+						if (r[r.length-1][0].last_id) {
+                            o.id = r[r.length-1][0].last_id;
+						}
+					}
+
+					return resolve(o);
+				})
+				.catch((e) => {
+					// Todo: log
+					throw e;
+				})
+		});
+	}
+
+    // Deletes the object matching the parameters.
+    delete(type, params) {
+        let query = this.deleteQueryString(type, params);
+        return new Promise((resolve, reject) => {
+            DB.query(query)
+                .then((r: any) => {
+                    return resolve(r);
+                })
+                .catch((e) => {
+                    // Todo: log
+                    throw e;
+                })
+        });
+    }
+    
+    /////////////////////////////////////////////////////////////
+
+    getQueryString(type, params?, limit?) {
+        if (!type)
             throw "Cannot get without a type";
 
         if (typeof this.schema[type] == 'undefined')
@@ -41,33 +103,20 @@ export class DataMapper {
                         delim = ' AND';
                     }
                 }
+                if (limit) {
+                    query += ` LIMIT ${limit}`;
+                }
             } else {
                 throw "Unknown parameter type to get() method. Only integer and object supported.";
             }
         }
 
-        return new Promise((resolve, reject) => {
-			DB.query(query)
-				.then((r: any) => {
-					return resolve(r);
-				})
-				.catch((e) => {
-					// Todo: log
-					throw e;
-				})
-		});
+        return query;
     }
 
-    async getOne(type, params?) {
-        let r = await this.get(type, params);
-        if (r.length)
-            return Promise.resolve(r[0]);
-        return Promise.resolve(null);
-    }
-
-	save(type, o) {
-		if (!type || !o)
-			throw "Cannot save without a type and an object";
+    upsertQueryString(type, o) {
+        if (!type || !o)
+            throw "Cannot save without a type and an object";
 
         if (typeof this.schema[type] == 'undefined')
             throw "Unknown object type for save: " + type;
@@ -107,26 +156,10 @@ export class DataMapper {
                     SELECT LAST_INSERT_ID() as last_id;`;
         }
 
-		return new Promise((resolve, reject) => {
-			DB.query(query)
-				.then((r: any) => {
-					// set inserted id
-					if (isInsert) {
-						if (r[r.length-1][0].last_id) {
-                            o.id = r[r.length-1][0].last_id;
-						}
-					}
+        return query;
+    }
 
-					return resolve(o);
-				})
-				.catch((e) => {
-					// Todo: log
-					throw e;
-				})
-		});
-	}
-
-    delete(type, params) {
+    deleteQueryString(type, params) {
         if (!type)
             throw "Cannot delete without a type";
 
@@ -151,19 +184,10 @@ export class DataMapper {
                 }
             }
         }
-
-        return new Promise((resolve, reject) => {
-            DB.query(query)
-                .then((r: any) => {
-                    return resolve(r);
-                })
-                .catch((e) => {
-                    // Todo: log
-                    throw e;
-                })
-        });
+        
+        return query;
     }
-    
+
 	tryEscape(propVal, propType?) {
 		if (typeof propType == 'undefined')
             propType = typeof propVal;

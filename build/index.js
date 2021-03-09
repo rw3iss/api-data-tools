@@ -17516,11 +17516,16 @@ var import_path2 = __toModule(require("path"));
 var import_fs2 = __toModule(require("fs"));
 function getConfig() {
   let configPath = process.env.CONFIG_PATH || import_path2.resolve(process.cwd(), "config", "config.json");
-  if (!import_fs2.existsSync(configPath)) {
-    throw "Config file not found at: " + configPath;
+  try {
+    if (!import_fs2.existsSync(configPath)) {
+      return {};
+    }
+    var config = import_fs2.readFileSync(configPath, {encoding: "utf-8"});
+    return JSON.parse(config);
+  } catch (e) {
+    console.log("Error parsing config file: " + configPath, e);
+    return {};
   }
-  var config = import_fs2.readFileSync(configPath, {encoding: "utf-8"});
-  return JSON.parse(config);
 }
 var Config_default = getConfig();
 
@@ -17560,21 +17565,52 @@ function mkDirSync(dir) {
 
 // src/lib/DbHelper.ts
 var DbHelper = class {
+  static getDbConfig() {
+    let dbConfig;
+    if (process.env.DATABASE_URL) {
+      return process.env.DATABASE_URL;
+    }
+    if (process.env.DB_HOST && process.env.DB_USER && process.env.DB_PASSWORD && process.env.DB_DATABASE) {
+      dbConfig = {
+        driver: process.env.DB_DRIVER || "mysql",
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT || 3306,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_DATABASE,
+        multipleStatement: typeof process.env.DB_MULTI_STATEMENTS == "undefined" ? false : process.env.DB_MULTI_STATEMENTS
+      };
+      return dbConfig;
+    }
+    return null;
+  }
   static initialize() {
     var self2 = this;
-    if (typeof Config_default.database == "undefined") {
-      throw "Config file does not have database configuration";
+    let dbConfig;
+    try {
+      dbConfig = DbHelper.getDbConfig();
+      if (!dbConfig) {
+        if (!Config_default.database) {
+          throw new Error("Could not find database config in environment variables or config.json");
+        }
+        dbConfig = Config_default.database;
+      }
+    } catch (e) {
+      throw "Error loading database configuration. Cannot proceed. " + JSON.stringify(e);
     }
-    let dbConfig = Config_default.database;
-    DbHelper._pool = mysql.createPool({
-      connectionLimit: 100,
-      host: dbConfig.host,
-      port: 3306,
-      user: dbConfig.user,
-      password: dbConfig.password,
-      database: dbConfig.database,
-      multipleStatements: typeof dbConfig.multipleStatements == "undefined" ? true : dbConfig.multipleStatements
-    });
+    if (typeof dbConfig == "string") {
+      DbHelper._pool = mysql.createPool(dbConfig);
+    } else {
+      DbHelper._pool = mysql.createPool({
+        connectionLimit: 100,
+        host: dbConfig.host,
+        port: dbConfig.port || 3306,
+        user: dbConfig.user,
+        password: dbConfig.password,
+        database: dbConfig.database,
+        multipleStatements: typeof dbConfig.multipleStatements == "undefined" ? true : dbConfig.multipleStatements
+      });
+    }
     return this;
   }
   static escapeString(input) {
@@ -17740,7 +17776,48 @@ var DataMapper = class {
   constructor() {
     this.schema = SchemaHelper_default.getSchema();
   }
-  get(type, params) {
+  get(type, params, limit) {
+    let query = this.getQueryString(type, params, limit);
+    return new Promise((resolve4, reject) => {
+      DbHelper.query(query).then((r) => {
+        return resolve4(r);
+      }).catch((e) => {
+        throw e;
+      });
+    });
+  }
+  async getOne(type, params) {
+    let r = await this.get(type, params, 1);
+    if (r.length)
+      return r[0];
+    return null;
+  }
+  save(type, o) {
+    let query = this.upsertQueryString(type, o);
+    return new Promise((resolve4, reject) => {
+      DbHelper.query(query).then((r) => {
+        if (isInsert) {
+          if (r[r.length - 1][0].last_id) {
+            o.id = r[r.length - 1][0].last_id;
+          }
+        }
+        return resolve4(o);
+      }).catch((e) => {
+        throw e;
+      });
+    });
+  }
+  delete(type, params) {
+    let query = this.deleteQueryString(type, params);
+    return new Promise((resolve4, reject) => {
+      DbHelper.query(query).then((r) => {
+        return resolve4(r);
+      }).catch((e) => {
+        throw e;
+      });
+    });
+  }
+  getQueryString(type, params, limit) {
     if (!type)
       throw "Cannot get without a type";
     if (typeof this.schema[type] == "undefined")
@@ -17760,30 +17837,21 @@ var DataMapper = class {
             delim = " AND";
           }
         }
+        if (limit) {
+          query += ` LIMIT ${limit}`;
+        }
       } else {
         throw "Unknown parameter type to get() method. Only integer and object supported.";
       }
     }
-    return new Promise((resolve4, reject) => {
-      DbHelper.query(query).then((r) => {
-        return resolve4(r);
-      }).catch((e) => {
-        throw e;
-      });
-    });
+    return query;
   }
-  async getOne(type, params) {
-    let r = await this.get(type, params);
-    if (r.length)
-      return Promise.resolve(r[0]);
-    return Promise.resolve(null);
-  }
-  save(type, o) {
+  upsertQueryString(type, o) {
     if (!type || !o)
       throw "Cannot save without a type and an object";
     if (typeof this.schema[type] == "undefined")
       throw "Unknown object type for save: " + type;
-    let query, data, schema3 = this.schema[type], isInsert = false;
+    let query, data, schema3 = this.schema[type], isInsert2 = false;
     if (typeof o != "object") {
       throw "Object parameter must be an object, " + typeof o + " found";
     }
@@ -17797,7 +17865,7 @@ var DataMapper = class {
       }
       query = `UPDATE ${type} SET ${valString} WHERE id=${o["id"]}`;
     } else {
-      isInsert = true;
+      isInsert2 = true;
       var propString = "", valString = "", delim = "";
       for (var p in schema3.properties) {
         if (o.hasOwnProperty(p)) {
@@ -17810,20 +17878,9 @@ var DataMapper = class {
       query = `INSERT INTO ${type} (${propString}) VALUES (${valString});
                     SELECT LAST_INSERT_ID() as last_id;`;
     }
-    return new Promise((resolve4, reject) => {
-      DbHelper.query(query).then((r) => {
-        if (isInsert) {
-          if (r[r.length - 1][0].last_id) {
-            o.id = r[r.length - 1][0].last_id;
-          }
-        }
-        return resolve4(o);
-      }).catch((e) => {
-        throw e;
-      });
-    });
+    return query;
   }
-  delete(type, params) {
+  deleteQueryString(type, params) {
     if (!type)
       throw "Cannot delete without a type";
     if (typeof this.schema[type] == "undefined")
@@ -17844,13 +17901,7 @@ var DataMapper = class {
         }
       }
     }
-    return new Promise((resolve4, reject) => {
-      DbHelper.query(query).then((r) => {
-        return resolve4(r);
-      }).catch((e) => {
-        throw e;
-      });
-    });
+    return query;
   }
   tryEscape(propVal, propType) {
     if (typeof propType == "undefined")
@@ -18167,36 +18218,25 @@ var import_fs4 = __toModule(require("fs"));
 var import_path3 = __toModule(require("path"));
 var import_lodash = __toModule(require_lodash());
 var MigrationHelper = class {
-  generateMigration(currSchema, newSchema, schemaBasePath) {
-    if (typeof Config_default.migrationPath == "undefined") {
-      throw "migrationPath property not found in Config. Cannot write migrations";
-    }
+  generateMigration(currSchema, newSchema, migrationsDir) {
     if (currSchema != newSchema) {
       let newSchemaClone = JSON.parse(JSON.stringify(newSchema));
-      ;
       let {up, down} = this.generateDiffOperations(currSchema, newSchema);
       if (!up.length && !down.length) {
-        console.log("No schema changes found.");
-        return;
+        return false;
       }
       let migrationCode = this.generateMigrationCode(up, down);
-      this.writeFiles(migrationCode, newSchemaClone, schemaBasePath);
+      this.writeMigration(migrationCode, newSchemaClone, migrationsDir);
+      return true;
     }
   }
-  writeFiles(migrationCode, newSchema, schemaBasePath) {
-    let migrationFolder = import_path3.resolve(process.cwd(), Config_default.migrationPath);
-    let migrationFilePath = import_path3.resolve(migrationFolder, this._formatDate(new Date()) + "-generated.js");
-    mkDirSync(migrationFolder);
+  writeMigration(migrationCode, newSchema, migrationsDir) {
+    let migrationFilePath = import_path3.resolve(migrationsDir, this._formatDate(new Date()) + "-generated.js");
+    mkDirSync(migrationsDir);
     import_fs4.writeFile(migrationFilePath, migrationCode, (err) => {
       if (err)
         console.log(err);
       console.log("Successfully generated migration file:\n", migrationFilePath);
-    });
-    let currSchemaFilePath = import_path3.resolve(schemaBasePath, ".curr.schema.json");
-    import_fs4.writeFile(currSchemaFilePath, JSON.stringify(newSchema, null, 4), (err) => {
-      if (err)
-        console.log(err);
-      console.log("Successfully saved current schema:\n", currSchemaFilePath);
     });
   }
   generateDiffOperations(currentSchema, newSchema) {

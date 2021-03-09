@@ -10,25 +10,62 @@ import { mysqlDate } from '../utils';
 export class DbHelper {
     private static _pool: any;
 
+    // trie to load config from environment variables
+    static getDbConfig() {
+        let dbConfig;
+
+        if (process.env.DATABASE_URL) {
+            return process.env.DATABASE_URL;
+        }
+    
+        if (process.env.DB_HOST && process.env.DB_USER && process.env.DB_PASSWORD && process.env.DB_DATABASE) {
+            dbConfig = {
+                driver: process.env.DB_DRIVER || 'mysql',
+                host: process.env.DB_HOST,
+                port: process.env.DB_PORT || 3306,
+                user: process.env.DB_USER,
+                password: process.env.DB_PASSWORD,
+                database: process.env.DB_DATABASE,
+                multipleStatement: typeof process.env.DB_MULTI_STATEMENTS == 'undefined' ? false : process.env.DB_MULTI_STATEMENTS
+            }
+            return dbConfig;
+        }
+            
+        return null;
+    }
+
     static initialize() {
         var self = this;
 
-        if (typeof Config.database == 'undefined') {
-            throw "Config file does not have database configuration";
+        let dbConfig;
+
+        // prefer Config from environment variables, or fallback to config:
+        try {
+            dbConfig = DbHelper.getDbConfig();
+
+            if (!dbConfig) {
+                if (!Config.database) {
+                    throw new Error("Could not find database config in environment variables or config.json");
+                }
+                dbConfig = Config.database;
+            }
+        } catch(e) {
+            throw 'Error loading database configuration. Cannot proceed. ' + JSON.stringify(e);
         }
 
-        let dbConfig = Config.database;
-
-        // Todo: move this to config
-        DbHelper._pool = mysql.createPool({
-            connectionLimit : 100,
-            host            : dbConfig.host,
-            port            : 3306,
-            user            : dbConfig.user,
-            password        : dbConfig.password,
-            database        : dbConfig.database,
-            multipleStatements: typeof dbConfig.multipleStatements == 'undefined' ? true : dbConfig.multipleStatements
-        });
+        if (typeof dbConfig == 'string') {
+            DbHelper._pool = mysql.createPool(dbConfig);
+        } else {
+            DbHelper._pool = mysql.createPool({
+                connectionLimit : 100,
+                host            : dbConfig.host,
+                port            : dbConfig.port || 3306,
+                user            : dbConfig.user,
+                password        : dbConfig.password,
+                database        : dbConfig.database,
+                multipleStatements: typeof dbConfig.multipleStatements == 'undefined' ? true : dbConfig.multipleStatements
+            });
+        }
 
         return this;
     }

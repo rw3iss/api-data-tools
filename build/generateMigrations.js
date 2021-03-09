@@ -6437,11 +6437,16 @@ var import_path = __toModule(require("path"));
 var import_fs = __toModule(require("fs"));
 function getConfig() {
   let configPath = process.env.CONFIG_PATH || import_path.resolve(process.cwd(), "config", "config.json");
-  if (!import_fs.existsSync(configPath)) {
-    throw "Config file not found at: " + configPath;
+  try {
+    if (!import_fs.existsSync(configPath)) {
+      return {};
+    }
+    var config = import_fs.readFileSync(configPath, {encoding: "utf-8"});
+    return JSON.parse(config);
+  } catch (e) {
+    console.log("Error parsing config file: " + configPath, e);
+    return {};
   }
-  var config = import_fs.readFileSync(configPath, {encoding: "utf-8"});
-  return JSON.parse(config);
 }
 var Config_default = getConfig();
 
@@ -6546,36 +6551,25 @@ var import_fs4 = __toModule(require("fs"));
 var import_path3 = __toModule(require("path"));
 var import_lodash = __toModule(require_lodash());
 var MigrationHelper = class {
-  generateMigration(currSchema2, newSchema2, schemaBasePath) {
-    if (typeof Config_default.migrationPath == "undefined") {
-      throw "migrationPath property not found in Config. Cannot write migrations";
-    }
+  generateMigration(currSchema2, newSchema2, migrationsDir2) {
     if (currSchema2 != newSchema2) {
       let newSchemaClone = JSON.parse(JSON.stringify(newSchema2));
-      ;
       let {up, down} = this.generateDiffOperations(currSchema2, newSchema2);
       if (!up.length && !down.length) {
-        console.log("No schema changes found.");
-        return;
+        return false;
       }
       let migrationCode = this.generateMigrationCode(up, down);
-      this.writeFiles(migrationCode, newSchemaClone, schemaBasePath);
+      this.writeMigration(migrationCode, newSchemaClone, migrationsDir2);
+      return true;
     }
   }
-  writeFiles(migrationCode, newSchema2, schemaBasePath) {
-    let migrationFolder = import_path3.resolve(process.cwd(), Config_default.migrationPath);
-    let migrationFilePath = import_path3.resolve(migrationFolder, this._formatDate(new Date()) + "-generated.js");
-    mkDirSync(migrationFolder);
+  writeMigration(migrationCode, newSchema2, migrationsDir2) {
+    let migrationFilePath = import_path3.resolve(migrationsDir2, this._formatDate(new Date()) + "-generated.js");
+    mkDirSync(migrationsDir2);
     import_fs4.writeFile(migrationFilePath, migrationCode, (err) => {
       if (err)
         console.log(err);
       console.log("Successfully generated migration file:\n", migrationFilePath);
-    });
-    let currSchemaFilePath = import_path3.resolve(schemaBasePath, ".curr.schema.json");
-    import_fs4.writeFile(currSchemaFilePath, JSON.stringify(newSchema2, null, 4), (err) => {
-      if (err)
-        console.log(err);
-      console.log("Successfully saved current schema:\n", currSchemaFilePath);
     });
   }
   generateDiffOperations(currentSchema, newSchema2) {
@@ -6734,29 +6728,45 @@ exports.down = function(db) {
 var import_fs5 = __toModule(require("fs"));
 var path2 = __toModule(require("path"));
 var import_command_line_args = __toModule(require_dist());
-var opts = import_command_line_args.default([
-  {name: "config", type: String, multiple: false, defaultOption: false}
-]);
-var basePath = "";
-if (opts.config) {
-  basePath = path2.resolve(process.cwd(), opts.config);
-} else {
-  basePath = path2.resolve(process.cwd(), "config");
+var DEFAULT_DIR = "";
+var DEFAULT_SCHEMA_FILE = "schema.json";
+var DEFAULT_MIGRATIONS_DIR = "migrations";
+var opts = {};
+try {
+  opts = import_command_line_args.default([
+    {name: "config", type: String, multiple: false, defaultOption: DEFAULT_DIR},
+    {name: "schema-file", type: String, multiple: false, defaultOption: Config_default.schemaFile || DEFAULT_SCHEMA_FILE},
+    {name: "migrations-dir", type: String, multiple: false, defaultOption: Config_default.migrationsDir || DEFAULT_MIGRATIONS_DIR},
+    {name: "database-url", type: String, multiple: false}
+  ]);
+} catch (e) {
+  console.log("Error parsing command line arguments:", e);
 }
-var schemaPath = path2.resolve(basePath, "schema.json");
-var prevSchemaPath = path2.resolve(basePath, ".curr.schema.json");
+var basePath = path2.resolve(process.cwd(), opts.config ? opts.config : DEFAULT_DIR);
+var schemaFile = path2.resolve(basePath, opts["schema-file"] ? opts["schema-file"] : DEFAULT_SCHEMA_FILE);
+var prevSchemaFile = path2.resolve(basePath, ".curr.schema.json");
+var migrationsDir = path2.resolve(basePath, opts["migrations-dir"] ? opts["migrations-dir"] : DEFAULT_MIGRATIONS_DIR);
 var currSchema = {};
 var newSchema = {};
 async function main() {
   let helper = new MigrationHelper_default();
-  if (import_fs5.existsSync(schemaPath)) {
-    newSchema = await _readFile(schemaPath);
-    if (import_fs5.existsSync(prevSchemaPath)) {
-      currSchema = await _readFile(prevSchemaPath);
+  if (import_fs5.existsSync(schemaFile)) {
+    newSchema = await _readFile(schemaFile);
+    if (import_fs5.existsSync(prevSchemaFile)) {
+      currSchema = await _readFile(prevSchemaFile);
     }
-    helper.generateMigration(currSchema, newSchema, basePath);
+    if (helper.generateMigration(currSchema, newSchema, migrationsDir)) {
+      let currSchemaFile = path2.resolve(basePath, ".curr.schema.json");
+      import_fs5.writeFile(currSchemaFile, JSON.stringify(newSchema, null, 4), (err) => {
+        if (err)
+          console.log(err);
+        console.log("Successfully saved current schema:\n", currSchemaFile);
+      });
+    } else {
+      console.log("No schema changes found.");
+    }
   } else {
-    console.log("Could not locate schema file at", schemaPath);
+    console.log("Could not locate schema file at", schemaFile);
   }
 }
 function _readFile(path3) {

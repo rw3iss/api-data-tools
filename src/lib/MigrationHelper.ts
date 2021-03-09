@@ -4,53 +4,39 @@
     https://db-migrate.readthedocs.io/en/latest/API/SQL/
 */
 
-import Config from './Config';
 import { lpad, mkDirSync } from '../utils';
 import SchemaHelper from './SchemaHelper';
+import DbHelper from './DbHelper';
 import { writeFile } from 'fs';
 import { resolve } from 'path';
 import { isEqual } from 'lodash';
 
 export default class MigrationHelper {
 
-    generateMigration(currSchema, newSchema, schemaBasePath) {
-        if (typeof Config.migrationPath == 'undefined') {
-            throw "migrationPath property not found in Config. Cannot write migrations";
-        }
-
+    generateMigration(currSchema, newSchema, migrationsDir) {
         if (currSchema != newSchema) {
             // save clone of newSchema:
-            let newSchemaClone = JSON.parse(JSON.stringify(newSchema));;
+            let newSchemaClone = JSON.parse(JSON.stringify(newSchema));
 
             let { up, down } = this.generateDiffOperations(currSchema, newSchema);
 
             if (!up.length && !down.length) {
-                console.log("No schema changes found.");
-                return;
+                return false;
             }
 
             let migrationCode = this.generateMigrationCode(up, down);
 
-            this.writeFiles(migrationCode, newSchemaClone, schemaBasePath);
+            this.writeMigration(migrationCode, newSchemaClone, migrationsDir);
+            return true;
         }
     }
 
-    writeFiles(migrationCode, newSchema, schemaBasePath) {
-        let migrationFolder = resolve(process.cwd(), Config.migrationPath);
-        let migrationFilePath = resolve(migrationFolder, this._formatDate(new Date()) + '-generated.js');
-
-        mkDirSync(migrationFolder);
-
+    writeMigration(migrationCode, newSchema, migrationsDir) {
+        let migrationFilePath = resolve(migrationsDir, this._formatDate(new Date()) + '-generated.js');
+        mkDirSync(migrationsDir);
         writeFile(migrationFilePath, migrationCode, (err) => {
             if (err) console.log(err);
             console.log("Successfully generated migration file:\n", migrationFilePath);
-        });
-
-        // save current schema to .curr.schema.json file
-        let currSchemaFilePath = resolve(schemaBasePath, '.curr.schema.json');
-        writeFile(currSchemaFilePath, JSON.stringify(newSchema, null, 4), (err) => {
-            if (err) console.log(err);
-            console.log("Successfully saved current schema:\n", currSchemaFilePath);
         });
     }
 

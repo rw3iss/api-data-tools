@@ -15,6 +15,7 @@ export class DbHelper {
         let dbConfig;
 
         if (process.env.DATABASE_URL) {
+            console.log('Using db url:', process.env.DATABASE_URL);
             return process.env.DATABASE_URL;
         }
     
@@ -28,6 +29,9 @@ export class DbHelper {
                 database: process.env.DB_DATABASE,
                 multipleStatement: typeof process.env.DB_MULTI_STATEMENTS == 'undefined' ? false : process.env.DB_MULTI_STATEMENTS
             }
+
+            console.log('Using db config:', dbConfig);
+            
             return dbConfig;
         }
             

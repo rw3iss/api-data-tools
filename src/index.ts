@@ -1,6 +1,7 @@
 import RestAPI from './lib/RestAPI';
 import MigrationHelper from './lib/MigrationHelper';
 import ResourceHelper from './lib/ResourceHelper';
+import DbHelper from './lib/DbHelper';
 import DataMapper from './lib/DataMapper';
 
 export { 
@@ -15,6 +16,9 @@ export {
     //ResourceHelper,
 
     // Object serialization interface to database.
-    DataMapper
+    DataMapper,
+
+    // Interface to work with the underlying database directly.
+    DbHelper
 
 };

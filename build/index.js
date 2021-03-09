@@ -17554,11 +17554,11 @@ function mkDirSync(dir) {
     return;
   }
   try {
-    import_fs3.default.mkdirSync(dir);
+    import_fs3.default.mkdirSync(dir, {recursive: true});
   } catch (err) {
     if (err.code == "ENOENT") {
-      mkdirSync(path.dirname(dir));
-      mkdirSync(dir);
+      import_fs3.default.mkdirSync(path.dirname(dir, {recursive: true}));
+      import_fs3.default.mkdirSync(dir, {recursive: true});
     }
   }
 }
@@ -17568,6 +17568,7 @@ var DbHelper = class {
   static getDbConfig() {
     let dbConfig;
     if (process.env.DATABASE_URL) {
+      console.log("Using db url:", process.env.DATABASE_URL);
       return process.env.DATABASE_URL;
     }
     if (process.env.DB_HOST && process.env.DB_USER && process.env.DB_PASSWORD && process.env.DB_DATABASE) {
@@ -17580,6 +17581,7 @@ var DbHelper = class {
         database: process.env.DB_DATABASE,
         multipleStatement: typeof process.env.DB_MULTI_STATEMENTS == "undefined" ? false : process.env.DB_MULTI_STATEMENTS
       };
+      console.log("Using db config:", dbConfig);
       return dbConfig;
     }
     return null;

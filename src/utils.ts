@@ -48,11 +48,11 @@ export function mkDirSync(dir) {
     }
 
     try {
-        fs.mkdirSync(dir);
+        fs.mkdirSync(dir, { recursive: true });
     } catch(err){
         if(err.code == 'ENOENT'){
-            mkdirSync(path.dirname(dir))
-            mkdirSync(dir)
+            fs.mkdirSync(path.dirname(dir, { recursive: true }));
+            fs.mkdirSync(dir, { recursive: true });
         }
     }
 }

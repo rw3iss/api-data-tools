@@ -8,7 +8,6 @@ import MigrationHelper from '../lib/MigrationHelper';
 import { existsSync, readFile, writeFile } from 'fs';
 import * as path from 'path';
 import commandLineArgs from 'command-line-args';
-import { cpuUsage } from 'node:process';
 
 const DEFAULT_DIR = '';
 const DEFAULT_SCHEMA_FILE = 'schema.json';

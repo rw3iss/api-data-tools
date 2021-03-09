@@ -6465,11 +6465,11 @@ function mkDirSync(dir) {
     return;
   }
   try {
-    import_fs2.default.mkdirSync(dir);
+    import_fs2.default.mkdirSync(dir, {recursive: true});
   } catch (err) {
     if (err.code == "ENOENT") {
-      mkdirSync(path.dirname(dir));
-      mkdirSync(dir);
+      import_fs2.default.mkdirSync(path.dirname(dir, {recursive: true}));
+      import_fs2.default.mkdirSync(dir, {recursive: true});
     }
   }
 }

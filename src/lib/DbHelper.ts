@@ -9,6 +9,7 @@ import { mysqlDate } from '../utils';
 
 export default class DbHelper {
     private static _pool: any;
+    private static _isInitialized = false;
 
     // trie to load config from environment variables
     static getDbConfig() {
@@ -35,37 +36,45 @@ export default class DbHelper {
         return null;
     }
 
+    static isInitialized() {
+        return this._isInitialized;
+    }
+
     static initialize() {
-        var self = this;
+        if (!this._isInitialized) {
+            var self = this;
 
-        let dbConfig;
+            let dbConfig;
 
-        // prefer Config from environment variables, or fallback to config:
-        try {
-            dbConfig = DbHelper.getDbConfig();
+            // prefer Config from environment variables, or fallback to config:
+            try {
+                dbConfig = DbHelper.getDbConfig();
 
-            if (!dbConfig) {
-                if (!Config.database) {
-                    throw new Error("Could not find database config in environment variables or config.json");
+                if (!dbConfig) {
+                    if (!Config.database) {
+                        throw new Error("Could not find database config in environment variables or config.json");
+                    }
+                    dbConfig = Config.database;
                 }
-                dbConfig = Config.database;
+            } catch(e) {
+                throw 'Error loading database configuration. Cannot proceed. ' + JSON.stringify(e);
             }
-        } catch(e) {
-            throw 'Error loading database configuration. Cannot proceed. ' + JSON.stringify(e);
-        }
 
-        if (typeof dbConfig == 'string') {
-            DbHelper._pool = mysql.createPool(dbConfig);
-        } else {
-            DbHelper._pool = mysql.createPool({
-                connectionLimit : 100,
-                host            : dbConfig.host,
-                port            : dbConfig.port || 3306,
-                user            : dbConfig.user,
-                password        : dbConfig.password,
-                database        : dbConfig.database,
-                multipleStatements: typeof dbConfig.multipleStatements == 'undefined' ? true : dbConfig.multipleStatements
-            });
+            if (typeof dbConfig == 'string') {
+                DbHelper._pool = mysql.createPool(dbConfig);
+            } else {
+                DbHelper._pool = mysql.createPool({
+                    connectionLimit : 100,
+                    host            : dbConfig.host,
+                    port            : dbConfig.port || 3306,
+                    user            : dbConfig.user,
+                    password        : dbConfig.password,
+                    database        : dbConfig.database,
+                    multipleStatements: typeof dbConfig.multipleStatements == 'undefined' ? true : dbConfig.multipleStatements
+                });
+            }
+
+            this._isInitialized = true;
         }
 
         return this;
@@ -280,5 +289,3 @@ export default class DbHelper {
     }
 
 }
-
-DbHelper.initialize();

@@ -25,10 +25,16 @@ try {
     console.log('Error parsing command line arguments:', e);
 }
 
-let basePath = path.resolve(process.cwd(), opts.config ? opts.config : DEFAULT_DIR);
-let schemaFile = path.resolve(basePath, opts['schema-file'] ? opts['schema-file'] : DEFAULT_SCHEMA_FILE);
-let prevSchemaFile = path.resolve(basePath, '.curr.schema.json')
-let migrationsDir = path.resolve(process.cwd(), opts['migrations-dir'] ? opts['migrations-dir'] : DEFAULT_MIGRATIONS_DIR);
+const cwd = process.cwd();
+const basePath = path.resolve(cwd, opts.config ? opts.config : DEFAULT_DIR);
+
+const schemaFile = path.resolve(cwd, opts['schema-file'] ? opts['schema-file'] : DEFAULT_SCHEMA_FILE);
+const schemaDir = schemaFile.substring(0, schemaFile.lastIndexOf('/'));
+console.log('schema dir', schemaDir);
+const prevSchemaFile = path.resolve(schemaDir, '.curr.schema.json');
+
+const migrationsDir = path.resolve(process.cwd(), opts['migrations-dir'] ? opts['migrations-dir'] : DEFAULT_MIGRATIONS_DIR);
+
 let currSchema: any = {}, newSchema: any = {};
 
 ///////////////////////////////////////////////////////////////////////////////

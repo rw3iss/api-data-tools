@@ -19733,11 +19733,10 @@ function mkDirSync(dir) {
 }
 
 // src/lib/DbHelper.ts
-var DbHelper = class {
+var _DbHelper = class {
   static getDbConfig() {
     let dbConfig;
     if (process.env.DATABASE_URL) {
-      console.log("Using db url:", process.env.DATABASE_URL);
       return process.env.DATABASE_URL;
     }
     if (process.env.DB_HOST && process.env.DB_USER && process.env.DB_PASSWORD && process.env.DB_DATABASE) {
@@ -19750,38 +19749,42 @@ var DbHelper = class {
         database: process.env.DB_DATABASE,
         multipleStatement: typeof process.env.DB_MULTI_STATEMENTS == "undefined" ? false : process.env.DB_MULTI_STATEMENTS
       };
-      console.log("Using db config:", dbConfig);
       return dbConfig;
     }
     return null;
   }
+  static isInitialized() {
+    return this._isInitialized;
+  }
   static initialize() {
-    var self2 = this;
-    let dbConfig;
-    try {
-      dbConfig = DbHelper.getDbConfig();
-      console.log("DbHelper init", dbConfig);
-      if (!dbConfig) {
-        if (!Config_default.database) {
-          throw new Error("Could not find database config in environment variables or config.json");
+    if (!this._isInitialized) {
+      var self2 = this;
+      let dbConfig;
+      try {
+        dbConfig = _DbHelper.getDbConfig();
+        if (!dbConfig) {
+          if (!Config_default.database) {
+            throw new Error("Could not find database config in environment variables or config.json");
+          }
+          dbConfig = Config_default.database;
         }
-        dbConfig = Config_default.database;
+      } catch (e) {
+        throw "Error loading database configuration. Cannot proceed. " + JSON.stringify(e);
       }
-    } catch (e) {
-      throw "Error loading database configuration. Cannot proceed. " + JSON.stringify(e);
-    }
-    if (typeof dbConfig == "string") {
-      DbHelper._pool = mysql.createPool(dbConfig);
-    } else {
-      DbHelper._pool = mysql.createPool({
-        connectionLimit: 100,
-        host: dbConfig.host,
-        port: dbConfig.port || 3306,
-        user: dbConfig.user,
-        password: dbConfig.password,
-        database: dbConfig.database,
-        multipleStatements: typeof dbConfig.multipleStatements == "undefined" ? true : dbConfig.multipleStatements
-      });
+      if (typeof dbConfig == "string") {
+        _DbHelper._pool = mysql.createPool(dbConfig);
+      } else {
+        _DbHelper._pool = mysql.createPool({
+          connectionLimit: 100,
+          host: dbConfig.host,
+          port: dbConfig.port || 3306,
+          user: dbConfig.user,
+          password: dbConfig.password,
+          database: dbConfig.database,
+          multipleStatements: typeof dbConfig.multipleStatements == "undefined" ? true : dbConfig.multipleStatements
+        });
+      }
+      this._isInitialized = true;
     }
     return this;
   }
@@ -19791,7 +19794,7 @@ var DbHelper = class {
   static async queryOne(sql, data) {
     return new Promise(async (resolve4, reject) => {
       try {
-        await DbHelper._pool.getConnection((err, connection) => {
+        await _DbHelper._pool.getConnection((err, connection) => {
           if (err) {
             console.log(">> Db.getConnection() ERROR -> ", err, "SQL:", sql);
             return reject({
@@ -19829,7 +19832,7 @@ var DbHelper = class {
   static async query(sql, data) {
     const self2 = this;
     return new Promise((resolve4, reject) => {
-      DbHelper._pool.getConnection((err, connection) => {
+      _DbHelper._pool.getConnection((err, connection) => {
         if (err) {
           console.log(">> Db.getConnection() ERROR -> ", err, "SQL:", sql);
           return reject({
@@ -19860,14 +19863,14 @@ var DbHelper = class {
       throw new Error("Upsert data must be an object.");
     return new Promise(async (resolve4, reject) => {
       if (typeof data[indexName] == "undefined") {
-        upsertResult = await DbHelper.insert(table, data, indexName);
+        upsertResult = await _DbHelper.insert(table, data, indexName);
       } else {
         let sql = `SELECT * FROM ${table} WHERE ${indexName}='${mysql.escape(data[indexName])}'`;
-        let existingResult = await DbHelper.queryOne(sql);
+        let existingResult = await _DbHelper.queryOne(sql);
         if (existingResult == "not-found") {
-          upsertResult = await DbHelper.insert(table, data, indexName);
+          upsertResult = await _DbHelper.insert(table, data, indexName);
         } else {
-          upsertResult = await DbHelper.update(table, data, indexName);
+          upsertResult = await _DbHelper.update(table, data, indexName);
         }
       }
       return resolve4(upsertResult);
@@ -19875,10 +19878,10 @@ var DbHelper = class {
   }
   static async insert(table, data, indexName = "id") {
     return new Promise(async (resolve4, reject) => {
-      let cols = DbHelper._generateTableCols(data, indexName);
-      let colVals = DbHelper._generateTableVals(data, indexName);
+      let cols = _DbHelper._generateTableCols(data, indexName);
+      let colVals = _DbHelper._generateTableVals(data, indexName);
       let sql = `INSERT INTO ${table} (${cols}) VALUES (${colVals})`;
-      let result = await DbHelper.queryOne(sql);
+      let result = await _DbHelper.queryOne(sql);
       if (result && typeof data.id == "undefined") {
         result.id = data.id = result.insertId;
       }
@@ -19887,17 +19890,17 @@ var DbHelper = class {
   }
   static async update(table, data, indexName = "id") {
     return new Promise(async (resolve4, reject) => {
-      let updateVals = DbHelper._generateTableUpdateVals(data, indexName);
+      let updateVals = _DbHelper._generateTableUpdateVals(data, indexName);
       let indexValue = typeof data[indexName] == "string" ? mysql.escape(data[indexName]) : data[indexName];
       let sql = `UPDATE ${table} SET ${updateVals} WHERE ${indexName}=${indexValue}`;
-      let result = await DbHelper.queryOne(sql);
+      let result = await _DbHelper.queryOne(sql);
       return resolve4(data);
     });
   }
   static async deleteById(table, id) {
     return new Promise(async (resolve4, reject) => {
       let sql = `DELETE FROM ${table} WHERE id=${id}`;
-      let result = await DbHelper.queryOne(sql);
+      let result = await _DbHelper.queryOne(sql);
       return resolve4(result);
     });
   }
@@ -19941,8 +19944,9 @@ var DbHelper = class {
     return updateVals;
   }
 };
+var DbHelper = _DbHelper;
+DbHelper._isInitialized = false;
 var DbHelper_default = DbHelper;
-DbHelper.initialize();
 
 // src/lib/DataMapper.ts
 var DataMapper = class {

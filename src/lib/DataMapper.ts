@@ -3,7 +3,7 @@
 */
 
 import SchemaHelper from './SchemaHelper';
-import { DbHelper as DB } from './DbHelper';
+import DbHelper from './DbHelper';
 
 // Does generic CRUD operations on arbitrary objects
 export class DataMapper {
@@ -20,7 +20,7 @@ export class DataMapper {
     get(type, params?, limit?) {
 		let query = this.getQueryString(type, params, limit);
         return new Promise((resolve, reject) => {
-			DB.query(query)
+			DbHelper.query(query)
 				.then((r: any) => {
 					return resolve(r);
 				})
@@ -45,7 +45,7 @@ export class DataMapper {
         let query = this.upsertQueryString(type, o);
         let isInsert = o['id'] ? false : true;
 		return new Promise((resolve, reject) => {
-			DB.query(query)
+			DbHelper.query(query)
 				.then((r: any) => {
 					// set inserted id
 					if (isInsert) {
@@ -67,7 +67,7 @@ export class DataMapper {
     delete(type, params) {
         let query = this.deleteQueryString(type, params);
         return new Promise((resolve, reject) => {
-            DB.query(query)
+            DbHelper.query(query)
                 .then((r: any) => {
                     return resolve(r);
                 })
@@ -194,12 +194,12 @@ export class DataMapper {
             propType = typeof propVal;
             
         if (['string', 'email', 'enum'].includes(propType)) {
-			return DB.escapeString(propVal)
+			return DbHelper.escapeString(propVal)
         }
 
 		if (propType == 'date-time' || propType == 'datetime') {
             // convert val to mysql date string
-            return DB.escapeString(propVal);
+            return DbHelper.escapeString(propVal);
 		}
 		
 		return propVal;

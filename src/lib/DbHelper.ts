@@ -7,7 +7,7 @@ import * as mysql from 'mysql';
 import Config from './Config';
 import { mysqlDate } from '../utils';
 
-export class DbHelper {
+export default class DbHelper {
     private static _pool: any;
 
     // trie to load config from environment variables
@@ -46,6 +46,7 @@ export class DbHelper {
         // prefer Config from environment variables, or fallback to config:
         try {
             dbConfig = DbHelper.getDbConfig();
+            console.log('DbHelper init', dbConfig)
 
             if (!dbConfig) {
                 if (!Config.database) {

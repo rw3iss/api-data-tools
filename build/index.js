@@ -19597,6 +19597,7 @@ var require_lodash = __commonJS((exports2, module2) => {
 __markAsModule(exports);
 __export(exports, {
   DataMapper: () => DataMapper_default,
+  DbHelper: () => DbHelper_default,
   MigrationHelper: () => MigrationHelper_default,
   RestAPI: () => RestAPI_default
 });
@@ -19759,6 +19760,7 @@ var DbHelper = class {
     let dbConfig;
     try {
       dbConfig = DbHelper.getDbConfig();
+      console.log("DbHelper init", dbConfig);
       if (!dbConfig) {
         if (!Config_default.database) {
           throw new Error("Could not find database config in environment variables or config.json");
@@ -19939,6 +19941,7 @@ var DbHelper = class {
     return updateVals;
   }
 };
+var DbHelper_default = DbHelper;
 DbHelper.initialize();
 
 // src/lib/DataMapper.ts
@@ -19949,7 +19952,7 @@ var DataMapper = class {
   get(type, params, limit) {
     let query = this.getQueryString(type, params, limit);
     return new Promise((resolve4, reject) => {
-      DbHelper.query(query).then((r) => {
+      DbHelper_default.query(query).then((r) => {
         return resolve4(r);
       }).catch((e) => {
         throw e;
@@ -19966,7 +19969,7 @@ var DataMapper = class {
     let query = this.upsertQueryString(type, o);
     let isInsert = o["id"] ? false : true;
     return new Promise((resolve4, reject) => {
-      DbHelper.query(query).then((r) => {
+      DbHelper_default.query(query).then((r) => {
         if (isInsert) {
           if (r[r.length - 1][0].last_id) {
             o.id = r[r.length - 1][0].last_id;
@@ -19981,7 +19984,7 @@ var DataMapper = class {
   delete(type, params) {
     let query = this.deleteQueryString(type, params);
     return new Promise((resolve4, reject) => {
-      DbHelper.query(query).then((r) => {
+      DbHelper_default.query(query).then((r) => {
         return resolve4(r);
       }).catch((e) => {
         throw e;
@@ -20078,10 +20081,10 @@ var DataMapper = class {
     if (typeof propType == "undefined")
       propType = typeof propVal;
     if (["string", "email", "enum"].includes(propType)) {
-      return DbHelper.escapeString(propVal);
+      return DbHelper_default.escapeString(propVal);
     }
     if (propType == "date-time" || propType == "datetime") {
-      return DbHelper.escapeString(propVal);
+      return DbHelper_default.escapeString(propVal);
     }
     return propVal;
   }

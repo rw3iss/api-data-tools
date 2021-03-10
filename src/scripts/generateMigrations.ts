@@ -28,7 +28,7 @@ try {
 let basePath = path.resolve(process.cwd(), opts.config ? opts.config : DEFAULT_DIR);
 let schemaFile = path.resolve(basePath, opts['schema-file'] ? opts['schema-file'] : DEFAULT_SCHEMA_FILE);
 let prevSchemaFile = path.resolve(basePath, '.curr.schema.json')
-let migrationsDir = path.resolve(basePath, opts['migrations-dir'] ? opts['migrations-dir'] : DEFAULT_MIGRATIONS_DIR);
+let migrationsDir = path.resolve(process.cwd(), opts['migrations-dir'] ? opts['migrations-dir'] : DEFAULT_MIGRATIONS_DIR);
 let currSchema: any = {}, newSchema: any = {};
 
 ///////////////////////////////////////////////////////////////////////////////

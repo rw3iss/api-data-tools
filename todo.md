@@ -6,6 +6,8 @@
 -make migrations interface to go forward/backward, clear migrations, clear database, etc.
 -break out livb into internal Helpers and public classes.
 -objectify "schema" property into a Schema class?
+-migration helper/creator should have an option to just print out the sql statements independent of the db-migrate platform.
+    -sql statements could be stored to another file, or pass option 'format=db-migrate|raw'
 
 -integrate node-db-migrate full environment variable support:
 {

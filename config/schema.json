@@ -1,0 +1,80 @@
+{
+    "users": {
+        "properties": {
+            "id": { 
+                "type": "int" ,
+                "primaryKey": true, 
+                "autoIncrement": true
+            },
+            "firstName": "string",
+            "lastName": "string",
+            "avatar": "string",
+            "email": {
+                "type": "email",
+                "isIndex": true
+            },
+            "sms": "string",
+            "screenName": "string",
+            "joined": "datetime",
+            "lastLoggedIn": "datetime"
+        }
+    },
+
+    "cities": {
+        "properties": {
+            "id": { 
+                "type": "int" ,
+                "primaryKey": true, 
+                "autoIncrement": true
+            },
+            "name": "string",
+            "alltimeVisitors": "int"
+        }
+    },
+
+    "events": {
+        "properties": {
+            "id": { 
+                "type": "int" ,
+                "primaryKey": true, 
+                "autoIncrement": true
+            },
+            "alltimeVisitors": "int"
+        }
+    },
+
+    "city_events": {
+        "properties": {
+            "id": { 
+                "type": "int" ,
+                "primaryKey": true, 
+                "autoIncrement": true
+            },
+            "cityId": {
+                "type": "int",
+                "foreignKey": {
+                    "name": "city_event_city_id_fk",
+                    "table": "cities",
+                    "rules": {
+                        "onDelete": "CASCADE",
+                        "onUpdate": "RESTRICT"
+                    },
+                    "mapping": "id"
+                }
+            },
+            "eventId": {
+                "type": "int",
+                "foreignKey": {
+                    "name": "city_event_event_id_fk",
+                    "table": "events",
+                    "rules": {
+                        "onDelete": "CASCADE",
+                        "onUpdate": "RESTRICT"
+                    },
+                    "mapping": "id"
+                }
+            }
+        }
+    }
+
+}

@@ -30,5 +30,3 @@
 -added DataMapper.getOne() function.
 -automatically make migrations folder if it doesn't exist.
 -changed RestAPI.handle() to RestApi.handler()
-
-

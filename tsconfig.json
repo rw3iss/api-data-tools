@@ -1,7 +1,5 @@
 {
     "compilerOptions": {
-        "declaration": true,
-        "incremental": true,
 
         "baseUrl": "./src",
         "outDir": "build",
@@ -10,6 +8,8 @@
         "module": "es6",            // specifiy module code generation
         "moduleResolution": "node",
         "target": "es6",            // specify ECMAScript target version
+        "incremental": true,
+        "declaration": true,
         "noImplicitThis": true,
         "noImplicitAny": false,
         "noImplicitReturns": true,

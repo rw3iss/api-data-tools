@@ -2,7 +2,7 @@
     the differences between schema.json file (assumed to be "new" schema), and the contents of 
     .curr.schema.json (assumed to be the old/current schema). See package.json/webpack.config.js 
 */
-
+import 'source-map-support/register';
 import Config from '../lib/Config';
 import MigrationHelper from '../lib/MigrationHelper';
 import { existsSync, readFile, writeFile } from 'fs';

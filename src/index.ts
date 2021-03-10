@@ -1,7 +1,8 @@
+import 'source-map-support/register';
 import RestAPI from './lib/RestAPI';
 import MigrationHelper from './lib/MigrationHelper';
 import ResourceHelper from './lib/ResourceHelper';
-import DbHelper from './lib/DbHelper';
+import { DbHelper } from './lib/DbHelper';
 import DataMapper from './lib/DataMapper';
 
 export { 

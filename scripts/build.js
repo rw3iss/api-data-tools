@@ -11,7 +11,8 @@ function build(entryFile, outFile) {
         platform: 'node',
         bundle: true,
         define: { "process.env.NODE_ENV": IS_DEV ? "\"development\"" : "\"production\"" },
-        target: TARGET
+        target: TARGET,
+        sourcemap: true
     })
     .then(r => { console.log(`Built ${outFile}.`) })
     .catch((e) => {

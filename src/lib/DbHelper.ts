@@ -57,6 +57,7 @@ export default class DbHelper {
                     dbConfig = Config.database;
                 }
             } catch(e) {
+                console.log('Error initialize()', e, 'Config:', dbConfig)
                 throw 'Error loading database configuration. Cannot proceed. ' + JSON.stringify(e);
             }
 

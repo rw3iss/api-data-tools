@@ -19769,6 +19769,7 @@ var _DbHelper = class {
           dbConfig = Config_default.database;
         }
       } catch (e) {
+        console.log("Error initialize()", e, "Config:", dbConfig);
         throw "Error loading database configuration. Cannot proceed. " + JSON.stringify(e);
       }
       if (typeof dbConfig == "string") {

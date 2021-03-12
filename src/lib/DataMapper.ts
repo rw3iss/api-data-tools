@@ -146,7 +146,7 @@ export class DataMapper {
             for (var p in schema.properties) {
                 
                 if (o.hasOwnProperty(p)) {
-                    let propType =  SchemaHelper.getSanitizedPropType(schema.properties[p]);
+                    let propType = this._getPropType(schema.properties[p]);
                     propString += delim + p;
                     valString += delim + this.tryEscape(o[p], propType);
                     delim = ',';
@@ -193,15 +193,10 @@ export class DataMapper {
 		if (typeof propType == 'undefined')
             propType = typeof propVal;
             
-        if (['string', 'email', 'enum'].includes(propType)) {
+        if (['string', 'text', 'char', 'enum', 'datetime'].includes(propType)) {
 			return DbHelper.escapeString(propVal)
         }
 
-		if (propType == 'date-time' || propType == 'datetime') {
-            // convert val to mysql date string
-            return DbHelper.escapeString(propVal);
-		}
-		
 		return propVal;
     }
 
@@ -229,7 +224,7 @@ export class DataMapper {
         } else {
             type = typeof propVal;
         }
-        return type;
+        return SchemaHelper.getSanitizedPropType(type);
     }
 }
 

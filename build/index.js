@@ -20061,7 +20061,7 @@ var DataMapper = class {
       var propString = "", valString = "", delim = "";
       for (var p in schema3.properties) {
         if (o.hasOwnProperty(p)) {
-          let propType = SchemaHelper_default.getSanitizedPropType(schema3.properties[p]);
+          let propType = this._getPropType(schema3.properties[p]);
           propString += delim + p;
           valString += delim + this.tryEscape(o[p], propType);
           delim = ",";
@@ -20098,10 +20098,7 @@ var DataMapper = class {
   tryEscape(propVal, propType) {
     if (typeof propType == "undefined")
       propType = typeof propVal;
-    if (["string", "email", "enum"].includes(propType)) {
-      return DbHelper_default.escapeString(propVal);
-    }
-    if (propType == "date-time" || propType == "datetime") {
+    if (["string", "text", "char", "enum", "datetime"].includes(propType)) {
       return DbHelper_default.escapeString(propVal);
     }
     return propVal;
@@ -20127,7 +20124,7 @@ var DataMapper = class {
     } else {
       type = typeof propVal;
     }
-    return type;
+    return SchemaHelper_default.getSanitizedPropType(type);
   }
 };
 var DataMapper_default = new DataMapper();

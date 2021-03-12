@@ -19977,7 +19977,7 @@ var DataMapper = class {
       });
     });
   }
-  async getOne(type, params) {
+  async getOne(type, params, serialize = false) {
     let r = await this.get(type, params, 1);
     if (r.length)
       return r[0];
@@ -20061,7 +20061,7 @@ var DataMapper = class {
       var propString = "", valString = "", delim = "";
       for (var p in schema3.properties) {
         if (o.hasOwnProperty(p)) {
-          let propType = this._getPropType(schema3.properties[p]);
+          let propType = this._getPropType(null, schema3.properties[p]);
           propString += delim + p;
           valString += delim + this.tryEscape(o[p], propType);
           delim = ",";
@@ -20098,6 +20098,9 @@ var DataMapper = class {
   tryEscape(propVal, propType) {
     if (typeof propType == "undefined")
       propType = typeof propVal;
+    if (propVal instanceof Date) {
+      return `'${propVal.toISOString().slice(0, 19).replace("T", " ")}'`;
+    }
     if (["string", "text", "char", "enum", "datetime"].includes(propType)) {
       return DbHelper_default.escapeString(propVal);
     }
@@ -20124,7 +20127,8 @@ var DataMapper = class {
     } else {
       type = typeof propVal;
     }
-    return SchemaHelper_default.getSanitizedPropType(type);
+    let t = SchemaHelper_default.getSanitizedPropType(type);
+    return t;
   }
 };
 var DataMapper_default = new DataMapper();

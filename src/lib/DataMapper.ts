@@ -32,7 +32,7 @@ export class DataMapper {
     }
 
     // Shortcut to return the first element of a result set.
-    async getOne(type, params?) {
+    async getOne(type, params?, serialize = false) {
         let r = await this.get(type, params, 1);
         if (r.length)
             return r[0];
@@ -144,9 +144,8 @@ export class DataMapper {
             isInsert = true;
             var propString = '', valString = '', delim = '';
             for (var p in schema.properties) {
-                
                 if (o.hasOwnProperty(p)) {
-                    let propType = this._getPropType(schema.properties[p]);
+                    let propType = this._getPropType(null, schema.properties[p]);
                     propString += delim + p;
                     valString += delim + this.tryEscape(o[p], propType);
                     delim = ',';
@@ -192,7 +191,12 @@ export class DataMapper {
 	tryEscape(propVal, propType?) {
 		if (typeof propType == 'undefined')
             propType = typeof propVal;
-            
+
+        // todo: handle this differently?
+        if (propVal instanceof Date) {
+            return `'${propVal.toISOString().slice(0, 19).replace('T', ' ')}'`;
+        }
+        
         if (['string', 'text', 'char', 'enum', 'datetime'].includes(propType)) {
 			return DbHelper.escapeString(propVal)
         }
@@ -224,7 +228,8 @@ export class DataMapper {
         } else {
             type = typeof propVal;
         }
-        return SchemaHelper.getSanitizedPropType(type);
+        let t = SchemaHelper.getSanitizedPropType(type);
+        return t;
     }
 }
 

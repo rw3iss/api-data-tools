@@ -1,4 +1,7 @@
 # TODO
+** need to load in command line args to global config state (ie. whether entering from script or native API)
+    -each class should ask Config.get('VAR'), and Config should manage loading from either config file, or environments, or CLI, etc.
+
 -add method to DataMapper to just generate sql query string.
 -change code to use async/await
 -generate Model files file the given schema?
@@ -27,7 +30,12 @@
   }
 }
 
+** make section for envionrment variables:
+RAPI_CONFIG = config/config.json
+RAPI_SCHEMA_FILE = config/schema.json
+
 # DONE:
+-added environment variable support for schema: SCHEMA_FILE
 -added DATABASE_URL environment variable support to DbHelper, so that it can be used alongside node-db-migrate with environment variables instead of config.
 -added DataMapper.getOne() function.
 -automatically make migrations folder if it doesn't exist.

@@ -8603,8 +8603,9 @@ require_source_map_support().install();
 // src/lib/Config.ts
 var import_path = __toModule(require("path"));
 var import_fs = __toModule(require("fs"));
+var Config = {};
 function getConfig() {
-  let configPath = process.env.CONFIG_PATH || import_path.resolve(process.cwd(), "config", "config.json");
+  let configPath = process.env.RAPI_CONFIG || import_path.resolve(process.cwd(), "config", "config.json");
   try {
     if (!import_fs.existsSync(configPath)) {
       return {};
@@ -8616,7 +8617,8 @@ function getConfig() {
     return {};
   }
 }
-var Config_default = getConfig();
+Config = getConfig();
+var Config_default = Config;
 
 // src/utils.ts
 var import_fs2 = __toModule(require("fs"));
@@ -8647,11 +8649,23 @@ var import_path2 = __toModule(require("path"));
 var import_fs3 = __toModule(require("fs"));
 var schema = void 0;
 (function loadSchema() {
-  let configPath = process.env.SCHEMA_PATH || import_path2.resolve(process.cwd(), "config", "schema.json");
-  if (!import_fs3.existsSync(configPath)) {
-    throw "Schema file not found at: " + configPath;
+  let schemaFile2 = "";
+  if (Config_default.schemaFile) {
+    schemaFile2 = Config_default.schemaFile;
+  } else if (process.env.SCHEMA_FILE) {
+    schemaFile2 = process.env.SCHEMA_FILE;
+  } else {
+    schemaFile2 = "config/schema.json";
   }
-  schema = JSON.parse(import_fs3.readFileSync(configPath, {encoding: "utf-8"}));
+  schemaFile2 = import_path2.resolve(process.cwd(), schemaFile2);
+  if (!import_fs3.existsSync(schemaFile2)) {
+    throw "Schema file not found at: " + schemaFile2;
+  }
+  try {
+    schema = JSON.parse(import_fs3.readFileSync(schemaFile2, {encoding: "utf-8"}));
+  } catch (e) {
+    console.log(`Error parsing ${schemaFile2}`, e);
+  }
 })();
 var SchemaHelper = class {
   constructor() {
@@ -8659,7 +8673,7 @@ var SchemaHelper = class {
   }
   static getSchema(name) {
     if (!schema) {
-      throw "Could not locate schema.json file";
+      throw "schema.json file not loaded.";
     }
     if (name) {
       if (typeof schema[name] != "undefined") {
@@ -8686,15 +8700,12 @@ var SchemaHelper = class {
   static getSanitizedPropType(pDef) {
     function _san(type2) {
       switch (type2) {
-        case "string":
         case "email":
           return "string";
         case "date-time":
           return "datetime";
-        case "int":
-          return "int";
         default:
-          return "string";
+          return type2.toLowerCase();
       }
     }
     let type = "";
@@ -8919,6 +8930,10 @@ var prevSchemaFile = path2.resolve(schemaDir, ".curr.schema.json");
 var migrationsDir = path2.resolve(process.cwd(), opts["migrations-dir"] ? opts["migrations-dir"] : DEFAULT_MIGRATIONS_DIR);
 var currSchema = {};
 var newSchema = {};
+Config_default.basePath = basePath;
+Config_default.schemaFile = schemaFile;
+Config_default.prevSchemaFile = prevSchemaFile;
+Config_default.migrationsDir = migrationsDir;
 async function main() {
   let helper = new MigrationHelper_default();
   if (import_fs5.existsSync(schemaFile)) {

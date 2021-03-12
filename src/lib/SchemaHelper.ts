@@ -1,17 +1,35 @@
 import { resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
+import Config from './Config'
 
 let schema: {} | undefined = undefined;
 
 (function loadSchema() {
-    let configPath = process.env.SCHEMA_PATH || resolve(process.cwd(), 'config', 'schema.json');
-    if (!existsSync(configPath)) {
-        throw "Schema file not found at: " + configPath;
+    // see if there's a config entry
+    let schemaFile = "";
+    if (Config.schemaFile) {
+        // try config file
+        schemaFile = Config.schemaFile;
+    } else if (process.env.SCHEMA_FILE) {
+        // try env
+        schemaFile = process.env.SCHEMA_FILE;
+    } else {
+        // try default
+        schemaFile = 'config/schema.json';
     }
-    
-    schema = JSON.parse(
-        readFileSync(configPath, { encoding: 'utf-8' })
-    );
+
+    schemaFile = resolve(process.cwd(), schemaFile);
+    if (!existsSync(schemaFile)) {
+        throw "Schema file not found at: " + schemaFile;
+    }
+
+    try {
+        schema = JSON.parse(
+            readFileSync(schemaFile, { encoding: 'utf-8' })
+        );
+    } catch(e) {
+        console.log(`Error parsing ${schemaFile}`, e);
+    }
 })();
 
 export default class SchemaHelper {
@@ -23,7 +41,7 @@ export default class SchemaHelper {
 
     static getSchema(name?) {
         if (!schema) {
-            throw "Could not locate schema.json file";
+            throw "schema.json file not loaded.";
         }
 
         if (name) {
@@ -61,15 +79,12 @@ export default class SchemaHelper {
         function _san(type) {
             // Todo: move to type map
             switch(type) {
-                case 'string':
                 case 'email':
                     return 'string';
                 case 'date-time':
                     return 'datetime';
-                case 'int':
-                    return 'int';
                 default: 
-                    return 'string';
+                    return type.toLowerCase();
             }
         }
 

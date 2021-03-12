@@ -25,6 +25,9 @@ try {
     console.log('Error parsing command line arguments:', e);
 }
 
+// Todo:
+// this needs to lead to 
+
 const cwd = process.cwd();
 const basePath = path.resolve(cwd, opts.config ? opts.config : DEFAULT_DIR);
 
@@ -36,6 +39,12 @@ const prevSchemaFile = path.resolve(schemaDir, '.curr.schema.json');
 const migrationsDir = path.resolve(process.cwd(), opts['migrations-dir'] ? opts['migrations-dir'] : DEFAULT_MIGRATIONS_DIR);
 
 let currSchema: any = {}, newSchema: any = {};
+
+// update Config references from CLI access:
+Config.basePath = basePath;
+Config.schemaFile = schemaFile;
+Config.prevSchemaFile = prevSchemaFile;
+Config.migrationsDir = migrationsDir;
 
 ///////////////////////////////////////////////////////////////////////////////
 

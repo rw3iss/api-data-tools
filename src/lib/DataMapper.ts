@@ -177,7 +177,7 @@ export class DataMapper {
             var delim = ' WHERE ';
             for (var pName in params) {
                 if (params.hasOwnProperty(pName)) {
-                    let pVal = params[pName];
+                    let pVal = params[pName];   
                     let pDef = this.schema[type][pName];
                     let pQuery = this._makePropQuery(pName, pVal, pDef);
                     query += delim + pQuery;

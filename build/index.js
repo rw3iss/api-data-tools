@@ -19606,15 +19606,49 @@ __export(exports, {
 require_source_map_support().install();
 
 // src/lib/SchemaHelper.ts
+var import_path2 = __toModule(require("path"));
+var import_fs2 = __toModule(require("fs"));
+
+// src/lib/Config.ts
 var import_path = __toModule(require("path"));
 var import_fs = __toModule(require("fs"));
+var Config = {};
+function getConfig() {
+  let configPath = process.env.RAPI_CONFIG || import_path.resolve(process.cwd(), "config", "config.json");
+  try {
+    if (!import_fs.existsSync(configPath)) {
+      return {};
+    }
+    var config = import_fs.readFileSync(configPath, {encoding: "utf-8"});
+    return JSON.parse(config);
+  } catch (e) {
+    console.log("Error parsing config file: " + configPath, e);
+    return {};
+  }
+}
+Config = getConfig();
+var Config_default = Config;
+
+// src/lib/SchemaHelper.ts
 var schema = void 0;
 (function loadSchema() {
-  let configPath = process.env.SCHEMA_PATH || import_path.resolve(process.cwd(), "config", "schema.json");
-  if (!import_fs.existsSync(configPath)) {
-    throw "Schema file not found at: " + configPath;
+  let schemaFile = "";
+  if (Config_default.schemaFile) {
+    schemaFile = Config_default.schemaFile;
+  } else if (process.env.SCHEMA_FILE) {
+    schemaFile = process.env.SCHEMA_FILE;
+  } else {
+    schemaFile = "config/schema.json";
   }
-  schema = JSON.parse(import_fs.readFileSync(configPath, {encoding: "utf-8"}));
+  schemaFile = import_path2.resolve(process.cwd(), schemaFile);
+  if (!import_fs2.existsSync(schemaFile)) {
+    throw "Schema file not found at: " + schemaFile;
+  }
+  try {
+    schema = JSON.parse(import_fs2.readFileSync(schemaFile, {encoding: "utf-8"}));
+  } catch (e) {
+    console.log(`Error parsing ${schemaFile}`, e);
+  }
 })();
 var SchemaHelper = class {
   constructor() {
@@ -19622,7 +19656,7 @@ var SchemaHelper = class {
   }
   static getSchema(name) {
     if (!schema) {
-      throw "Could not locate schema.json file";
+      throw "schema.json file not loaded.";
     }
     if (name) {
       if (typeof schema[name] != "undefined") {
@@ -19649,15 +19683,12 @@ var SchemaHelper = class {
   static getSanitizedPropType(pDef) {
     function _san(type2) {
       switch (type2) {
-        case "string":
         case "email":
           return "string";
         case "date-time":
           return "datetime";
-        case "int":
-          return "int";
         default:
-          return "string";
+          return type2.toLowerCase();
       }
     }
     let type = "";
@@ -19679,24 +19710,6 @@ var SchemaHelper_default = SchemaHelper;
 
 // src/lib/DbHelper.ts
 var mysql = __toModule(require_mysql());
-
-// src/lib/Config.ts
-var import_path2 = __toModule(require("path"));
-var import_fs2 = __toModule(require("fs"));
-function getConfig() {
-  let configPath = process.env.CONFIG_PATH || import_path2.resolve(process.cwd(), "config", "config.json");
-  try {
-    if (!import_fs2.existsSync(configPath)) {
-      return {};
-    }
-    var config = import_fs2.readFileSync(configPath, {encoding: "utf-8"});
-    return JSON.parse(config);
-  } catch (e) {
-    console.log("Error parsing config file: " + configPath, e);
-    return {};
-  }
-}
-var Config_default = getConfig();
 
 // src/utils.ts
 var import_fs3 = __toModule(require("fs"));

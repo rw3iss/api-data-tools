@@ -1,9 +1,12 @@
 import { resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
 
+// Todo: this should manage config.json file, but also keep track of global Config state
+let Config = {};
+
 // reads in the consuming project's config json file, and exports it as a JSON obect.
 function getConfig() {
-    let configPath = process.env.CONFIG_PATH || resolve(process.cwd(), 'config', 'config.json');
+    let configPath = process.env.RAPI_CONFIG || resolve(process.cwd(), 'config', 'config.json');
 
     try {
         if (!existsSync(configPath)) {
@@ -18,4 +21,6 @@ function getConfig() {
     }
 }
 
-export default getConfig();
+Config = getConfig();
+
+export default Config;

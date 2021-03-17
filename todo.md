@@ -37,9 +37,15 @@
 RAPI_CONFIG = config/config.json
 RAPI_SCHEMA_FILE = config/schema.json
 
+
+# BUGS:
+-diff code sees 'email' data type as a changing field from original schema.
+
+
 # DONE:
 -added environment variable support for schema: SCHEMA_FILE
 -added DATABASE_URL environment variable support to DbHelper, so that it can be used alongside node-db-migrate with environment variables instead of config.
 -added DataMapper.getOne() function.
 -automatically make migrations folder if it doesn't exist.
 -changed RestAPI.handle() to RestApi.handler()
+

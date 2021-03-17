@@ -8742,15 +8742,6 @@ var MigrationHelper = class {
       return true;
     }
   }
-  writeMigration(migrationCode, newSchema2, migrationsDir2) {
-    let migrationFilePath = import_path3.resolve(migrationsDir2, this._formatDate(new Date()) + "-generated.js");
-    mkDirSync(migrationsDir2);
-    import_fs4.writeFile(migrationFilePath, migrationCode, (err) => {
-      if (err)
-        console.log(err);
-      console.log("Successfully generated migration file:\n", migrationFilePath);
-    });
-  }
   generateDiffOperations(currentSchema, newSchema2) {
     let ops = {
       up: [],
@@ -8835,6 +8826,15 @@ var MigrationHelper = class {
       default:
         throw "Operation not supported: " + o.type;
     }
+  }
+  writeMigration(migrationCode, newSchema2, migrationsDir2) {
+    let migrationFilePath = import_path3.resolve(migrationsDir2, this._formatDate(new Date()) + "-generated.js");
+    mkDirSync(migrationsDir2);
+    import_fs4.writeFile(migrationFilePath, migrationCode, (err) => {
+      if (err)
+        console.log(err);
+      console.log("Successfully generated migration file:\n", migrationFilePath);
+    });
   }
   _generateCreateTableCode(o) {
     o.data.properties = this._sanitizePropertyTypes(o.data.properties);

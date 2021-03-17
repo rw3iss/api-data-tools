@@ -31,15 +31,6 @@ export default class MigrationHelper {
         }
     }
 
-    writeMigration(migrationCode, newSchema, migrationsDir) {
-        let migrationFilePath = resolve(migrationsDir, this._formatDate(new Date()) + '-generated.js');
-        mkDirSync(migrationsDir);
-        writeFile(migrationFilePath, migrationCode, (err) => {
-            if (err) console.log(err);
-            console.log("Successfully generated migration file:\n", migrationFilePath);
-        });
-    }
-
     generateDiffOperations(currentSchema, newSchema): { up: [], down: [] } {
         let ops: any = {
             up: [],
@@ -143,6 +134,15 @@ export default class MigrationHelper {
         }
     }
 
+    writeMigration(migrationCode, newSchema, migrationsDir) {
+        let migrationFilePath = resolve(migrationsDir, this._formatDate(new Date()) + '-generated.js');
+        mkDirSync(migrationsDir);
+        writeFile(migrationFilePath, migrationCode, (err) => {
+            if (err) console.log(err);
+            console.log("Successfully generated migration file:\n", migrationFilePath);
+        });
+    }
+
     _generateCreateTableCode(o) {
         // Todo: append ()=>{} callback handler, which can add indexes/etc based on schema:
         o.data.properties = this._sanitizePropertyTypes(o.data.properties);
@@ -161,6 +161,7 @@ export default class MigrationHelper {
         return `\n\tdb.removeColumn('${o.table}', '${o.name}');`;
     }
 
+    // generates "real" sql data types from prop definitions
     _sanitizePropertyTypes(props) {
         for (var p in props) {
             let pDef = props[p];

@@ -76,6 +76,7 @@ export default class SchemaHelper {
     
     // Returns the given definition SQL type for given input property types
     static getSanitizedPropType(pDef) {
+        //console.log('getSanitizedPropType', pDef)
         function _san(type) {
             // Todo: move to type map
             switch(type) {

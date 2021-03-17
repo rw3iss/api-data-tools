@@ -8847,7 +8847,7 @@ var MigrationHelper = class {
   }
   _generateAddColumnCode(o) {
     return `
-	db.addColumn('${o.table}', '${o.name}', ${JSON.stringify(o.data, null, 4)});`;
+	db.addColumn('${o.table}', '${o.name}', ${JSON.stringify(this._sanitizePropertyTypes([o.data]), null, 4)});`;
   }
   _generateRemoveColumnCode(o) {
     return `

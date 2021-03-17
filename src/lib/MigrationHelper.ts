@@ -154,7 +154,7 @@ export default class MigrationHelper {
     }
 
     _generateAddColumnCode(o) {
-        return `\n\tdb.addColumn('${o.table}', '${o.name}', ${JSON.stringify(o.data, null, 4)});`;
+        return `\n\tdb.addColumn('${o.table}', '${o.name}', ${JSON.stringify(this._sanitizePropertyTypes([o.data]), null, 4)});`;
     }
 
     _generateRemoveColumnCode(o) {

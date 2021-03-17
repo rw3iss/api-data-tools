@@ -1,4 +1,5 @@
 # TODO
+** add saveDebug, getDebug, etc... method, to enable printing of statements and results...
 ** need to load in command line args to global config state (ie. whether entering from script or native API)
     -each class should ask Config.get('VAR'), and Config should manage loading from either config file, or environments, or CLI, etc.
 

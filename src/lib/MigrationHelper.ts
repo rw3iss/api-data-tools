@@ -18,7 +18,7 @@ export default class MigrationHelper {
             // save clone of newSchema:
             let newSchemaClone = JSON.parse(JSON.stringify(newSchema));
 
-            let { up, down } = this.generateDiffOperations(currSchema, newSchema);
+            let { up, down } = this.generateDiffOperations(currSchema, newSchemaClone);
 
             if (!up.length && !down.length) {
                 return false;
@@ -26,7 +26,7 @@ export default class MigrationHelper {
 
             let migrationCode = this.generateMigrationCode(up, down);
 
-            this.writeMigration(migrationCode, newSchemaClone, migrationsDir);
+            this.writeMigration(migrationCode, migrationsDir);
             return true;
         }
     }
@@ -65,31 +65,36 @@ export default class MigrationHelper {
         for (var resourceName in newSchema) {
             if (newSchema.hasOwnProperty(resourceName)) {
                 if (currentSchema.hasOwnProperty(resourceName)) {
+                    let currSchemaProps = currentSchema[resourceName].properties;
+                    let newSchemaProps = newSchema[resourceName].properties;
+
                     // check if columns being added
-                    for (var propName in newSchema[resourceName].properties) {
-                        if (newSchema[resourceName].properties.hasOwnProperty(propName)) {
-                            if (!currentSchema[resourceName].properties.hasOwnProperty(propName)) {
-                                ops.up.push({ type: 'add_column', table: resourceName, name: propName, data: newSchema[resourceName].properties[propName] });
+                    for (var propName in newSchemaProps) {
+                        if (newSchemaProps.hasOwnProperty(propName)) {
+                            if (!currSchemaProps.hasOwnProperty(propName)) {
+                                ops.up.push({ type: 'add_column', table: resourceName, name: propName, data: newSchemaProps[propName] });
                                 ops.down.push({ type: 'remove_column', table: resourceName, name: propName });
                             } else {
                                 // check if columns being changed
-                                let prevProp = currentSchema[resourceName].properties[propName];
-                                let nextProp = newSchema[resourceName].properties[propName];
+                                let prevProp = currSchemaProps[propName];
+                                let nextProp = newSchemaProps[propName];
                                 if (!isEqual(prevProp, nextProp)) {
+                                    console.log('diff cols', prevProp, nextProp);
                                     ops.up.push({ type: 'remove_column', table: resourceName, name: propName });
-                                    ops.up.push({ type: 'add_column', table: resourceName, name: propName, data: newSchema[resourceName].properties[propName] });
+                                    ops.up.push({ type: 'add_column', table: resourceName, name: propName, data: nextProp });
                                     ops.down.push({ type: 'remove_column', table: resourceName, name: propName });
-                                    ops.down.push({ type: 'add_column', table: resourceName, name: propName, data: currentSchema[resourceName].properties[propName] });
+                                    ops.down.push({ type: 'add_column', table: resourceName, name: propName, data: prevProp });
                                 }
                             }
                         }
                     }
+
                     // check if columns being removed
-                    for (var propName in currentSchema[resourceName].properties) {
-                        if (currentSchema[resourceName].properties.hasOwnProperty(propName)) {
-                            if (!newSchema[resourceName].properties.hasOwnProperty(propName)) {
+                    for (var propName in currSchemaProps) {
+                        if (currSchemaProps.hasOwnProperty(propName)) {
+                            if (!newSchemaProps.hasOwnProperty(propName)) {
                                 ops.up.push({ type: 'remove_column', table: resourceName, name: propName })
-                                ops.down.push({ type: 'add_column', table: resourceName, name: propName, data: currentSchema[resourceName].properties[propName] })
+                                ops.down.push({ type: 'add_column', table: resourceName, name: propName, data: currSchemaProps[propName] })
                             }
                         }
                     }
@@ -134,7 +139,7 @@ export default class MigrationHelper {
         }
     }
 
-    writeMigration(migrationCode, newSchema, migrationsDir) {
+    writeMigration(migrationCode, migrationsDir) {
         let migrationFilePath = resolve(migrationsDir, this._formatDate(new Date()) + '-generated.js');
         mkDirSync(migrationsDir);
         writeFile(migrationFilePath, migrationCode, (err) => {
@@ -145,7 +150,7 @@ export default class MigrationHelper {
 
     _generateCreateTableCode(o) {
         // Todo: append ()=>{} callback handler, which can add indexes/etc based on schema:
-        o.data.properties = this._sanitizePropertyTypes(o.data.properties);
+        o.data.properties = this._sanitizeProperties(o.data.properties);
         return `\n\tdb.createTable('${o.name}', ${JSON.stringify(o.data.properties, null, 4)});`;
     }
 
@@ -154,7 +159,7 @@ export default class MigrationHelper {
     }
 
     _generateAddColumnCode(o) {
-        return `\n\tdb.addColumn('${o.table}', '${o.name}', ${JSON.stringify(this._sanitizePropertyTypes([o.data]), null, 4)});`;
+        return `\n\tdb.addColumn('${o.table}', '${o.name}', ${JSON.stringify(this._sanitizeProperty(o.data), null, 4)});`;
     }
 
     _generateRemoveColumnCode(o) {
@@ -162,18 +167,23 @@ export default class MigrationHelper {
     }
 
     // generates "real" sql data types from prop definitions
-    _sanitizePropertyTypes(props) {
-        for (var p in props) {
-            let pDef = props[p];
-            if (typeof pDef == 'string') {
-                pDef = SchemaHelper.getSanitizedPropType(pDef);
-            } else {
-                pDef.type = SchemaHelper.getSanitizedPropType(pDef);
-                if (!pDef.type) {
-                    throw "No type property found on " + p;
-                }
+    _sanitizeProperty(pDef) {
+        //return SchemaHelper.getSanitizedPropType(pDef);
+        if (typeof pDef == 'string') {
+            pDef = SchemaHelper.getSanitizedPropType(pDef);
+        } else {
+            pDef.type = SchemaHelper.getSanitizedPropType(pDef);
+            if (!pDef.type) {
+                throw "No type property found on " + p;
             }
-            props[p] = pDef;
+            delete pDef.enum;
+        }
+        return pDef;
+    }
+
+    _sanitizeProperties(props) {
+        for (var p in props) {
+            props[p] = this._sanitizeProperty(props[p]);
         }
 
         return props;

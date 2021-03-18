@@ -848,13 +848,13 @@ var require_quick_sort = __commonJS((exports2) => {
   function randomIntInRange(low, high) {
     return Math.round(low + Math.random() * (high - low));
   }
-  function doQuickSort(ary, comparator, p, r) {
-    if (p < r) {
-      var pivotIndex = randomIntInRange(p, r);
-      var i = p - 1;
+  function doQuickSort(ary, comparator, p2, r) {
+    if (p2 < r) {
+      var pivotIndex = randomIntInRange(p2, r);
+      var i = p2 - 1;
       swap(ary, pivotIndex, r);
       var pivot = ary[r];
-      for (var j = p; j < r; j++) {
+      for (var j = p2; j < r; j++) {
         if (comparator(ary[j], pivot) <= 0) {
           i += 1;
           swap(ary, i, j);
@@ -862,7 +862,7 @@ var require_quick_sort = __commonJS((exports2) => {
       }
       swap(ary, i + 1, j);
       var q = i + 1;
-      doQuickSort(ary, comparator, p, q - 1);
+      doQuickSort(ary, comparator, p2, q - 1);
       doQuickSort(ary, comparator, q + 1, r);
     }
   }
@@ -8684,19 +8684,6 @@ var SchemaHelper = class {
     }
     return schema;
   }
-  static getPropType(pDef) {
-    if (typeof pDef == "string") {
-      return pDef;
-    } else {
-      if (pDef.type) {
-        return pDef.type;
-      } else if (pDef.enum) {
-        return "string";
-      } else {
-        throw "No type found for property.";
-      }
-    }
-  }
   static getSanitizedPropType(pDef) {
     function _san(type2) {
       switch (type2) {
@@ -8733,12 +8720,12 @@ var MigrationHelper = class {
   generateMigration(currSchema2, newSchema2, migrationsDir2) {
     if (currSchema2 != newSchema2) {
       let newSchemaClone = JSON.parse(JSON.stringify(newSchema2));
-      let {up, down} = this.generateDiffOperations(currSchema2, newSchema2);
+      let {up, down} = this.generateDiffOperations(currSchema2, newSchemaClone);
       if (!up.length && !down.length) {
         return false;
       }
       let migrationCode = this.generateMigrationCode(up, down);
-      this.writeMigration(migrationCode, newSchemaClone, migrationsDir2);
+      this.writeMigration(migrationCode, migrationsDir2);
       return true;
     }
   }
@@ -8768,28 +8755,31 @@ var MigrationHelper = class {
     for (var resourceName in newSchema2) {
       if (newSchema2.hasOwnProperty(resourceName)) {
         if (currentSchema.hasOwnProperty(resourceName)) {
-          for (var propName in newSchema2[resourceName].properties) {
-            if (newSchema2[resourceName].properties.hasOwnProperty(propName)) {
-              if (!currentSchema[resourceName].properties.hasOwnProperty(propName)) {
-                ops.up.push({type: "add_column", table: resourceName, name: propName, data: newSchema2[resourceName].properties[propName]});
+          let currSchemaProps = currentSchema[resourceName].properties;
+          let newSchemaProps = newSchema2[resourceName].properties;
+          for (var propName in newSchemaProps) {
+            if (newSchemaProps.hasOwnProperty(propName)) {
+              if (!currSchemaProps.hasOwnProperty(propName)) {
+                ops.up.push({type: "add_column", table: resourceName, name: propName, data: newSchemaProps[propName]});
                 ops.down.push({type: "remove_column", table: resourceName, name: propName});
               } else {
-                let prevProp = currentSchema[resourceName].properties[propName];
-                let nextProp = newSchema2[resourceName].properties[propName];
+                let prevProp = currSchemaProps[propName];
+                let nextProp = newSchemaProps[propName];
                 if (!import_lodash.isEqual(prevProp, nextProp)) {
+                  console.log("diff cols", prevProp, nextProp);
                   ops.up.push({type: "remove_column", table: resourceName, name: propName});
-                  ops.up.push({type: "add_column", table: resourceName, name: propName, data: newSchema2[resourceName].properties[propName]});
+                  ops.up.push({type: "add_column", table: resourceName, name: propName, data: nextProp});
                   ops.down.push({type: "remove_column", table: resourceName, name: propName});
-                  ops.down.push({type: "add_column", table: resourceName, name: propName, data: currentSchema[resourceName].properties[propName]});
+                  ops.down.push({type: "add_column", table: resourceName, name: propName, data: prevProp});
                 }
               }
             }
           }
-          for (var propName in currentSchema[resourceName].properties) {
-            if (currentSchema[resourceName].properties.hasOwnProperty(propName)) {
-              if (!newSchema2[resourceName].properties.hasOwnProperty(propName)) {
+          for (var propName in currSchemaProps) {
+            if (currSchemaProps.hasOwnProperty(propName)) {
+              if (!newSchemaProps.hasOwnProperty(propName)) {
                 ops.up.push({type: "remove_column", table: resourceName, name: propName});
-                ops.down.push({type: "add_column", table: resourceName, name: propName, data: currentSchema[resourceName].properties[propName]});
+                ops.down.push({type: "add_column", table: resourceName, name: propName, data: currSchemaProps[propName]});
               }
             }
           }
@@ -8827,7 +8817,7 @@ var MigrationHelper = class {
         throw "Operation not supported: " + o.type;
     }
   }
-  writeMigration(migrationCode, newSchema2, migrationsDir2) {
+  writeMigration(migrationCode, migrationsDir2) {
     let migrationFilePath = import_path3.resolve(migrationsDir2, this._formatDate(new Date()) + "-generated.js");
     mkDirSync(migrationsDir2);
     import_fs4.writeFile(migrationFilePath, migrationCode, (err) => {
@@ -8837,7 +8827,7 @@ var MigrationHelper = class {
     });
   }
   _generateCreateTableCode(o) {
-    o.data.properties = this._sanitizePropertyTypes(o.data.properties);
+    o.data.properties = this._sanitizeProperties(o.data.properties);
     return `
 	db.createTable('${o.name}', ${JSON.stringify(o.data.properties, null, 4)});`;
   }
@@ -8847,24 +8837,27 @@ var MigrationHelper = class {
   }
   _generateAddColumnCode(o) {
     return `
-	db.addColumn('${o.table}', '${o.name}', ${JSON.stringify(this._sanitizePropertyTypes([o.data]), null, 4)});`;
+	db.addColumn('${o.table}', '${o.name}', ${JSON.stringify(this._sanitizeProperty(o.data), null, 4)});`;
   }
   _generateRemoveColumnCode(o) {
     return `
 	db.removeColumn('${o.table}', '${o.name}');`;
   }
-  _sanitizePropertyTypes(props) {
-    for (var p in props) {
-      let pDef = props[p];
-      if (typeof pDef == "string") {
-        pDef = SchemaHelper_default.getSanitizedPropType(pDef);
-      } else {
-        pDef.type = SchemaHelper_default.getSanitizedPropType(pDef);
-        if (!pDef.type) {
-          throw "No type property found on " + p;
-        }
+  _sanitizeProperty(pDef) {
+    if (typeof pDef == "string") {
+      pDef = SchemaHelper_default.getSanitizedPropType(pDef);
+    } else {
+      pDef.type = SchemaHelper_default.getSanitizedPropType(pDef);
+      if (!pDef.type) {
+        throw "No type property found on " + p;
       }
-      props[p] = pDef;
+      delete pDef.enum;
+    }
+    return pDef;
+  }
+  _sanitizeProperties(props) {
+    for (var p2 in props) {
+      props[p2] = this._sanitizeProperty(props[p2]);
     }
     return props;
   }

@@ -4,6 +4,10 @@
     -each class should ask Config.get('VAR'), and Config should manage loading from either config file, or environments, or CLI, etc.
 
 ** DataMapper needs option to parse returned objects to some class, or at least minimimal serialization of types like Date... or use separate class.
+** DataMapper.save needs to allow saving of partial data, but return full object.
+    -add option to hydrate full objects, or return the full object in query response...
+    
+
 [
 -add method to DataMapper to just generate sql query string.
 -change code to use async/await

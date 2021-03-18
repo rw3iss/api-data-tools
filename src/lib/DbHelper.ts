@@ -36,10 +36,6 @@ export default class DbHelper {
         return null;
     }
 
-    static isInitialized() {
-        return this._isInitialized;
-    }
-
     static initialize() {
         if (!this._isInitialized) {
             var self = this;
@@ -79,6 +75,10 @@ export default class DbHelper {
         }
 
         return this;
+    }
+
+    static isInitialized() {
+        return this._isInitialized;
     }
 
     static escapeString(input?: string): string {

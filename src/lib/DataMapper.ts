@@ -41,6 +41,7 @@ export class DataMapper {
 
     // Updates an object if it exists, or otherwise inserts a new one.
     // Returns the new or updated object.
+    // todo: should allow editing of fields but return full object...
 	save(type, o) {
         let query = this.upsertQueryString(type, o);
         let isInsert = o['id'] ? false : true;
@@ -192,7 +193,7 @@ export class DataMapper {
 		if (typeof propType == 'undefined')
             propType = typeof propVal;
 
-        // todo: handle this differently?
+        // todo: handle specific types differently somewhere else
         if (propVal instanceof Date) {
             return `'${propVal.toISOString().slice(0, 19).replace('T', ' ')}'`;
         }
@@ -233,4 +234,4 @@ export class DataMapper {
     }
 }
 
-export default new DataMapper();
+export default new DataMapper();    

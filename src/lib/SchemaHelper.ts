@@ -60,19 +60,19 @@ export default class SchemaHelper {
     } 
     */
 
-    static getPropType(pDef) {
-        if (typeof pDef == 'string') {
-            return pDef;
-        } else {
-            if (pDef.type) {
-                return pDef.type;
-            } else if (pDef.enum) {
-                return 'string';
-            } else {
-                throw "No type found for property.";
-            }
-        }
-    }
+    // static getPropType(pDef) {
+    //     if (typeof pDef == 'string') {
+    //         return pDef;
+    //     } else {
+    //         if (pDef.type) {
+    //             return pDef.type;
+    //         } else if (pDef.enum) {
+    //             return 'string';
+    //         } else {
+    //             throw "No type found for property.";
+    //         }
+    //     }
+    // }
     
     // Returns the given definition SQL type for given input property types
     static getSanitizedPropType(pDef) {

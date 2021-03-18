@@ -57,6 +57,9 @@ async function main() {
             currSchema = await _readFile(prevSchemaFile);
         }
 
+
+        // todo: currSchema and newSchema should be parsed to "virtua model" of schema, and compared to that for changes...
+
         if (helper.generateMigration(currSchema, newSchema, migrationsDir)) {
             // finally backup the current schema, if there's been changes
             let currSchemaFile = path.resolve(basePath, '.curr.schema.json');

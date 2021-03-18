@@ -852,13 +852,13 @@ var require_quick_sort = __commonJS((exports2) => {
   function randomIntInRange(low, high) {
     return Math.round(low + Math.random() * (high - low));
   }
-  function doQuickSort(ary, comparator, p, r) {
-    if (p < r) {
-      var pivotIndex = randomIntInRange(p, r);
-      var i = p - 1;
+  function doQuickSort(ary, comparator, p2, r) {
+    if (p2 < r) {
+      var pivotIndex = randomIntInRange(p2, r);
+      var i = p2 - 1;
       swap(ary, pivotIndex, r);
       var pivot = ary[r];
-      for (var j = p; j < r; j++) {
+      for (var j = p2; j < r; j++) {
         if (comparator(ary[j], pivot) <= 0) {
           i += 1;
           swap(ary, i, j);
@@ -866,7 +866,7 @@ var require_quick_sort = __commonJS((exports2) => {
       }
       swap(ary, i + 1, j);
       var q = i + 1;
-      doQuickSort(ary, comparator, p, q - 1);
+      doQuickSort(ary, comparator, p2, q - 1);
       doQuickSort(ary, comparator, q + 1, r);
     }
   }
@@ -2863,49 +2863,49 @@ var require_bignumber = __commonJS((exports2) => {
     BigNumber2.ROUND_HALF_FLOOR = 8;
     BigNumber2.EUCLID = 9;
     BigNumber2.config = BigNumber2.set = function(obj) {
-      var p, v;
+      var p2, v;
       if (obj != null) {
         if (typeof obj == "object") {
-          if (obj.hasOwnProperty(p = "DECIMAL_PLACES")) {
-            v = obj[p];
-            intCheck(v, 0, MAX, p);
+          if (obj.hasOwnProperty(p2 = "DECIMAL_PLACES")) {
+            v = obj[p2];
+            intCheck(v, 0, MAX, p2);
             DECIMAL_PLACES = v;
           }
-          if (obj.hasOwnProperty(p = "ROUNDING_MODE")) {
-            v = obj[p];
-            intCheck(v, 0, 8, p);
+          if (obj.hasOwnProperty(p2 = "ROUNDING_MODE")) {
+            v = obj[p2];
+            intCheck(v, 0, 8, p2);
             ROUNDING_MODE = v;
           }
-          if (obj.hasOwnProperty(p = "EXPONENTIAL_AT")) {
-            v = obj[p];
+          if (obj.hasOwnProperty(p2 = "EXPONENTIAL_AT")) {
+            v = obj[p2];
             if (v && v.pop) {
-              intCheck(v[0], -MAX, 0, p);
-              intCheck(v[1], 0, MAX, p);
+              intCheck(v[0], -MAX, 0, p2);
+              intCheck(v[1], 0, MAX, p2);
               TO_EXP_NEG = v[0];
               TO_EXP_POS = v[1];
             } else {
-              intCheck(v, -MAX, MAX, p);
+              intCheck(v, -MAX, MAX, p2);
               TO_EXP_NEG = -(TO_EXP_POS = v < 0 ? -v : v);
             }
           }
-          if (obj.hasOwnProperty(p = "RANGE")) {
-            v = obj[p];
+          if (obj.hasOwnProperty(p2 = "RANGE")) {
+            v = obj[p2];
             if (v && v.pop) {
-              intCheck(v[0], -MAX, -1, p);
-              intCheck(v[1], 1, MAX, p);
+              intCheck(v[0], -MAX, -1, p2);
+              intCheck(v[1], 1, MAX, p2);
               MIN_EXP = v[0];
               MAX_EXP = v[1];
             } else {
-              intCheck(v, -MAX, MAX, p);
+              intCheck(v, -MAX, MAX, p2);
               if (v) {
                 MIN_EXP = -(MAX_EXP = v < 0 ? -v : v);
               } else {
-                throw Error(bignumberError + p + " cannot be zero: " + v);
+                throw Error(bignumberError + p2 + " cannot be zero: " + v);
               }
             }
           }
-          if (obj.hasOwnProperty(p = "CRYPTO")) {
-            v = obj[p];
+          if (obj.hasOwnProperty(p2 = "CRYPTO")) {
+            v = obj[p2];
             if (v === !!v) {
               if (v) {
                 if (typeof crypto != "undefined" && crypto && (crypto.getRandomValues || crypto.randomBytes)) {
@@ -2918,32 +2918,32 @@ var require_bignumber = __commonJS((exports2) => {
                 CRYPTO = v;
               }
             } else {
-              throw Error(bignumberError + p + " not true or false: " + v);
+              throw Error(bignumberError + p2 + " not true or false: " + v);
             }
           }
-          if (obj.hasOwnProperty(p = "MODULO_MODE")) {
-            v = obj[p];
-            intCheck(v, 0, 9, p);
+          if (obj.hasOwnProperty(p2 = "MODULO_MODE")) {
+            v = obj[p2];
+            intCheck(v, 0, 9, p2);
             MODULO_MODE = v;
           }
-          if (obj.hasOwnProperty(p = "POW_PRECISION")) {
-            v = obj[p];
-            intCheck(v, 0, MAX, p);
+          if (obj.hasOwnProperty(p2 = "POW_PRECISION")) {
+            v = obj[p2];
+            intCheck(v, 0, MAX, p2);
             POW_PRECISION = v;
           }
-          if (obj.hasOwnProperty(p = "FORMAT")) {
-            v = obj[p];
+          if (obj.hasOwnProperty(p2 = "FORMAT")) {
+            v = obj[p2];
             if (typeof v == "object")
               FORMAT = v;
             else
-              throw Error(bignumberError + p + " not an object: " + v);
+              throw Error(bignumberError + p2 + " not an object: " + v);
           }
-          if (obj.hasOwnProperty(p = "ALPHABET")) {
-            v = obj[p];
+          if (obj.hasOwnProperty(p2 = "ALPHABET")) {
+            v = obj[p2];
             if (typeof v == "string" && !/^.$|[+-.\s]|(.).*\1/.test(v)) {
               ALPHABET = v;
             } else {
-              throw Error(bignumberError + p + " invalid: " + v);
+              throw Error(bignumberError + p2 + " invalid: " + v);
             }
           }
         } else {
@@ -8550,10 +8550,10 @@ var require_BufferList2 = __commonJS((exports2, module2) => {
     BufferList.prototype.join = function join(s) {
       if (this.length === 0)
         return "";
-      var p = this.head;
-      var ret = "" + p.data;
-      while (p = p.next) {
-        ret += s + p.data;
+      var p2 = this.head;
+      var ret = "" + p2.data;
+      while (p2 = p2.next) {
+        ret += s + p2.data;
       }
       return ret;
     };
@@ -8563,12 +8563,12 @@ var require_BufferList2 = __commonJS((exports2, module2) => {
       if (this.length === 1)
         return this.head.data;
       var ret = Buffer2.allocUnsafe(n >>> 0);
-      var p = this.head;
+      var p2 = this.head;
       var i = 0;
-      while (p) {
-        copyBuffer(p.data, ret, i);
-        i += p.data.length;
-        p = p.next;
+      while (p2) {
+        copyBuffer(p2.data, ret, i);
+        i += p2.data.length;
+        p2 = p2.next;
       }
       return ret;
     };
@@ -9859,12 +9859,12 @@ var require_stream_readable = __commonJS((exports2, module2) => {
     return ret;
   }
   function copyFromBufferString(n, list) {
-    var p = list.head;
+    var p2 = list.head;
     var c = 1;
-    var ret = p.data;
+    var ret = p2.data;
     n -= ret.length;
-    while (p = p.next) {
-      var str = p.data;
+    while (p2 = p2.next) {
+      var str = p2.data;
       var nb = n > str.length ? str.length : n;
       if (nb === str.length)
         ret += str;
@@ -9874,13 +9874,13 @@ var require_stream_readable = __commonJS((exports2, module2) => {
       if (n === 0) {
         if (nb === str.length) {
           ++c;
-          if (p.next)
-            list.head = p.next;
+          if (p2.next)
+            list.head = p2.next;
           else
             list.head = list.tail = null;
         } else {
-          list.head = p;
-          p.data = str.slice(nb);
+          list.head = p2;
+          p2.data = str.slice(nb);
         }
         break;
       }
@@ -9891,25 +9891,25 @@ var require_stream_readable = __commonJS((exports2, module2) => {
   }
   function copyFromBuffer(n, list) {
     var ret = Buffer2.allocUnsafe(n);
-    var p = list.head;
+    var p2 = list.head;
     var c = 1;
-    p.data.copy(ret);
-    n -= p.data.length;
-    while (p = p.next) {
-      var buf = p.data;
+    p2.data.copy(ret);
+    n -= p2.data.length;
+    while (p2 = p2.next) {
+      var buf = p2.data;
       var nb = n > buf.length ? buf.length : n;
       buf.copy(ret, ret.length - n, 0, nb);
       n -= nb;
       if (n === 0) {
         if (nb === buf.length) {
           ++c;
-          if (p.next)
-            list.head = p.next;
+          if (p2.next)
+            list.head = p2.next;
           else
             list.head = list.tail = null;
         } else {
-          list.head = p;
-          p.data = buf.slice(nb);
+          list.head = p2;
+          p2.data = buf.slice(nb);
         }
         break;
       }
@@ -19667,19 +19667,6 @@ var SchemaHelper = class {
     }
     return schema;
   }
-  static getPropType(pDef) {
-    if (typeof pDef == "string") {
-      return pDef;
-    } else {
-      if (pDef.type) {
-        return pDef.type;
-      } else if (pDef.enum) {
-        return "string";
-      } else {
-        throw "No type found for property.";
-      }
-    }
-  }
   static getSanitizedPropType(pDef) {
     function _san(type2) {
       switch (type2) {
@@ -19766,9 +19753,6 @@ var _DbHelper = class {
     }
     return null;
   }
-  static isInitialized() {
-    return this._isInitialized;
-  }
   static initialize() {
     if (!this._isInitialized) {
       var self2 = this;
@@ -19801,6 +19785,9 @@ var _DbHelper = class {
       this._isInitialized = true;
     }
     return this;
+  }
+  static isInitialized() {
+    return this._isInitialized;
   }
   static escapeString(input) {
     return input ? mysql.escape(input) : "''";
@@ -20049,9 +20036,9 @@ var DataMapper = class {
     }
     if (o["id"]) {
       var valString = "", delim = " ";
-      for (var p in schema3.properties) {
-        if (o.hasOwnProperty(p)) {
-          valString += delim + p + "=" + this.tryEscape(o[p]);
+      for (var p2 in schema3.properties) {
+        if (o.hasOwnProperty(p2)) {
+          valString += delim + p2 + "=" + this.tryEscape(o[p2]);
           delim = ", ";
         }
       }
@@ -20059,11 +20046,11 @@ var DataMapper = class {
     } else {
       isInsert = true;
       var propString = "", valString = "", delim = "";
-      for (var p in schema3.properties) {
-        if (o.hasOwnProperty(p)) {
-          let propType = this._getPropType(null, schema3.properties[p]);
-          propString += delim + p;
-          valString += delim + this.tryEscape(o[p], propType);
+      for (var p2 in schema3.properties) {
+        if (o.hasOwnProperty(p2)) {
+          let propType = this._getPropType(null, schema3.properties[p2]);
+          propString += delim + p2;
+          valString += delim + this.tryEscape(o[p2], propType);
           delim = ",";
         }
       }
@@ -20200,17 +20187,17 @@ function _isValidTypeRequest(type, params, method) {
   if (schema2.hasOwnProperty(type)) {
     if (params) {
       let s = schema2[type].properties;
-      for (var p in params) {
-        if (params.hasOwnProperty(p)) {
-          if (!s.hasOwnProperty(p)) {
+      for (var p2 in params) {
+        if (params.hasOwnProperty(p2)) {
+          if (!s.hasOwnProperty(p2)) {
             return false;
           }
         }
       }
-      for (var p in s) {
-        if (s.hasOwnProperty(p)) {
-          if (!params.hasOwnProperty(p)) {
-            if (s[p].required) {
+      for (var p2 in s) {
+        if (s.hasOwnProperty(p2)) {
+          if (!params.hasOwnProperty(p2)) {
+            if (s[p2].required) {
               return false;
             }
           } else {
@@ -20273,15 +20260,15 @@ var RouteHelper = class {
   static registerAPIRoutes(router) {
     let apiPrefix = this.getApiPrefix();
     let schema3 = SchemaHelper_default.getSchema();
-    for (let p in schema3) {
-      let type = schema3[p];
-      let urlEndpoint = apiPrefix + p;
+    for (let p2 in schema3) {
+      let type = schema3[p2];
+      let urlEndpoint = apiPrefix + p2;
       let registerDefaultRoutes = true;
       if (type.api) {
         if (typeof type.api.generate != "undefined" && !type.api.generate) {
           continue;
         }
-        urlEndpoint = apiPrefix + getdef(type.api.urlPrefix, p);
+        urlEndpoint = apiPrefix + getdef(type.api.urlPrefix, p2);
         if (type.api.methods) {
           type.api.methods.forEach((m) => {
             let method = this._getSchemaMethod(m);
@@ -20414,12 +20401,12 @@ var MigrationHelper = class {
   generateMigration(currSchema, newSchema, migrationsDir) {
     if (currSchema != newSchema) {
       let newSchemaClone = JSON.parse(JSON.stringify(newSchema));
-      let {up, down} = this.generateDiffOperations(currSchema, newSchema);
+      let {up, down} = this.generateDiffOperations(currSchema, newSchemaClone);
       if (!up.length && !down.length) {
         return false;
       }
       let migrationCode = this.generateMigrationCode(up, down);
-      this.writeMigration(migrationCode, newSchemaClone, migrationsDir);
+      this.writeMigration(migrationCode, migrationsDir);
       return true;
     }
   }
@@ -20449,28 +20436,31 @@ var MigrationHelper = class {
     for (var resourceName in newSchema) {
       if (newSchema.hasOwnProperty(resourceName)) {
         if (currentSchema.hasOwnProperty(resourceName)) {
-          for (var propName in newSchema[resourceName].properties) {
-            if (newSchema[resourceName].properties.hasOwnProperty(propName)) {
-              if (!currentSchema[resourceName].properties.hasOwnProperty(propName)) {
-                ops.up.push({type: "add_column", table: resourceName, name: propName, data: newSchema[resourceName].properties[propName]});
+          let currSchemaProps = currentSchema[resourceName].properties;
+          let newSchemaProps = newSchema[resourceName].properties;
+          for (var propName in newSchemaProps) {
+            if (newSchemaProps.hasOwnProperty(propName)) {
+              if (!currSchemaProps.hasOwnProperty(propName)) {
+                ops.up.push({type: "add_column", table: resourceName, name: propName, data: newSchemaProps[propName]});
                 ops.down.push({type: "remove_column", table: resourceName, name: propName});
               } else {
-                let prevProp = currentSchema[resourceName].properties[propName];
-                let nextProp = newSchema[resourceName].properties[propName];
+                let prevProp = currSchemaProps[propName];
+                let nextProp = newSchemaProps[propName];
                 if (!import_lodash.isEqual(prevProp, nextProp)) {
+                  console.log("diff cols", prevProp, nextProp);
                   ops.up.push({type: "remove_column", table: resourceName, name: propName});
-                  ops.up.push({type: "add_column", table: resourceName, name: propName, data: newSchema[resourceName].properties[propName]});
+                  ops.up.push({type: "add_column", table: resourceName, name: propName, data: nextProp});
                   ops.down.push({type: "remove_column", table: resourceName, name: propName});
-                  ops.down.push({type: "add_column", table: resourceName, name: propName, data: currentSchema[resourceName].properties[propName]});
+                  ops.down.push({type: "add_column", table: resourceName, name: propName, data: prevProp});
                 }
               }
             }
           }
-          for (var propName in currentSchema[resourceName].properties) {
-            if (currentSchema[resourceName].properties.hasOwnProperty(propName)) {
-              if (!newSchema[resourceName].properties.hasOwnProperty(propName)) {
+          for (var propName in currSchemaProps) {
+            if (currSchemaProps.hasOwnProperty(propName)) {
+              if (!newSchemaProps.hasOwnProperty(propName)) {
                 ops.up.push({type: "remove_column", table: resourceName, name: propName});
-                ops.down.push({type: "add_column", table: resourceName, name: propName, data: currentSchema[resourceName].properties[propName]});
+                ops.down.push({type: "add_column", table: resourceName, name: propName, data: currSchemaProps[propName]});
               }
             }
           }
@@ -20508,7 +20498,7 @@ var MigrationHelper = class {
         throw "Operation not supported: " + o.type;
     }
   }
-  writeMigration(migrationCode, newSchema, migrationsDir) {
+  writeMigration(migrationCode, migrationsDir) {
     let migrationFilePath = import_path3.resolve(migrationsDir, this._formatDate(new Date()) + "-generated.js");
     mkDirSync(migrationsDir);
     import_fs4.writeFile(migrationFilePath, migrationCode, (err) => {
@@ -20518,7 +20508,7 @@ var MigrationHelper = class {
     });
   }
   _generateCreateTableCode(o) {
-    o.data.properties = this._sanitizePropertyTypes(o.data.properties);
+    o.data.properties = this._sanitizeProperties(o.data.properties);
     return `
 	db.createTable('${o.name}', ${JSON.stringify(o.data.properties, null, 4)});`;
   }
@@ -20528,24 +20518,27 @@ var MigrationHelper = class {
   }
   _generateAddColumnCode(o) {
     return `
-	db.addColumn('${o.table}', '${o.name}', ${JSON.stringify(this._sanitizePropertyTypes([o.data]), null, 4)});`;
+	db.addColumn('${o.table}', '${o.name}', ${JSON.stringify(this._sanitizeProperty(o.data), null, 4)});`;
   }
   _generateRemoveColumnCode(o) {
     return `
 	db.removeColumn('${o.table}', '${o.name}');`;
   }
-  _sanitizePropertyTypes(props) {
-    for (var p in props) {
-      let pDef = props[p];
-      if (typeof pDef == "string") {
-        pDef = SchemaHelper_default.getSanitizedPropType(pDef);
-      } else {
-        pDef.type = SchemaHelper_default.getSanitizedPropType(pDef);
-        if (!pDef.type) {
-          throw "No type property found on " + p;
-        }
+  _sanitizeProperty(pDef) {
+    if (typeof pDef == "string") {
+      pDef = SchemaHelper_default.getSanitizedPropType(pDef);
+    } else {
+      pDef.type = SchemaHelper_default.getSanitizedPropType(pDef);
+      if (!pDef.type) {
+        throw "No type property found on " + p;
       }
-      props[p] = pDef;
+      delete pDef.enum;
+    }
+    return pDef;
+  }
+  _sanitizeProperties(props) {
+    for (var p2 in props) {
+      props[p2] = this._sanitizeProperty(props[p2]);
     }
     return props;
   }

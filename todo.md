@@ -1,12 +1,24 @@
 # TODO
-** add saveDebug, getDebug, etc... method, to enable printing of statements and results...
+
+** Need options to serialize and deserialize fields per model...
+
+** Generate and update model files from schema config?
+    -model-dir
+    rapi gen model modelName --model-dir=src/data/models
+    * - rapi gen rebuildModels
+        -run schema, migrations
+        -rebuild model files from schema
+
 ** need to load in command line args to global config state (ie. whether entering from script or native API)
     -each class should ask Config.get('VAR'), and Config should manage loading from either config file, or environments, or CLI, etc.
 
 ** DataMapper needs option to parse returned objects to some class, or at least minimimal serialization of types like Date... or use separate class.
 ** DataMapper.save needs to allow saving of partial data, but return full object.
     -add option to hydrate full objects, or return the full object in query response...
-    
+    * Save needs to serialize data types like date strings?
+
+** Add utilities to add dummy data...
+
 
 [
 -add method to DataMapper to just generate sql query string.
@@ -47,6 +59,8 @@ RAPI_SCHEMA_FILE = config/schema.json
 
 
 # DONE:
+-cleaned up DbHelper and DataMapper code.
+-added debug() method to print trace/debug logs if process.env.DEBUG = true.
 -added environment variable support for schema: SCHEMA_FILE
 -added DATABASE_URL environment variable support to DbHelper, so that it can be used alongside node-db-migrate with environment variables instead of config.
 -added DataMapper.getOne() function.

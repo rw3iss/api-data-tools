@@ -9215,11 +9215,11 @@ var require_stream_readable = __commonJS((exports2, module2) => {
   var util = Object.create(require_util2());
   util.inherits = require_inherits();
   var debugUtil = require("util");
-  var debug = void 0;
+  var debug2 = void 0;
   if (debugUtil && debugUtil.debuglog) {
-    debug = debugUtil.debuglog("stream");
+    debug2 = debugUtil.debuglog("stream");
   } else {
-    debug = function() {
+    debug2 = function() {
     };
   }
   var BufferList = require_BufferList2();
@@ -9446,14 +9446,14 @@ var require_stream_readable = __commonJS((exports2, module2) => {
     return state.length;
   }
   Readable.prototype.read = function(n) {
-    debug("read", n);
+    debug2("read", n);
     n = parseInt(n, 10);
     var state = this._readableState;
     var nOrig = n;
     if (n !== 0)
       state.emittedReadable = false;
     if (n === 0 && state.needReadable && (state.length >= state.highWaterMark || state.ended)) {
-      debug("read: emitReadable", state.length, state.ended);
+      debug2("read: emitReadable", state.length, state.ended);
       if (state.length === 0 && state.ended)
         endReadable(this);
       else
@@ -9467,16 +9467,16 @@ var require_stream_readable = __commonJS((exports2, module2) => {
       return null;
     }
     var doRead = state.needReadable;
-    debug("need readable", doRead);
+    debug2("need readable", doRead);
     if (state.length === 0 || state.length - n < state.highWaterMark) {
       doRead = true;
-      debug("length less than watermark", doRead);
+      debug2("length less than watermark", doRead);
     }
     if (state.ended || state.reading) {
       doRead = false;
-      debug("reading or ended", doRead);
+      debug2("reading or ended", doRead);
     } else if (doRead) {
-      debug("do read");
+      debug2("do read");
       state.reading = true;
       state.sync = true;
       if (state.length === 0)
@@ -9524,7 +9524,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
     var state = stream._readableState;
     state.needReadable = false;
     if (!state.emittedReadable) {
-      debug("emitReadable", state.flowing);
+      debug2("emitReadable", state.flowing);
       state.emittedReadable = true;
       if (state.sync)
         pna.nextTick(emitReadable_, stream);
@@ -9533,7 +9533,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
     }
   }
   function emitReadable_(stream) {
-    debug("emit readable");
+    debug2("emit readable");
     stream.emit("readable");
     flow(stream);
   }
@@ -9546,7 +9546,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
   function maybeReadMore_(stream, state) {
     var len = state.length;
     while (!state.reading && !state.flowing && !state.ended && state.length < state.highWaterMark) {
-      debug("maybeReadMore read 0");
+      debug2("maybeReadMore read 0");
       stream.read(0);
       if (len === state.length)
         break;
@@ -9573,7 +9573,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
         break;
     }
     state.pipesCount += 1;
-    debug("pipe count=%d opts=%j", state.pipesCount, pipeOpts);
+    debug2("pipe count=%d opts=%j", state.pipesCount, pipeOpts);
     var doEnd = (!pipeOpts || pipeOpts.end !== false) && dest !== process.stdout && dest !== process.stderr;
     var endFn = doEnd ? onend : unpipe;
     if (state.endEmitted)
@@ -9582,7 +9582,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
       src.once("end", endFn);
     dest.on("unpipe", onunpipe);
     function onunpipe(readable, unpipeInfo) {
-      debug("onunpipe");
+      debug2("onunpipe");
       if (readable === src) {
         if (unpipeInfo && unpipeInfo.hasUnpiped === false) {
           unpipeInfo.hasUnpiped = true;
@@ -9591,14 +9591,14 @@ var require_stream_readable = __commonJS((exports2, module2) => {
       }
     }
     function onend() {
-      debug("onend");
+      debug2("onend");
       dest.end();
     }
     var ondrain = pipeOnDrain(src);
     dest.on("drain", ondrain);
     var cleanedUp = false;
     function cleanup() {
-      debug("cleanup");
+      debug2("cleanup");
       dest.removeListener("close", onclose);
       dest.removeListener("finish", onfinish);
       dest.removeListener("drain", ondrain);
@@ -9614,12 +9614,12 @@ var require_stream_readable = __commonJS((exports2, module2) => {
     var increasedAwaitDrain = false;
     src.on("data", ondata);
     function ondata(chunk) {
-      debug("ondata");
+      debug2("ondata");
       increasedAwaitDrain = false;
       var ret = dest.write(chunk);
       if (ret === false && !increasedAwaitDrain) {
         if ((state.pipesCount === 1 && state.pipes === dest || state.pipesCount > 1 && indexOf(state.pipes, dest) !== -1) && !cleanedUp) {
-          debug("false write response, pause", src._readableState.awaitDrain);
+          debug2("false write response, pause", src._readableState.awaitDrain);
           src._readableState.awaitDrain++;
           increasedAwaitDrain = true;
         }
@@ -9627,7 +9627,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
       }
     }
     function onerror(er) {
-      debug("onerror", er);
+      debug2("onerror", er);
       unpipe();
       dest.removeListener("error", onerror);
       if (EElistenerCount(dest, "error") === 0)
@@ -9640,18 +9640,18 @@ var require_stream_readable = __commonJS((exports2, module2) => {
     }
     dest.once("close", onclose);
     function onfinish() {
-      debug("onfinish");
+      debug2("onfinish");
       dest.removeListener("close", onclose);
       unpipe();
     }
     dest.once("finish", onfinish);
     function unpipe() {
-      debug("unpipe");
+      debug2("unpipe");
       src.unpipe(dest);
     }
     dest.emit("pipe", src);
     if (!state.flowing) {
-      debug("pipe resume");
+      debug2("pipe resume");
       src.resume();
     }
     return dest;
@@ -9659,7 +9659,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
   function pipeOnDrain(src) {
     return function() {
       var state = src._readableState;
-      debug("pipeOnDrain", state.awaitDrain);
+      debug2("pipeOnDrain", state.awaitDrain);
       if (state.awaitDrain)
         state.awaitDrain--;
       if (state.awaitDrain === 0 && EElistenerCount(src, "data")) {
@@ -9727,13 +9727,13 @@ var require_stream_readable = __commonJS((exports2, module2) => {
   };
   Readable.prototype.addListener = Readable.prototype.on;
   function nReadingNextTick(self2) {
-    debug("readable nexttick read 0");
+    debug2("readable nexttick read 0");
     self2.read(0);
   }
   Readable.prototype.resume = function() {
     var state = this._readableState;
     if (!state.flowing) {
-      debug("resume");
+      debug2("resume");
       state.flowing = true;
       resume(this, state);
     }
@@ -9747,7 +9747,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
   }
   function resume_(stream, state) {
     if (!state.reading) {
-      debug("resume read 0");
+      debug2("resume read 0");
       stream.read(0);
     }
     state.resumeScheduled = false;
@@ -9758,9 +9758,9 @@ var require_stream_readable = __commonJS((exports2, module2) => {
       stream.read(0);
   }
   Readable.prototype.pause = function() {
-    debug("call pause flowing=%j", this._readableState.flowing);
+    debug2("call pause flowing=%j", this._readableState.flowing);
     if (this._readableState.flowing !== false) {
-      debug("pause");
+      debug2("pause");
       this._readableState.flowing = false;
       this.emit("pause");
     }
@@ -9768,7 +9768,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
   };
   function flow(stream) {
     var state = stream._readableState;
-    debug("flow", state.flowing);
+    debug2("flow", state.flowing);
     while (state.flowing && stream.read() !== null) {
     }
   }
@@ -9777,7 +9777,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
     var state = this._readableState;
     var paused = false;
     stream.on("end", function() {
-      debug("wrapped end");
+      debug2("wrapped end");
       if (state.decoder && !state.ended) {
         var chunk = state.decoder.end();
         if (chunk && chunk.length)
@@ -9786,7 +9786,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
       _this.push(null);
     });
     stream.on("data", function(chunk) {
-      debug("wrapped data");
+      debug2("wrapped data");
       if (state.decoder)
         chunk = state.decoder.write(chunk);
       if (state.objectMode && (chunk === null || chunk === void 0))
@@ -9812,7 +9812,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
       stream.on(kProxyEvents[n], this.emit.bind(this, kProxyEvents[n]));
     }
     this._read = function(n2) {
-      debug("wrapped _read", n2);
+      debug2("wrapped _read", n2);
       if (paused) {
         paused = false;
         stream.resume();
@@ -19731,6 +19731,21 @@ function mkDirSync(dir) {
     }
   }
 }
+function debug() {
+  if (process.env.DEBUG == true) {
+    console.log("Debug:" + debug.caller);
+    console.log.apply(console, arguments);
+  }
+}
+function firstOrDefault(list, def = null) {
+  if (typeof list.length != "undefined") {
+    if (list.length > 0)
+      return list[0];
+  } else if (list) {
+    return list;
+  }
+  return def;
+}
 
 // src/lib/DbHelper.ts
 var _DbHelper = class {
@@ -19759,6 +19774,7 @@ var _DbHelper = class {
       let dbConfig;
       try {
         dbConfig = _DbHelper.getDbConfig();
+        debug("DbHelper.getDbConfig()", dbConfig);
         if (!dbConfig) {
           if (!Config_default.database) {
             throw new Error("Could not find database config in environment variables or config.json");
@@ -19792,70 +19808,37 @@ var _DbHelper = class {
   static escapeString(input) {
     return input ? mysql.escape(input) : "''";
   }
-  static async queryOne(sql, data) {
-    return new Promise(async (resolve4, reject) => {
-      try {
-        await _DbHelper._pool.getConnection((err, connection) => {
-          if (err) {
-            console.log(">> Db.getConnection() ERROR -> ", err, "SQL:", sql);
-            return reject({
-              error: err,
-              query: sql,
-              data
-            });
-          }
-          connection.query(sql, data, (err2, qr) => {
-            connection.release();
-            if (err2) {
-              console.log(">> Db.query() ERROR -> ", err2, "SQL:", sql);
-              return reject({
-                error: err2,
-                query: sql,
-                data
-              });
-            } else {
-              let result = null;
-              if (typeof qr.length != "undefined") {
-                result = qr.length ? qr[0] : null;
-              } else {
-                if (qr != null)
-                  result = qr;
-              }
-              return resolve4(result);
-            }
-          });
-        });
-      } catch (err) {
-        return reject(err);
-      }
-    });
-  }
   static async query(sql, data) {
     const self2 = this;
     return new Promise((resolve4, reject) => {
       _DbHelper._pool.getConnection((err, connection) => {
         if (err) {
-          console.log(">> Db.getConnection() ERROR -> ", err, "SQL:", sql);
-          return reject({
-            error: err,
-            query: sql,
-            data
-          });
+          console.log("DbHelper.getConnection() error -> ", err);
+          return reject({error: err, query: sql, data});
         }
+        debug("DbHelper.query", sql, data);
         connection.query(sql, data, (err2, qr) => {
           connection.release();
           if (err2) {
-            console.log(">> Db.query() ERROR -> ", err2, "SQL:", sql);
-            reject({
-              error: err2,
-              query: sql,
-              data
-            });
+            console.log("DbHelper.queryOne() error -> ", err2);
+            return reject({error: err2, query: sql, data});
           } else {
-            resolve4(qr);
+            return resolve4(qr);
           }
         });
       });
+    });
+  }
+  static async queryOne(sql, data) {
+    return new Promise(async (resolve4, reject) => {
+      try {
+        let qr = await DBHelper.query(sql, data);
+        let result = firstOrDefault(qr, null);
+        return resolve4(result);
+      } catch (err) {
+        debug("DbHelper.query error", err, sql);
+        return reject(err);
+      }
     });
   }
   static async upsert(table, data, indexName = "id") {
@@ -19868,7 +19851,7 @@ var _DbHelper = class {
       } else {
         let sql = `SELECT * FROM ${table} WHERE ${indexName}='${mysql.escape(data[indexName])}'`;
         let existingResult = await _DbHelper.queryOne(sql);
-        if (existingResult == "not-found") {
+        if (existingResult == null) {
           upsertResult = await _DbHelper.insert(table, data, indexName);
         } else {
           upsertResult = await _DbHelper.update(table, data, indexName);
@@ -19958,30 +19941,31 @@ var DataMapper = class {
     let query = this.getQueryString(type, params, limit);
     return new Promise((resolve4, reject) => {
       DbHelper_default.query(query).then((r) => {
+        debug("DataMapper.get result", r);
         return resolve4(r);
       }).catch((e) => {
+        debug("DataMapper.get error", e);
         throw e;
       });
     });
   }
   async getOne(type, params, serialize = false) {
     let r = await this.get(type, params, 1);
-    if (r.length)
-      return r[0];
-    return null;
+    return r.length ? r[0] : null;
   }
   save(type, o) {
     let query = this.upsertQueryString(type, o);
-    let isInsert = o["id"] ? false : true;
     return new Promise((resolve4, reject) => {
       DbHelper_default.query(query).then((r) => {
-        if (isInsert) {
+        if (!o.id) {
           if (r[r.length - 1][0].last_id) {
             o.id = r[r.length - 1][0].last_id;
           }
         }
+        debug("DataMapper.save result", o);
         return resolve4(o);
       }).catch((e) => {
+        debug("DataMapper.save error", e);
         throw e;
       });
     });
@@ -19990,8 +19974,10 @@ var DataMapper = class {
     let query = this.deleteQueryString(type, params);
     return new Promise((resolve4, reject) => {
       DbHelper_default.query(query).then((r) => {
+        debug("DataMapper.delete result", r);
         return resolve4(r);
       }).catch((e) => {
+        debug("DataMapper.delete error", e);
         throw e;
       });
     });
@@ -20030,31 +20016,32 @@ var DataMapper = class {
       throw "Cannot save without a type and an object";
     if (typeof this.schema[type] == "undefined")
       throw "Unknown object type for save: " + type;
-    let query, data, schema3 = this.schema[type], isInsert = false;
+    let query, data, schema3 = this.schema[type];
     if (typeof o != "object") {
       throw "Object parameter must be an object, " + typeof o + " found";
     }
+    let sp = schema3.properties;
     if (o["id"]) {
-      var valString = "", delim = " ";
-      for (var p2 in schema3.properties) {
+      var valStr = "", delim = " ";
+      for (var p2 in sp) {
         if (o.hasOwnProperty(p2)) {
-          valString += delim + p2 + "=" + this.tryEscape(o[p2]);
+          let propType = this._getPropType(null, sp[p2]);
+          valStr += delim + p2 + "=" + this.tryEscape(o[p2], propType);
           delim = ", ";
         }
       }
-      query = `UPDATE ${type} SET ${valString} WHERE id=${o["id"]}`;
+      query = `UPDATE ${type} SET ${valStr} WHERE id=${o["id"]}`;
     } else {
-      isInsert = true;
-      var propString = "", valString = "", delim = "";
-      for (var p2 in schema3.properties) {
+      var propString = "", valStr = "", delim = "";
+      for (var p2 in sp) {
         if (o.hasOwnProperty(p2)) {
-          let propType = this._getPropType(null, schema3.properties[p2]);
+          let propType = this._getPropType(null, sp[p2]);
           propString += delim + p2;
-          valString += delim + this.tryEscape(o[p2], propType);
+          valStr += delim + this.tryEscape(o[p2], propType);
           delim = ",";
         }
       }
-      query = `INSERT INTO ${type} (${propString}) VALUES (${valString});
+      query = `INSERT INTO ${type} (${propString}) VALUES (${valStr});
                     SELECT LAST_INSERT_ID() as last_id;`;
     }
     return query;
@@ -20085,7 +20072,9 @@ var DataMapper = class {
   tryEscape(propVal, propType) {
     if (typeof propType == "undefined")
       propType = typeof propVal;
-    if (propVal instanceof Date) {
+    if (typeof propVal == "object" && propType == "string") {
+      propVal = JSON.stringify(propVal);
+    } else if (propVal instanceof Date) {
       return `'${propVal.toISOString().slice(0, 19).replace("T", " ")}'`;
     }
     if (["string", "text", "char", "enum", "datetime"].includes(propType)) {
@@ -20510,19 +20499,19 @@ var MigrationHelper = class {
   _generateCreateTableCode(o) {
     o.data.properties = this._sanitizeProperties(o.data.properties);
     return `
-	db.createTable('${o.name}', ${JSON.stringify(o.data.properties, null, 4)});`;
+	db.createTable("${o.name}", ${JSON.stringify(o.data.properties, null, 4)});`;
   }
   _generateDropTableCode(o) {
     return `
-	db.dropTable('${o.name}');`;
+	db.dropTable("${o.name}");`;
   }
   _generateAddColumnCode(o) {
     return `
-	db.addColumn('${o.table}', '${o.name}', ${JSON.stringify(this._sanitizeProperty(o.data), null, 4)});`;
+	db.addColumn("${o.table}", "${o.name}", ${JSON.stringify(this._sanitizeProperty(o.data), null, 4)});`;
   }
   _generateRemoveColumnCode(o) {
     return `
-	db.removeColumn('${o.table}', '${o.name}');`;
+	db.removeColumn("${o.table}", "${o.name}");`;
   }
   _sanitizeProperty(pDef) {
     if (typeof pDef == "string") {

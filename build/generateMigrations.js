@@ -8829,19 +8829,19 @@ var MigrationHelper = class {
   _generateCreateTableCode(o) {
     o.data.properties = this._sanitizeProperties(o.data.properties);
     return `
-	db.createTable('${o.name}', ${JSON.stringify(o.data.properties, null, 4)});`;
+	db.createTable("${o.name}", ${JSON.stringify(o.data.properties, null, 4)});`;
   }
   _generateDropTableCode(o) {
     return `
-	db.dropTable('${o.name}');`;
+	db.dropTable("${o.name}");`;
   }
   _generateAddColumnCode(o) {
     return `
-	db.addColumn('${o.table}', '${o.name}', ${JSON.stringify(this._sanitizeProperty(o.data), null, 4)});`;
+	db.addColumn("${o.table}", "${o.name}", ${JSON.stringify(this._sanitizeProperty(o.data), null, 4)});`;
   }
   _generateRemoveColumnCode(o) {
     return `
-	db.removeColumn('${o.table}', '${o.name}');`;
+	db.removeColumn("${o.table}", "${o.name}");`;
   }
   _sanitizeProperty(pDef) {
     if (typeof pDef == "string") {

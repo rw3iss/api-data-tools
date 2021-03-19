@@ -1,7 +1,93 @@
-import SchemaHelper from './SchemaHelper';
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> DataMapper.ts</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    API Documentation
+                </a>
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="DataMapper.html">DataMapper</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>DataMapper.ts</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import SchemaHelper from './SchemaHelper';
 import DbHelper from './DbHelper';
 import { debug } from '../utils';
-import { lchmod } from 'node:fs';
 
 /**
  * Manages arbitrary CRUD operations to the data layer schema objects.
@@ -35,10 +121,11 @@ export class DataMapper {
         return new Promise((resolve, reject) => {
 			DbHelper.query(query) 
 				.then((r: any) => {
-                    debug('DataMapper.get result', r);
+                    debug('get result', r);
 					return resolve(r);
 				})
 				.catch((e) => {
+					// Todo: log
                     debug('DataMapper.get error', e);
 					throw e;
 				})
@@ -54,7 +141,9 @@ export class DataMapper {
      */
     async getOne(type: string, params?: object, serialize: boolean = false) {
         let r = await this.get(type, params, 1);
-        return r.length ? r[0] : null;
+        if (r.length)
+            return r[0];
+        return null;
     }
 
     /**
@@ -68,20 +157,23 @@ export class DataMapper {
         // todo: should allow editing of fields but return full object...
 
         let query = this.upsertQueryString(type, o);
+        let isInsert = o['id'] ? false : true;
 		return new Promise((resolve, reject) => {
 			DbHelper.query(query)
 				.then((r: any) => {
-					if (!o.id) {
-					    // retrieve inserted id
+					// set inserted id
+					if (isInsert) {
 						if (r[r.length-1][0].last_id) {
                             o.id = r[r.length-1][0].last_id;
 						}
 					}
-                    debug('DataMapper.save result', o);
+
+                    debug('save result', o);
 					return resolve(o);
 				})
 				.catch((e) => {
-                    debug('DataMapper.save error', e);
+					// Todo: log
+                    debug('save error', e);
 					throw e;
 				})
 		});
@@ -98,11 +190,11 @@ export class DataMapper {
         return new Promise((resolve, reject) => {
             DbHelper.query(query)
                 .then((r: any) => {
-                    debug('DataMapper.delete result', r);
+                    debug('delete result', r);
                     return resolve(r);
                 })
                 .catch((e) => {
-                    debug('DataMapper.delete error', e);
+                    // Todo: log
                     throw e;
                 })
         });
@@ -152,37 +244,37 @@ export class DataMapper {
         if (typeof this.schema[type] == 'undefined')
             throw "Unknown object type for save: " + type;
 
-        let query, data, schema = this.schema[type];
+        let query, data, schema = this.schema[type], isInsert = false;
 
         if (typeof o != 'object') {
             throw "Object parameter must be an object, " + typeof o + " found";
         }
 
-        let sp = schema.properties;
-
         if (o['id']) {
             // assume an update
-            var valStr = '', delim = ' ';
-            for (var p in sp) {
+            var valString = '', delim = ' ';
+            for (var p in schema.properties) {
                 if (o.hasOwnProperty(p)) { 
-                    let propType = this._getPropType(null, sp[p]);
-                    valStr += delim + p + '=' + this.tryEscape(o[p], propType);
+                    valString += delim + p + '=' + this.tryEscape(o[p]);
                     delim = ', ';
                 }
             }
-            query = `UPDATE ${type} SET ${valStr} WHERE id=${o['id']}`;
+
+            query = `UPDATE ${type} SET ${valString} WHERE id=${o['id']}`;
         } else {
             // assume an insert
-            var propString = '', valStr = '', delim = '';
-            for (var p in sp) {
+            isInsert = true;
+            var propString = '', valString = '', delim = '';
+            for (var p in schema.properties) {
                 if (o.hasOwnProperty(p)) {
-                    let propType = this._getPropType(null, sp[p]);
+                    let propType = this._getPropType(null, schema.properties[p]);
                     propString += delim + p;
-                    valStr += delim + this.tryEscape(o[p], propType);
+                    valString += delim + this.tryEscape(o[p], propType);
                     delim = ',';
                 }
             }
-            query = `INSERT INTO ${type} (${propString}) VALUES (${valStr});
+
+            query = `INSERT INTO ${type} (${propString}) VALUES (${valString});
                     SELECT LAST_INSERT_ID() as last_id;`;
         }
 
@@ -222,12 +314,8 @@ export class DataMapper {
 		if (typeof propType == 'undefined')
             propType = typeof propVal;
 
-        // TODO: these escape-per-type definitions might do better elsewhere
-
-        // stringify object representations first
-        if (typeof propVal == 'object' && propType == 'string') {
-            propVal = JSON.stringify(propVal);
-        } else if (propVal instanceof Date) {
+        // todo: handle specific types differently somewhere else
+        if (propVal instanceof Date) {
             return `'${propVal.toISOString().slice(0, 19).replace('T', ' ')}'`;
         }
         
@@ -249,7 +337,7 @@ export class DataMapper {
     _getPropType(propVal, propDef?) {
         let type = '';
         if (typeof propDef == 'object') {
-            if (!propDef.type && !propDef.enum) {
+            if (!propDef.type &amp;&amp; !propDef.enum) {
                 throw "Property definition requires a type property";
             } else if (propDef.enum) {
                 type = 'enum';
@@ -267,4 +355,32 @@ export class DataMapper {
     }
 }
 
-export default new DataMapper();
+export default new DataMapper();    </code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by 
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+</body>
+</html>

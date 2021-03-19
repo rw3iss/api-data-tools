@@ -1,0 +1,12 @@
+{
+    "tags": {
+        "allowUnknownTags": ["optional"] //or true
+    },
+    "plugins": [
+        "node_modules/better-docs/typescript"
+    ],
+    "source": {
+        "include": ["./src"],
+        "includePattern": "\\.(js|ts)$"
+    }
+}

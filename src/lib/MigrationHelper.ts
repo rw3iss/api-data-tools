@@ -151,19 +151,19 @@ export default class MigrationHelper {
     _generateCreateTableCode(o) {
         // Todo: append ()=>{} callback handler, which can add indexes/etc based on schema:
         o.data.properties = this._sanitizeProperties(o.data.properties);
-        return `\n\tdb.createTable('${o.name}', ${JSON.stringify(o.data.properties, null, 4)});`;
+        return `\n\tdb.createTable("${o.name}", ${JSON.stringify(o.data.properties, null, 4)});`;
     }
 
     _generateDropTableCode(o) {
-        return `\n\tdb.dropTable('${o.name}');`;
+        return `\n\tdb.dropTable("${o.name}");`;
     }
 
     _generateAddColumnCode(o) {
-        return `\n\tdb.addColumn('${o.table}', '${o.name}', ${JSON.stringify(this._sanitizeProperty(o.data), null, 4)});`;
+        return `\n\tdb.addColumn("${o.table}", "${o.name}", ${JSON.stringify(this._sanitizeProperty(o.data), null, 4)});`;
     }
 
     _generateRemoveColumnCode(o) {
-        return `\n\tdb.removeColumn('${o.table}', '${o.name}');`;
+        return `\n\tdb.removeColumn("${o.table}", "${o.name}");`;
     }
 
     // generates "real" sql data types from prop definitions

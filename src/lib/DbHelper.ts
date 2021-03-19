@@ -5,13 +5,12 @@
 
 import * as mysql from 'mysql';
 import Config from './Config';
-import { mysqlDate } from '../utils';
+import { mysqlDate, debug, firstOrDefault } from '../utils';
 
 export default class DbHelper {
     private static _pool: any;
     private static _isInitialized = false;
 
-    // trie to load config from environment variables
     static getDbConfig() {
         let dbConfig;
 
@@ -45,6 +44,7 @@ export default class DbHelper {
             // prefer Config from environment variables, or fallback to config:
             try {
                 dbConfig = DbHelper.getDbConfig();
+                debug('DbHelper.getDbConfig()', dbConfig);
 
                 if (!dbConfig) {
                     if (!Config.database) {
@@ -85,87 +85,46 @@ export default class DbHelper {
         return input ? mysql.escape(input) : '\'\'';
     }
 
-    public static async queryOne<T>(sql: string, data?: {[index: string]: any}): Promise<T | null> {
-        return new Promise<T | null>(async (resolve, reject) => {
-            try {
-                await DbHelper._pool.getConnection((err: any, connection: any) => {
-                    if (err) {
-                        console.log(">> Db.getConnection() ERROR -> ", err, "SQL:", sql);
-                        return reject({
-                            error: err,
-                            query: sql,
-                            data: data
-                        }); 
-                    }
-
-                    connection.query(sql, data, (err: any, qr: Array<{}>) => {
-                        connection.release();
-                        if (err) {
-                            console.log(">> Db.query() ERROR -> ", err, "SQL:", sql);
-                            return reject({
-                                error: err,
-                                query: sql,
-                                data: data
-                            });
-                        } else {
-                            let result: any = null;
-                            //console.log("QR", qr, typeof qr, typeof qr.length, qr.length, result);
-                            // This is done because if the query returns a single object, it will be an object,
-                            // but if it returns no objects, then it will be an array with 0 objects. Yeah.
-                            if (typeof qr.length != 'undefined') {
-                                result = qr.length ? qr[0] : null;
-                            } else {
-                                if (qr != null)
-                                    result = qr;
-                            }
-        
-                            return resolve(result as T);
-                        }
-                    });
-                });
-            }
-            catch (err) {
-                //console.log("EXCEPTION", err);
-                return reject(err);
-            }
-            /* finally {
-                console.log("Finally...");
-                reject('final');
-            } */
-        });
-        
-    } 
-
     public static async query<T>(sql: string, data?: any): Promise<T> {
         const self = this;
 
         return new Promise<T>((resolve, reject) => {
             DbHelper._pool.getConnection((err: any, connection: any) => {
                 if (err) {
-                    console.log(">> Db.getConnection() ERROR -> ", err, "SQL:", sql);
-                    return reject({
-                        error: err,
-                        query: sql,
-                        data: data
-                    });
+                    console.log("DbHelper.getConnection() error -> ", err);
+                    return reject({ error: err, query: sql, data: data }); 
                 }
-
+ 
+                debug("DbHelper.query", sql, data);
                 connection.query(sql, data, (err: any, qr: T) => {
                     connection.release();
                     if (err) {
-                        console.log(">> Db.query() ERROR -> ", err, "SQL:", sql);
-                        reject({
-                            error: err,
-                            query: sql,
-                            data: data
-                        });
+                        console.log("DbHelper.queryOne() error -> ", err);
+                        return reject({ error: err, query: sql, data: data });
                     } else {
-                        resolve(<T>qr);
+                        return resolve(qr as T);
                     }
                 });
             });
         });
     }
+    
+    public static async queryOne<T>(sql: string, data?: {[index: string]: any}): Promise<T | null> {
+        return new Promise<T | null>(async (resolve, reject) => {
+            try {
+                let qr = await DBHelper.query<T>(sql, data);
+                let result = firstOrDefault(qr, null);
+                return resolve(result as T);
+            }
+            catch (err) {
+                debug("DbHelper.query error", err, sql);
+                return reject(err);
+            }
+        });
+        
+    } 
+
+    // Helper methods...
 
     // Note: we're passing data as 'any' type to be able to use an implicit index on it, otherwise using 'T' type will
     // require index "synchronization" on all passed object types, or otherwise need to disable 'noImplicityAny' compiler flag.
@@ -183,10 +142,10 @@ export default class DbHelper {
             } else {
                 // Look for existing record by indexName:
                 let sql = `SELECT * FROM ${table} WHERE ${indexName}='${mysql.escape(data[indexName])}'`;
-                let existingResult = await DbHelper.queryOne<T | 'not-found'>(sql);
+                let existingResult = await DbHelper.queryOne<T | null>(sql);
 
                 // If none is found, assume insert, otherwise update:
-                if (existingResult == 'not-found') {
+                if (existingResult == null) {
                     upsertResult = await DbHelper.insert<T>(table, data, indexName);
                 } else {
                     upsertResult = await DbHelper.update<T>(table, data, indexName);
@@ -232,6 +191,8 @@ export default class DbHelper {
             return resolve(result);
         });
     }
+
+    // Utility methods...
  
     // Will generate a 'col1, col2, ...' etc string, ignoring the given indexName, if any.
     private static _generateTableCols(data: any, indexName: string | null = null, updateIndex: boolean = false) {

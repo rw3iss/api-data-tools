@@ -1,0 +1,22 @@
+<% if (modelBaseClass) { %>import { <%= modelBaseClass %> } from '<%= modelBaseDir %><%= modelBaseClass %>';<% } -%>
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+
+export default class <%= modelClass %> <% if (modelBaseClass) { %>extends <%= modelBaseClass %> <% } %>{
+<% if (modelBaseClass) { %>
+    constructor() {
+        super();
+    }
+<% } -%>
+
+<% if (!Object.values(modelProps).includes('primary')) { %>
+    id: number;
+<% } -%>
+
+<% Object.keys(modelProps).forEach(function(prop) { %>
+    <% if (modelProps[prop] == 'primary') { %>
+        <%= prop %>: number;
+    <% } else { -%>
+        <%= prop %>: <%= modelProps[prop] %>;
+    <% } -%>
+<% }) %>
+}

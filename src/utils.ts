@@ -56,3 +56,23 @@ export function mkDirSync(dir) {
         }
     }
 }
+
+export function debug() {
+    if (process.env.DEBUG == true) {
+        console.log("Debug:" + debug.caller);
+	    console.log.apply(console, arguments);
+    }
+}
+
+// Returns first element of the array, if exists, 
+// or otherwise the element itself if not an array.
+export function firstOrDefault(list, def = null) {
+    if (typeof list.length != 'undefined') {
+        if (list.length > 0) 
+            return list[0]; 
+    } else if (list) {
+        return list;
+    }
+
+    return def;
+}

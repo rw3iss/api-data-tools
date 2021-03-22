@@ -2,7 +2,8 @@
     the differences between schema.json file (assumed to be "new" schema), and the contents of 
     .curr.schema.json (assumed to be the old/current schema). See package.json/webpack.config.js 
 */
-import 'source-map-support/register';
+require('dotenv').config();
+//import 'source-map-support/register';
 import Config from '../lib/Config';
 import MigrationHelper from '../lib/MigrationHelper';
 import { existsSync, readFile, writeFile } from 'fs';
@@ -27,6 +28,8 @@ try {
 
 // Todo:
 // this needs to lead to 
+
+console.log('generateMigrations...', process.env.DATABASE_URL);
 
 const cwd = process.cwd();
 const basePath = path.resolve(cwd, opts.config ? opts.config : DEFAULT_DIR);

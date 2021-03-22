@@ -1,6 +1,6 @@
 import SchemaHelper from './SchemaHelper';
 import DbHelper from './DbHelper';
-import { debug } from '../utils';
+import { debug } from '../utils/utils';
 import { lchmod } from 'node:fs';
 
 /**
@@ -30,19 +30,16 @@ export class DataMapper {
      * @param {*} [limit]
      * @return {$type} Set of matching objects.
      */
-    get(type: string, params?, limit?) {
-		let query = this.getQueryString(type, params, limit);
-        return new Promise((resolve, reject) => {
-			DbHelper.query(query) 
-				.then((r: any) => {
-                    debug('DataMapper.get result', r);
-					return resolve(r);
-				})
-				.catch((e) => {
-                    debug('DataMapper.get error', e);
-					throw e;
-				})
-		});
+    get = async (type: string, params?, limit?) => {
+        try {
+            let query = this.selectQueryString(type, params, limit);
+            let r = await DbHelper.query(query);
+            debug('DataMapper.get result', r);
+            return r;
+        } catch(e) {
+            console.log('DataMapper.get error', e)
+            throw e;
+        }
     }
 
     /**
@@ -63,28 +60,19 @@ export class DataMapper {
      * @param {object} o
      * @return {$type} Returns the new or updated object.
      */
-    save(type: string, o: object) {
-
+    save = async (type: string, o: object) => {
         // todo: should allow editing of fields but return full object...
-
-        let query = this.upsertQueryString(type, o);
-		return new Promise((resolve, reject) => {
-			DbHelper.query(query)
-				.then((r: any) => {
-					if (!o.id) {
-					    // retrieve inserted id
-						if (r[r.length-1][0].last_id) {
-                            o.id = r[r.length-1][0].last_id;
-						}
-					}
-                    debug('DataMapper.save result', o);
-					return resolve(o);
-				})
-				.catch((e) => {
-                    debug('DataMapper.save error', e);
-					throw e;
-				})
-		});
+        try {
+            let query = this.upsertQueryString(type, o);
+            let r = await DbHelper.query(query);
+            // todo: check if id property exists on schema
+            o.id = o.id || r[r.length-1][0]?.last_id;
+            debug('DataMapper.save result', o);
+            return resolve(o);
+        } catch(e) {
+            debug('DataMapper.save error', e);
+            throw e;
+        }
 	}
 
     /** 
@@ -93,24 +81,21 @@ export class DataMapper {
      * @param {object} params
      * @return {*} The delete result.
      */
-    delete(type: string, params) {
-        let query = this.deleteQueryString(type, params);
-        return new Promise((resolve, reject) => {
-            DbHelper.query(query)
-                .then((r: any) => {
-                    debug('DataMapper.delete result', r);
-                    return resolve(r);
-                })
-                .catch((e) => {
-                    debug('DataMapper.delete error', e);
-                    throw e;
-                })
-        });
+    delete = async (type: string, params) => {
+        try {
+            let query = this.deleteQueryString(type, params);
+            let r = await DbHelper.query(query);
+            debug('DataMapper.delete result', r);
+            return resolve(r);
+        } catch(e) {
+            debug('DataMapper.delete error', e);
+            throw e;
+        }
     }
     
     /////////////////////////////////////////////////////////////
 
-    getQueryString(type, params?, limit?) {
+    selectQueryString(type, params?, limit?) {
         if (!type)
             throw "Cannot get without a type";
 
@@ -124,27 +109,21 @@ export class DataMapper {
                 // todo: detect primary key property name
                 query += ` WHERE id=${params}`;
             } else if (typeof params == 'object') {
-                var delim = ' WHERE ';
-                for (var pName in params) {
-                    if (params.hasOwnProperty(pName)) {
-                        let pVal = params[pName];
-                        let pDef = this.schema[type][pName];
-                        let pQuery = this._makePropQuery(pName, pVal, pDef);
-                        query += delim + pQuery;
-                        delim = ' AND';
-                    }
-                }
-                if (limit) {
-                    query += ` LIMIT ${limit}`;
-                }
+                query += this.whereString(params);
             } else {
+                console.log('params', params, typeof params);
                 throw "Unknown parameter type to get() method. Only integer and object supported.";
             }
+        }
+                
+        if (limit) {
+            query += ` LIMIT ${limit}`;
         }
 
         return query;
     }
-
+    
+    // todo: support more where clauses
     upsertQueryString(type, o) {
         if (!type || !o)
             throw "Cannot save without a type and an object";
@@ -152,12 +131,11 @@ export class DataMapper {
         if (typeof this.schema[type] == 'undefined')
             throw "Unknown object type for save: " + type;
 
-        let query, data, schema = this.schema[type];
-
         if (typeof o != 'object') {
             throw "Object parameter must be an object, " + typeof o + " found";
         }
 
+        let query, data, schema = this.schema[type];
         let sp = schema.properties;
 
         if (o['id']) {
@@ -166,7 +144,7 @@ export class DataMapper {
             for (var p in sp) {
                 if (o.hasOwnProperty(p)) { 
                     let propType = this._getPropType(null, sp[p]);
-                    valStr += delim + p + '=' + this.tryEscape(o[p], propType);
+                    valStr += delim + p + '=' + this.escape(o[p], propType);
                     delim = ', ';
                 }
             }
@@ -178,7 +156,7 @@ export class DataMapper {
                 if (o.hasOwnProperty(p)) {
                     let propType = this._getPropType(null, sp[p]);
                     propString += delim + p;
-                    valStr += delim + this.tryEscape(o[p], propType);
+                    valStr += delim + this.escape(o[p], propType);
                     delim = ',';
                 }
             }
@@ -203,28 +181,33 @@ export class DataMapper {
         let query = `DELETE FROM ${type}`;// WHERE id=${params.id}`;
 
         if (params) {
-            var delim = ' WHERE ';
-            for (var pName in params) {
-                if (params.hasOwnProperty(pName)) {
-                    let pVal = params[pName];   
-                    let pDef = this.schema[type][pName];
-                    let pQuery = this._makePropQuery(pName, pVal, pDef);
-                    query += delim + pQuery;
-                    delim = ' AND';
-                }
-            }
+            query += this.whereString(params);
         }
         
         return query;
     }
 
-	tryEscape(propVal, propType?) {
+    whereString(params) {
+        let str = '';
+        var delim = ' WHERE ';
+        for (var pName in params) {
+            if (params.hasOwnProperty(pName)) {
+                let pVal = params[pName];
+                let pDef = this.schema[type][pName];
+                let pQuery = this._makePropValString(pName, pVal, pDef);
+                str += delim + pQuery;
+                delim = ' AND';
+            }
+        }
+        return str;
+    }
+
+	escape(propVal, propType?) {
 		if (typeof propType == 'undefined')
             propType = typeof propVal;
 
+        // stringify Date/object representations first
         // TODO: these escape-per-type definitions might do better elsewhere
-
-        // stringify object representations first
         if (typeof propVal == 'object' && propType == 'string') {
             propVal = JSON.stringify(propVal);
         } else if (propVal instanceof Date) {
@@ -239,10 +222,10 @@ export class DataMapper {
     }
 
     // makes a 'prop=val' string, where val is properly escaped depending on its type
-    _makePropQuery(pName, pVal, pDef) {
+    _makePropValString(pName, pVal, pDef) {
         let q = pName;
         let pType = this._getPropType(pVal, pDef);
-        let eVal = this.tryEscape(pVal, pType);
+        let eVal = this.escape(pVal, pType);
         return `${pName}=${eVal}`;
     }
 

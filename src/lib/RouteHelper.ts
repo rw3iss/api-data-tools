@@ -1,7 +1,7 @@
 import SchemaHelper from './SchemaHelper';
-import ResourceHelper from './ResourceHelper';
+import ResourceHandler from './ResourceHandler';
 import Config from './Config';
-import { getdef, stripFirstLastSlash } from '../utils';
+import { getdef, stripFirstLastSlash } from '../utils/utils';
 
 const METHODS = [ 'GET','PUT','POST','PATCH','DELETE' ];
 
@@ -13,6 +13,11 @@ export default class RouteHelper {
             apiPrefix = '/' + apiPrefix;
         apiPrefix += '/';
         return apiPrefix;
+    }
+
+    static getAllRoutes(router) {
+        let schema = SchemaHelper.getSchema();
+        return router.trees;
     }
 
     // registers REST routes for each type defined in the schema
@@ -64,7 +69,7 @@ export default class RouteHelper {
 
     private static _registerDefaultRoutesForType(router, urlEndpoint) {
         METHODS.forEach(m => {
-            let handler = ResourceHelper[m.toLowerCase()];
+            let handler = ResourceHandler[m.toLowerCase()];
             if (typeof handler == 'function') {
                 // collection handlers, only register GET, PUT, POST on collections
                 if (['GET','PUT', 'POST'].includes(m)) {
@@ -100,7 +105,7 @@ export default class RouteHelper {
     }
 
     private static _getDefaultHandler(method) {
-        let h = ResourceHelper[method.toLowerCase()];
+        let h = ResourceHandler[method.toLowerCase()];
         if (typeof h != 'function') {
             throw "Error obtaining default handler for method: " + method;
         }

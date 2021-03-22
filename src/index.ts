@@ -1,7 +1,8 @@
-import 'source-map-support/register';
+require('dotenv').config();
+//import 'source-map-support/register';
 import RestAPI from './lib/RestAPI';
 import MigrationHelper from './lib/MigrationHelper';
-import ResourceHelper from './lib/ResourceHelper';
+import ResourceHandler from './lib/ResourceHandler';
 import DbHelper from './lib/DbHelper';
 import DataMapper from './lib/DataMapper';
 
@@ -14,7 +15,7 @@ export {
     MigrationHelper,
 
     // Exposes CRUD API endpoints for models based on the schema.
-    //ResourceHelper,
+    //ResourceHandler,
 
     // Object serialization interface to database.
     DataMapper,

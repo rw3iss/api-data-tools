@@ -1,11 +1,22 @@
 import RouteHelper from './RouteHelper';
 import Config from './Config';
+import DbHelper from './DbHelper';
+
+const generateApiDocs = () => {
+    // go through schema file and get all routes
+    let routes = RouteHelper.getAllRoutes();
+    console.log('getAllRoutes', routes); 
+    return routes;
+}
 
 export default class RestAPI {
     private router;
     private routesRegistered = false;
 
     constructor(configPath?, schemaPath?) {
+
+        // Need to initialize DB on app start...
+        DbHelper.initialize();
         
         if (configPath && schemaPath) {
             // hack to pass to Config class, for now
@@ -49,6 +60,14 @@ export default class RestAPI {
             // registers routes from the schema configuration
             RouteHelper.registerAPIRoutes(this.router);
             this.routesRegistered = true;
+        }
+        
+        if (Config.generateApiDocs) {
+            console.log('generate api documentation route')
+            this.router.on('GET', '/api/docs', (req, res, ctx) => { 
+                let routes = generateApiDocs(); 
+                res.end(routes);
+            });
         }
     }
 

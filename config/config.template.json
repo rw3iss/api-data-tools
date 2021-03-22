@@ -11,5 +11,10 @@
         "password": "root",
         "database": "rapi",
         "multipleStatements": true
-    }
+    },
+    
+    "validateApiParams": true,
+    "serializeSchemaObjects": true,
+    "loadRelationships": true
+
 }

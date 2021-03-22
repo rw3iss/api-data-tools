@@ -1,6 +1,9 @@
 # TODO
 
-** Need options to serialize and deserialize fields per model...
+* Main add Validation, Serialization, and Lazy Loading of related model as config options.
+
+** Need options to serialize and deserialize fields per model... 
+    -ie. object to strings...
 
 ** Generate and update model files from schema config?
     -model-dir
@@ -19,8 +22,18 @@
 
 ** Add utilities to add dummy data...
 
+** Add a /api/routes endpoint which shows API docs
 
-[
+* ResourceHandler:
+    -Enable validation through config property... Config.validateApiParameters
+    -add more robust Validation: _validateTypeFromRequest. Use Validation library.
+
+
+# DATABASE BOOTSTRAPPING
+    -add config option to auto-run migrations on recompile (or app startup).
+
+
+
 -add method to DataMapper to just generate sql query string.
 -change code to use async/await
 -generate Model files file the given schema?

@@ -1,11 +1,11 @@
-/*  DBHelper
+/*  DbHelper
  *  This class manages access to the underlying database. 
  *  This is stricly for sql servers, but other adapters can be written to replace this class.
  */
 
 import * as mysql from 'mysql';
 import Config from './Config';
-import { mysqlDate, debug, firstOrDefault } from '../utils';
+import { mysqlDate, debug, firstOrDefault } from '../utils/utils';
 
 export default class DbHelper {
     private static _pool: any;
@@ -36,6 +36,7 @@ export default class DbHelper {
     }
 
     static initialize() {
+        console.log('DbHelper.initialize()');
         if (!this._isInitialized) {
             var self = this;
 
@@ -44,7 +45,7 @@ export default class DbHelper {
             // prefer Config from environment variables, or fallback to config:
             try {
                 dbConfig = DbHelper.getDbConfig();
-                debug('DbHelper.getDbConfig()', dbConfig);
+                console.log('DbHelper.getDbConfig()', dbConfig);
 
                 if (!dbConfig) {
                     if (!Config.database) {
@@ -112,7 +113,7 @@ export default class DbHelper {
     public static async queryOne<T>(sql: string, data?: {[index: string]: any}): Promise<T | null> {
         return new Promise<T | null>(async (resolve, reject) => {
             try {
-                let qr = await DBHelper.query<T>(sql, data);
+                let qr = await DbHelper.query<T>(sql, data);
                 let result = firstOrDefault(qr, null);
                 return resolve(result as T);
             }

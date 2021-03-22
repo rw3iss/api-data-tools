@@ -4,7 +4,7 @@
     https://db-migrate.readthedocs.io/en/latest/API/SQL/
 */
 
-import { lpad, mkDirSync } from '../utils';
+import { lpad, mkDirSync } from '../utils/utils';
 import SchemaHelper from './SchemaHelper';
 import DbHelper from './DbHelper';
 import { writeFile } from 'fs';

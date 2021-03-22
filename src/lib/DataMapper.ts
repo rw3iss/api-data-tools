@@ -73,7 +73,7 @@ export class DataMapper {
             // todo: check if id property exists on schema
             o.id = o.id || r[r.length-1][0]?.last_id;
             debug('DataMapper.save result', o);
-            return resolve(o);
+            return o;
         } catch(e) {
             debug('DataMapper.save error', e);
             throw e;
@@ -91,7 +91,7 @@ export class DataMapper {
             let query = this.deleteQueryString(type, params);
             let r = await DbHelper.query(query);
             debug('DataMapper.delete result', r);
-            return resolve(r);
+            return r;
         } catch(e) {
             debug('DataMapper.delete error', e);
             throw e;

@@ -36,7 +36,7 @@ export class DataMapper {
             let r = await DbHelper.query(query);
 
 //#ifdef SERIALIZE_DATA_MODELS
-            console.log("TODO: serialize data model...");
+            //console.log("TODO: serialize data model...");
 //#endif
 
             debug('DataMapper.get result', r);

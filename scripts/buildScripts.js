@@ -72,4 +72,4 @@ const envFilePlugin = {
 	}
 }
 
-build(`scripts/compilePackage.js`, `${OUTPUT_DIR}/compilePackage.js`)
+build(`scripts/screipts/compilePackage.js`, `${OUTPUT_DIR}/scripts/compilePackage.js`)

@@ -17843,7 +17843,6 @@ var DataMapper = class {
       try {
         let query = this.selectQueryString(type, params2, limit);
         let r = await DbHelper_default.query(query);
-        console.log("TODO: serialize data model...");
         debug("DataMapper.get result", r);
         return r;
       } catch (e) {

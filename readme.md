@@ -1,14 +1,60 @@
-# Description
+# Description:
 
-This is a suite of tools to help with various data operations based on a single schema.json file.
+This is a discrete package of tools to help with various data operations based on a single schema.json file.
 
 1. Automatically generate a REST API.
-2. Automatically generate DB migration files and manage them. 
-3. Serialize/CRUD schema objects to and from a database.
+2. Serialize/CRUD schema objects to and from a database.
+3. Automatically generate DB migration files to manage the data model. 
 
 Each feature can be used independently from the others.
 
-See todo.md for more things to come.
+
+
+# Usage:
+
+`npm i --save api-data-tools`
+
+Three tools you can use:
+
+## 1. Create an automatic REST API (based on schema.json):
+```
+import http from 'http';
+import { RestAPI } from 'api-data-tools';
+
+let api = new RestAPI();
+
+const apiServer = http.createServer((req, res) {
+    api.handle(req, res);
+});
+apiServer.listen(8080);
+```
+
+## 2. CRUD data objects (based on schema.json):
+```
+import { DataMapper } from 'api-data-tools';t8
+let data = { someData: "update" };
+DataMapper.save('modelName', data);
+```
+
+## 3. Generate migrations: 
+(public interface incomplete, but works)
+The way to do this right now is by making these npm scripts, ie:
+```
+"schema": "node node_modules/api-data-tools/build/generateMigrations.js --config=config --schema-file=config/schema.json --migrations-dir=scripts/migrations",
+"migrate": "npm run schema && db-migrate up --migrations-dir=scripts/migrations"
+```
+Then run: 
+`npm run migrate` 
+anytime you make a change to schema.json.
+
+<br/>
+
+## ...Other tools for working with the models and DB directly... 
+...and more to come (see todo.md)
+
+<br/>
+
+
 
 # Configuration:
 
@@ -38,7 +84,8 @@ You can also add options for the API generation:
     "autoRegisterRoutes": true,
 ```
 
-# schema.json
+
+# schema.json:
 
 Then, also add a schema.json file to this directory, defining your schema. 
 See examples folder for example schemas.
@@ -94,7 +141,7 @@ Data types: https://github.com/db-migrate/shared/blob/master/data_type.js
 
 
 
-# Rest API:
+# Using the Rest API:
 
 To automatically generate a REST API in your application, ie. vanilla node:
 
@@ -115,8 +162,9 @@ apiServer.listen(8080);
 This will automatically create CRUD endpoints per your object schema defined in schema.json.
 For instance, if you have a user object, you will have a CRUD endpoint at which accepts a JSON body according to the schema:
 
-`GET,POST,PUT,DELETE http://localhost:8080/user/:id`
-
+```
+GET,POST,PUT,DELETE http://localhost:8080/user/:id
+```
 
 Or within an Express-like application, just pass the API handler as a middleware, ie:
 
@@ -130,7 +178,8 @@ let api = new RestAPI();
 app.use(api.handler);
 ```
 
-# Data Mapper:
+
+# Using the Data Mapper:
 
 This module will allow you to serialize objects to the database according to the project's schema 
 file.
@@ -146,7 +195,8 @@ let user = await DataMapper.get('users', { id: 21 });
 let user = await DataMapper.save('users', { ...userProperties });
 ```
 
-# Migrations:
+
+# Using Migrations:
 This all works, but the commands need some aliases into the public interface. For now, you can work around it as described below.
 
 ## Generating Migrations

@@ -1,3 +1,5 @@
+
+
 # TODO
 
 * Main add Validation, Serialization, and Lazy Loading of related model as config options.
@@ -81,3 +83,12 @@ RAPI_SCHEMA_FILE = config/schema.json
 -automatically make migrations folder if it doesn't exist.
 -changed RestAPI.handle() to RestApi.handler()
 
+
+
+
+
+# NAME
+api-data-tools
+ADT
+api-gen
+DAPI

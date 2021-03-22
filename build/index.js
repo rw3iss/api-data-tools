@@ -17714,7 +17714,7 @@ var _DbHelper = class {
   }
   static async query(sql, data) {
     const self2 = this;
-    return new Promise((resolve5, reject) => {
+    return new Promise((resolve4, reject) => {
       _DbHelper._pool.getConnection((err, connection) => {
         if (err) {
           console.log("DbHelper.getConnection() error -> ", err);
@@ -17727,18 +17727,18 @@ var _DbHelper = class {
             console.log("DbHelper.queryOne() error -> ", err2);
             return reject({error: err2, query: sql, data});
           } else {
-            return resolve5(qr);
+            return resolve4(qr);
           }
         });
       });
     });
   }
   static async queryOne(sql, data) {
-    return new Promise(async (resolve5, reject) => {
+    return new Promise(async (resolve4, reject) => {
       try {
         let qr = await _DbHelper.query(sql, data);
         let result = firstOrDefault(qr, null);
-        return resolve5(result);
+        return resolve4(result);
       } catch (err) {
         debug("DbHelper.query error", err, sql);
         return reject(err);
@@ -17749,7 +17749,7 @@ var _DbHelper = class {
     let upsertResult = null;
     if (typeof data != "object")
       throw new Error("Upsert data must be an object.");
-    return new Promise(async (resolve5, reject) => {
+    return new Promise(async (resolve4, reject) => {
       if (typeof data[indexName] == "undefined") {
         upsertResult = await _DbHelper.insert(table, data, indexName);
       } else {
@@ -17761,11 +17761,11 @@ var _DbHelper = class {
           upsertResult = await _DbHelper.update(table, data, indexName);
         }
       }
-      return resolve5(upsertResult);
+      return resolve4(upsertResult);
     });
   }
   static async insert(table, data, indexName = "id") {
-    return new Promise(async (resolve5, reject) => {
+    return new Promise(async (resolve4, reject) => {
       let cols = _DbHelper._generateTableCols(data, indexName);
       let colVals = _DbHelper._generateTableVals(data, indexName);
       let sql = `INSERT INTO ${table} (${cols}) VALUES (${colVals})`;
@@ -17773,23 +17773,23 @@ var _DbHelper = class {
       if (result && typeof data.id == "undefined") {
         result.id = data.id = result.insertId;
       }
-      return resolve5(data);
+      return resolve4(data);
     });
   }
   static async update(table, data, indexName = "id") {
-    return new Promise(async (resolve5, reject) => {
+    return new Promise(async (resolve4, reject) => {
       let updateVals = _DbHelper._generateTableUpdateVals(data, indexName);
       let indexValue = typeof data[indexName] == "string" ? mysql.escape(data[indexName]) : data[indexName];
       let sql = `UPDATE ${table} SET ${updateVals} WHERE ${indexName}=${indexValue}`;
       let result = await _DbHelper.queryOne(sql);
-      return resolve5(data);
+      return resolve4(data);
     });
   }
   static async deleteById(table, id) {
-    return new Promise(async (resolve5, reject) => {
+    return new Promise(async (resolve4, reject) => {
       let sql = `DELETE FROM ${table} WHERE id=${id}`;
       let result = await _DbHelper.queryOne(sql);
-      return resolve5(result);
+      return resolve4(result);
     });
   }
   static _generateTableCols(data, indexName = null, updateIndex = false) {
@@ -17858,7 +17858,7 @@ var DataMapper = class {
         let r = await DbHelper_default.query(query);
         o.id = o.id || ((_a = r[r.length - 1][0]) == null ? void 0 : _a.last_id);
         debug("DataMapper.save result", o);
-        return resolve(o);
+        return o;
       } catch (e) {
         debug("DataMapper.save error", e);
         throw e;
@@ -17869,7 +17869,7 @@ var DataMapper = class {
         let query = this.deleteQueryString(type, params2);
         let r = await DbHelper_default.query(query);
         debug("DataMapper.delete result", r);
-        return resolve(r);
+        return r;
       } catch (e) {
         debug("DataMapper.delete error", e);
         throw e;
@@ -18132,7 +18132,7 @@ function parseBody(req) {
     });
     return types.length > 0;
   }
-  return new Promise((resolve5) => {
+  return new Promise((resolve4) => {
     if (_isDataType(req.headers["content-type"])) {
       const chunks = [];
       req.on("data", (chunk) => {
@@ -18146,11 +18146,11 @@ function parseBody(req) {
         } catch (e) {
           throw "Error parsing POST body, not JSON? TODO";
         }
-        resolve5(req.body);
+        resolve4(req.body);
       });
     } else {
       req.body = null;
-      resolve5(null);
+      resolve4(null);
     }
   });
 }

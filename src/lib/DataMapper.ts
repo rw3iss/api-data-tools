@@ -34,6 +34,11 @@ export class DataMapper {
         try {
             let query = this.selectQueryString(type, params, limit);
             let r = await DbHelper.query(query);
+
+//#ifdef SERIALIZE_DATA_MODELS
+            console.log("TODO: serialize data model...");
+//#endif
+
             debug('DataMapper.get result', r);
             return r;
         } catch(e) {
@@ -109,7 +114,7 @@ export class DataMapper {
                 // todo: detect primary key property name
                 query += ` WHERE id=${params}`;
             } else if (typeof params == 'object') {
-                query += this.whereString(params);
+                query += this.whereString(type, params);
             } else {
                 console.log('params', params, typeof params);
                 throw "Unknown parameter type to get() method. Only integer and object supported.";
@@ -167,7 +172,7 @@ export class DataMapper {
         return query;
     }
 
-    deleteQueryString(type, params) {
+    deleteQueryString(type, params?) {
         if (!type)
             throw "Cannot delete without a type";
 
@@ -181,13 +186,13 @@ export class DataMapper {
         let query = `DELETE FROM ${type}`;// WHERE id=${params.id}`;
 
         if (params) {
-            query += this.whereString(params);
+            query += this.whereString(type, params);
         }
         
         return query;
     }
 
-    whereString(params) {
+    whereString(type, params) {
         let str = '';
         var delim = ' WHERE ';
         for (var pName in params) {

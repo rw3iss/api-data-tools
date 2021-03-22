@@ -1,7 +1,7 @@
 # TODO
 
 * Main add Validation, Serialization, and Lazy Loading of related model as config options.
-
+    
 ** Need options to serialize and deserialize fields per model... 
     -ie. object to strings...
 
@@ -28,6 +28,7 @@
     -Enable validation through config property... Config.validateApiParameters
     -add more robust Validation: _validateTypeFromRequest. Use Validation library.
 
+* remove "properties" from schema.
 
 # DATABASE BOOTSTRAPPING
     -add config option to auto-run migrations on recompile (or app startup).

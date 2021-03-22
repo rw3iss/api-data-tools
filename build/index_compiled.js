@@ -3138,9 +3138,9 @@ var require_RowDataPacket = __commonJS((exports2, module2) => {
         return parser.parseLengthCodedString();
     }
   }
-  function typeMatch(type, list) {
+  function typeMatch(type2, list) {
     if (Array.isArray(list)) {
-      return list.indexOf(Types[type]) !== -1;
+      return list.indexOf(Types[type2]) !== -1;
     } else {
       return Boolean(list);
     }
@@ -5742,8 +5742,8 @@ var require_Sequence = __commonJS((exports2, module2) => {
   var Packets = require_packets();
   var ErrorConstants = require_errors();
   var Timer = require_Timer();
-  var listenerCount = EventEmitter.listenerCount || function(emitter, type) {
-    return emitter.listeners(type).length;
+  var listenerCount = EventEmitter.listenerCount || function(emitter, type2) {
+    return emitter.listeners(type2).length;
   };
   var LONG_STACK_DELIMITER = "\n    --------------------\n";
   module2.exports = Sequence;
@@ -7034,8 +7034,8 @@ var require_stream_readable = __commonJS((exports2, module2) => {
   var Duplex;
   Readable.ReadableState = ReadableState;
   var EE = require("events").EventEmitter;
-  var EElistenerCount = function(emitter, type) {
-    return emitter.listeners(type).length;
+  var EElistenerCount = function(emitter, type2) {
+    return emitter.listeners(type2).length;
   };
   var Stream = require_stream();
   var Buffer2 = require_safe_buffer().Buffer;
@@ -10398,9 +10398,9 @@ var require_fast_decode_uri_component = __commonJS((exports2, module2) => {
       var high = hexCodeToInt(uri[percentPosition + 1], 4);
       var low = hexCodeToInt(uri[percentPosition + 2], 0);
       var byte = high | low;
-      var type = UTF8_DATA[byte];
-      state = UTF8_DATA[256 + state + type];
-      codepoint = codepoint << 6 | byte & UTF8_DATA[364 + type];
+      var type2 = UTF8_DATA[byte];
+      state = UTF8_DATA[256 + state + type2];
+      codepoint = codepoint << 6 | byte & UTF8_DATA[364 + type2];
       if (state === UTF8_ACCEPT) {
         decoded += uri.slice(last, startOfOctets);
         decoded += codepoint <= 65535 ? String.fromCharCode(codepoint) : String.fromCharCode(55232 + (codepoint >> 10), 56320 + (codepoint & 1023));
@@ -12827,11 +12827,11 @@ var require_lodash = __commonJS((exports2, module2) => {
             index += dir;
             var iterIndex = -1, value = array[index];
             while (++iterIndex < iterLength) {
-              var data = iteratees[iterIndex], iteratee2 = data.iteratee, type = data.type, computed = iteratee2(value);
-              if (type == LAZY_MAP_FLAG) {
+              var data = iteratees[iterIndex], iteratee2 = data.iteratee, type2 = data.type, computed = iteratee2(value);
+              if (type2 == LAZY_MAP_FLAG) {
                 value = computed;
               } else if (!computed) {
-                if (type == LAZY_FILTER_FLAG) {
+                if (type2 == LAZY_FILTER_FLAG) {
                   continue outer;
                 } else {
                   break outer;
@@ -14846,16 +14846,16 @@ var require_lodash = __commonJS((exports2, module2) => {
         return isArray(value) || isArguments(value) || !!(spreadableSymbol && value && value[spreadableSymbol]);
       }
       function isIndex(value, length) {
-        var type = typeof value;
+        var type2 = typeof value;
         length = length == null ? MAX_SAFE_INTEGER : length;
-        return !!length && (type == "number" || type != "symbol" && reIsUint.test(value)) && (value > -1 && value % 1 == 0 && value < length);
+        return !!length && (type2 == "number" || type2 != "symbol" && reIsUint.test(value)) && (value > -1 && value % 1 == 0 && value < length);
       }
       function isIterateeCall(value, index, object) {
         if (!isObject(object)) {
           return false;
         }
-        var type = typeof index;
-        if (type == "number" ? isArrayLike(object) && isIndex(index, object.length) : type == "string" && index in object) {
+        var type2 = typeof index;
+        if (type2 == "number" ? isArrayLike(object) && isIndex(index, object.length) : type2 == "string" && index in object) {
           return eq(object[index], value);
         }
         return false;
@@ -14864,15 +14864,15 @@ var require_lodash = __commonJS((exports2, module2) => {
         if (isArray(value)) {
           return false;
         }
-        var type = typeof value;
-        if (type == "number" || type == "symbol" || type == "boolean" || value == null || isSymbol(value)) {
+        var type2 = typeof value;
+        if (type2 == "number" || type2 == "symbol" || type2 == "boolean" || value == null || isSymbol(value)) {
           return true;
         }
         return reIsPlainProp.test(value) || !reIsDeepProp.test(value) || object != null && value in Object2(object);
       }
       function isKeyable(value) {
-        var type = typeof value;
-        return type == "string" || type == "number" || type == "symbol" || type == "boolean" ? value !== "__proto__" : value === null;
+        var type2 = typeof value;
+        return type2 == "string" || type2 == "number" || type2 == "symbol" || type2 == "boolean" ? value !== "__proto__" : value === null;
       }
       function isLaziable(func) {
         var funcName = getFuncName(func), other = lodash[funcName];
@@ -16067,8 +16067,8 @@ var require_lodash = __commonJS((exports2, module2) => {
         return typeof value == "number" && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
       }
       function isObject(value) {
-        var type = typeof value;
-        return value != null && (type == "object" || type == "function");
+        var type2 = typeof value;
+        return value != null && (type2 == "object" || type2 == "function");
       }
       function isObjectLike(value) {
         return value != null && typeof value == "object";
@@ -17276,12 +17276,12 @@ var require_lodash = __commonJS((exports2, module2) => {
         };
       });
       arrayEach(["filter", "map", "takeWhile"], function(methodName, index) {
-        var type = index + 1, isFilter = type == LAZY_FILTER_FLAG || type == LAZY_WHILE_FLAG;
+        var type2 = index + 1, isFilter = type2 == LAZY_FILTER_FLAG || type2 == LAZY_WHILE_FLAG;
         LazyWrapper.prototype[methodName] = function(iteratee2) {
           var result2 = this.clone();
           result2.__iteratees__.push({
             iteratee: getIteratee(iteratee2, 3),
-            type
+            type: type2
           });
           result2.__filtered__ = result2.__filtered__ || isFilter;
           return result2;
@@ -17570,29 +17570,29 @@ var SchemaHelper = class {
     return schema;
   }
   static getSanitizedPropType(pDef) {
-    function _san(type2) {
-      switch (type2) {
+    function _san(type3) {
+      switch (type3) {
         case "email":
           return "string";
         case "date-time":
           return "datetime";
         default:
-          return type2.toLowerCase();
+          return type3.toLowerCase();
       }
     }
-    let type = "";
+    let type2 = "";
     if (typeof pDef == "string") {
-      type = pDef;
+      type2 = pDef;
     } else {
       if (pDef.type) {
-        type = pDef.type;
+        type2 = pDef.type;
       } else if (pDef.enum) {
-        type = "string";
+        type2 = "string";
       } else {
         throw "No type found for property.";
       }
     }
-    return _san(type);
+    return _san(type2);
   }
 };
 var SchemaHelper_default = SchemaHelper;
@@ -17839,9 +17839,9 @@ var DbHelper_default = DbHelper;
 // src/lib/DataMapper.ts
 var DataMapper = class {
   constructor() {
-    this.get = async (type, params2, limit) => {
+    this.get = async (type2, params2, limit) => {
       try {
-        let query = this.selectQueryString(type, params2, limit);
+        let query = this.selectQueryString(type2, params2, limit);
         let r = await DbHelper_default.query(query);
         console.log("TODO: serialize data model...");
         debug("DataMapper.get result", r);
@@ -17851,10 +17851,10 @@ var DataMapper = class {
         throw e;
       }
     };
-    this.save = async (type, o) => {
+    this.save = async (type2, o) => {
       var _a;
       try {
-        let query = this.upsertQueryString(type, o);
+        let query = this.upsertQueryString(type2, o);
         let r = await DbHelper_default.query(query);
         o.id = o.id || ((_a = r[r.length - 1][0]) == null ? void 0 : _a.last_id);
         debug("DataMapper.save result", o);
@@ -17864,9 +17864,9 @@ var DataMapper = class {
         throw e;
       }
     };
-    this.delete = async (type, params2) => {
+    this.delete = async (type2, params2) => {
       try {
-        let query = this.deleteQueryString(type, params2);
+        let query = this.deleteQueryString(type2, params2);
         let r = await DbHelper_default.query(query);
         debug("DataMapper.delete result", r);
         return resolve(r);
@@ -17877,21 +17877,21 @@ var DataMapper = class {
     };
     this.schema = SchemaHelper_default.getSchema();
   }
-  async getOne(type, params2, serialize = false) {
-    let r = await this.get(type, params2, 1);
+  async getOne(type2, params2, serialize = false) {
+    let r = await this.get(type2, params2, 1);
     return r.length ? r[0] : null;
   }
-  selectQueryString(type, params2, limit) {
-    if (!type)
+  selectQueryString(type2, params2, limit) {
+    if (!type2)
       throw "Cannot get without a type";
-    if (typeof this.schema[type] == "undefined")
-      throw "Unknown object type for save: " + type;
-    let query = `SELECT * FROM ${type}`;
+    if (typeof this.schema[type2] == "undefined")
+      throw "Unknown object type for save: " + type2;
+    let query = `SELECT * FROM ${type2}`;
     if (params2) {
       if (typeof params2 == "number") {
         query += ` WHERE id=${params2}`;
       } else if (typeof params2 == "object") {
-        query += this.whereString(type, params2);
+        query += this.whereString(params2);
       } else {
         console.log("params", params2, typeof params2);
         throw "Unknown parameter type to get() method. Only integer and object supported.";
@@ -17902,15 +17902,15 @@ var DataMapper = class {
     }
     return query;
   }
-  upsertQueryString(type, o) {
-    if (!type || !o)
+  upsertQueryString(type2, o) {
+    if (!type2 || !o)
       throw "Cannot save without a type and an object";
-    if (typeof this.schema[type] == "undefined")
-      throw "Unknown object type for save: " + type;
+    if (typeof this.schema[type2] == "undefined")
+      throw "Unknown object type for save: " + type2;
     if (typeof o != "object") {
       throw "Object parameter must be an object, " + typeof o + " found";
     }
-    let query, data, schema3 = this.schema[type];
+    let query, data, schema3 = this.schema[type2];
     let sp = schema3.properties;
     if (o["id"]) {
       var valStr = "", delim = " ";
@@ -17921,7 +17921,7 @@ var DataMapper = class {
           delim = ", ";
         }
       }
-      query = `UPDATE ${type} SET ${valStr} WHERE id=${o["id"]}`;
+      query = `UPDATE ${type2} SET ${valStr} WHERE id=${o["id"]}`;
     } else {
       var propString = "", valStr = "", delim = "";
       for (var p2 in sp) {
@@ -17932,26 +17932,26 @@ var DataMapper = class {
           delim = ",";
         }
       }
-      query = `INSERT INTO ${type} (${propString}) VALUES (${valStr});
+      query = `INSERT INTO ${type2} (${propString}) VALUES (${valStr});
                     SELECT LAST_INSERT_ID() as last_id;`;
     }
     return query;
   }
-  deleteQueryString(type, params2) {
-    if (!type)
+  deleteQueryString(type2, params2) {
+    if (!type2)
       throw "Cannot delete without a type";
-    if (typeof this.schema[type] == "undefined")
-      throw "Unknown object type for save: " + type;
+    if (typeof this.schema[type2] == "undefined")
+      throw "Unknown object type for save: " + type2;
     if (!params2.id) {
       throw "Delete requires an id parameter";
     }
-    let query = `DELETE FROM ${type}`;
+    let query = `DELETE FROM ${type2}`;
     if (params2) {
-      query += this.whereString(type, params2);
+      query += this.whereString(params2);
     }
     return query;
   }
-  whereString(type, params2) {
+  whereString(params2) {
     let str = "";
     var delim = " WHERE ";
     for (var pName in params2) {
@@ -17985,21 +17985,21 @@ var DataMapper = class {
     return `${pName}=${eVal}`;
   }
   _getPropType(propVal, propDef) {
-    let type = "";
+    let type2 = "";
     if (typeof propDef == "object") {
       if (!propDef.type && !propDef.enum) {
         throw "Property definition requires a type property";
       } else if (propDef.enum) {
-        type = "enum";
+        type2 = "enum";
       } else {
-        type = propDef.type.toLowerCase();
+        type2 = propDef.type.toLowerCase();
       }
     } else if (typeof propDef == "string") {
-      type = propDef.toLowerCase();
+      type2 = propDef.toLowerCase();
     } else {
-      type = typeof propVal;
+      type2 = typeof propVal;
     }
-    let t = SchemaHelper_default.getSanitizedPropType(type);
+    let t = SchemaHelper_default.getSanitizedPropType(type2);
     return t;
   }
 };
@@ -18036,23 +18036,23 @@ var schema2 = SchemaHelper_default.getSchema();
 var ResourceHandler = class {
   static async get(req, res, ctx) {
     debug("ResourceHandler.get", req.url, ctx);
-    let type = _validateTypeRequest(req, ctx);
-    let d2 = await DataMapper_default.get(type, ctx);
+    let type2 = _validateTypeRequest(req, ctx);
+    let d2 = await DataMapper_default.get(type2, ctx);
     Response_default.success(res, d2);
   }
   static async put(req, res, ctx) {
     let body = await parseBody(req);
     debug("ResourceHandler.put", req.url, ctx, body);
-    let type = _validateTypeRequest(req, ctx, body);
-    let d2 = await DataMapper_default.save(type, body);
+    let type2 = _validateTypeRequest(req, ctx, body);
+    let d2 = await DataMapper_default.save(type2, body);
     Response_default.success(res, d2);
   }
   static async post(req, res, ctx) {
     try {
       let body = await parseBody(req);
       debug("ResourceHandler.post", req.url, ctx, body);
-      let type = _validateTypeRequest(req, ctx, body);
-      d = await DataMapper_default.save(type, body);
+      let type2 = _validateTypeRequest(req, ctx, body);
+      d = await DataMapper_default.save(type2, body);
       Response_default.success(res, d);
     } catch (e) {
       console.log("Error parsing post request body:", e);
@@ -18062,39 +18062,39 @@ var ResourceHandler = class {
   static async patch(req, res, ctx) {
     let body = await parseBody(req);
     debug("ResourceHandler.;patch", req.url, ctx, body);
-    let type = _validateTypeRequest(req, ctx, body);
-    let d2 = await DataMapper_default.save(type, body);
+    let type2 = _validateTypeRequest(req, ctx, body);
+    let d2 = await DataMapper_default.save(type2, body);
     res.end(JSON.stringify({success: true, data: d2}));
   }
   static async delete(req, res, ctx) {
     debug("ResourceHandler.delete", req.url, ctx);
-    let type = _validateTypeRequest(req, ctx);
-    let d2 = await DataMapper_default.delete(type, ctx);
+    let type2 = _validateTypeRequest(req, ctx);
+    let d2 = await DataMapper_default.delete(type2, ctx);
     res.end(JSON.stringify({success: true, data: d2}));
   }
 };
 var ResourceHandler_default = ResourceHandler;
 var _validateTypeRequest = (req, ctx, body) => {
-  let type = _findTypeFromUrl(req.url);
-  if (!type)
+  let type2 = _findTypeFromUrl(req.url);
+  if (!type2)
     throw "Type not inferred from request: " + req.url;
   if (body && Config_default.validateApiParams) {
-    if (!_isValidTypeRequest(type, body)) {
-      throw "Invalid request for type: " + type;
+    if (!_isValidTypeRequest(type2, body)) {
+      throw "Invalid request for type: " + type2;
     }
   }
-  return type;
+  return type2;
 };
 function _findTypeFromUrl(url) {
   let apiPrefix = RouteHelper_default.getApiPrefix();
   url = url.replace(apiPrefix, "");
-  let type = url.match(/\/?([a-zA-Z0-9]{0,})\/?/);
-  return type.length > 0 ? type[1] : "";
+  let type2 = url.match(/\/?([a-zA-Z0-9]{0,})\/?/);
+  return type2.length > 0 ? type2[1] : "";
 }
-function _isValidTypeRequest(type, body, method) {
-  if (type && schema2.hasOwnProperty(type)) {
+function _isValidTypeRequest(type2, body, method) {
+  if (type2 && schema2.hasOwnProperty(type2)) {
     if (body) {
-      let s = schema2[type].properties;
+      let s = schema2[type2].properties;
       for (var p2 in params) {
         if (body.hasOwnProperty(p2)) {
           if (!s.hasOwnProperty(p2)) {
@@ -18115,8 +18115,8 @@ function _isValidTypeRequest(type, body, method) {
     }
     return true;
   } else {
-    console.log("schema doesnt have type", type, body);
-    throw "Schema doesn't have type " + type;
+    console.log("schema doesnt have type", type2, body);
+    throw "Schema doesn't have type " + type2;
     return false;
   }
 }
@@ -18173,16 +18173,16 @@ var RouteHelper = class {
     let apiPrefix = this.getApiPrefix();
     let schema3 = SchemaHelper_default.getSchema();
     for (let p2 in schema3) {
-      let type = schema3[p2];
+      let type2 = schema3[p2];
       let urlEndpoint = apiPrefix + p2;
       let registerDefaultRoutes = true;
-      if (type.api) {
-        if (typeof type.api.generate != "undefined" && !type.api.generate) {
+      if (type2.api) {
+        if (typeof type2.api.generate != "undefined" && !type2.api.generate) {
           continue;
         }
-        urlEndpoint = apiPrefix + getdef(type.api.urlPrefix, p2);
-        if (type.api.methods) {
-          type.api.methods.forEach((m) => {
+        urlEndpoint = apiPrefix + getdef(type2.api.urlPrefix, p2);
+        if (type2.api.methods) {
+          type2.api.methods.forEach((m) => {
             let method = this._getSchemaMethod(m);
             let handler = this._getSchemaHandler(m);
             if (!["GET", "PUT", "POST"].includes(m)) {
@@ -18504,4 +18504,3 @@ exports.down = function(db) {
 
 // src/index.ts
 require_main().config();
-//# sourceMappingURL=index.js.map

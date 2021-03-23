@@ -32,6 +32,9 @@
 
 * remove "properties" from schema.
 
+* remove id/primary key field from DataMapper.save/update.
+
+
 # DATABASE BOOTSTRAPPING
     -add config option to auto-run migrations on recompile (or app startup).
 

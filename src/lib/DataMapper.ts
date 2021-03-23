@@ -2,6 +2,7 @@ import SchemaHelper from './SchemaHelper';
 import DbHelper from './DbHelper';
 import { debug } from '../utils/utils';
 import { lchmod } from 'node:fs';
+import { compileSchema } from 'ajv/dist/compile';
 
 /**
  * Manages arbitrary CRUD operations to the data layer schema objects.
@@ -116,7 +117,6 @@ export class DataMapper {
             } else if (typeof params == 'object') {
                 query += this.whereString(type, params);
             } else {
-                console.log('params', params, typeof params);
                 throw "Unknown parameter type to get() method. Only integer and object supported.";
             }
         }
@@ -213,7 +213,7 @@ export class DataMapper {
 
         // stringify Date/object representations first
         // TODO: these escape-per-type definitions might do better elsewhere
-        if (typeof propVal == 'object' && propType == 'string') {
+        if (typeof propVal == 'object' && (propType == 'string' || propType == 'text')) {
             propVal = JSON.stringify(propVal);
         } else if (propVal instanceof Date) {
             return `'${propVal.toISOString().slice(0, 19).replace('T', ' ')}'`;

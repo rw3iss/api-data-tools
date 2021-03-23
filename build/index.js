@@ -17892,7 +17892,6 @@ var DataMapper = class {
       } else if (typeof params2 == "object") {
         query += this.whereString(type, params2);
       } else {
-        console.log("params", params2, typeof params2);
         throw "Unknown parameter type to get() method. Only integer and object supported.";
       }
     }
@@ -17967,7 +17966,7 @@ var DataMapper = class {
   escape(propVal, propType) {
     if (typeof propType == "undefined")
       propType = typeof propVal;
-    if (typeof propVal == "object" && propType == "string") {
+    if (typeof propVal == "object" && (propType == "string" || propType == "text")) {
       propVal = JSON.stringify(propVal);
     } else if (propVal instanceof Date) {
       return `'${propVal.toISOString().slice(0, 19).replace("T", " ")}'`;

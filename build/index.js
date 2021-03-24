@@ -17672,13 +17672,11 @@ var _DbHelper = class {
     return null;
   }
   static initialize() {
-    console.log("DbHelper.initialize()");
     if (!this._isInitialized) {
       var self2 = this;
       let dbConfig;
       try {
         dbConfig = _DbHelper.getDbConfig();
-        console.log("DbHelper.getDbConfig()", dbConfig);
         if (!dbConfig) {
           if (!Config_default.database) {
             throw new Error("Could not find database config in environment variables or config.json");
@@ -17964,6 +17962,8 @@ var DataMapper = class {
     return str;
   }
   escape(propVal, propType) {
+    if (propVal == null)
+      return null;
     if (typeof propType == "undefined")
       propType = typeof propVal;
     if (typeof propVal == "object" && (propType == "string" || propType == "text")) {

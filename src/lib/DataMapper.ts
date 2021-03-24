@@ -208,6 +208,8 @@ export class DataMapper {
     }
 
 	escape(propVal, propType?) {
+        if (propVal == null) return null;
+        
 		if (typeof propType == 'undefined')
             propType = typeof propVal;
 

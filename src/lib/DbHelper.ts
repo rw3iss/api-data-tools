@@ -36,7 +36,6 @@ export default class DbHelper {
     }
 
     static initialize() {
-        console.log('DbHelper.initialize()');
         if (!this._isInitialized) {
             var self = this;
 
@@ -45,7 +44,7 @@ export default class DbHelper {
             // prefer Config from environment variables, or fallback to config:
             try {
                 dbConfig = DbHelper.getDbConfig();
-                console.log('DbHelper.getDbConfig()', dbConfig);
+                //console.log('DbHelper.getDbConfig() => ', dbConfig);
 
                 if (!dbConfig) {
                     if (!Config.database) {

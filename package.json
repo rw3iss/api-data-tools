@@ -1,6 +1,6 @@
 {
     "name": "api-data-tools",
-    "version": "1.1.29",
+    "version": "1.1.30",
     "description": "Bundle of utilities for generating migration files, syncing schema with database, and wiring up a REST API for a vanilla node backend (or integrated with any framework), all based on a schema.json file that it will keep in sync.",
     "main": "build/index.js",
     "scripts": {

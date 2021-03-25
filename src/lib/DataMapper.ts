@@ -179,10 +179,6 @@ export class DataMapper {
         if (typeof this.schema[type] == 'undefined')
             throw "Unknown object type for save: " + type;
 
-        if (!params.id) {
-            throw "Delete requires an id parameter";
-        }
-
         let query = `DELETE FROM ${type}`;// WHERE id=${params.id}`;
 
         if (params) {

@@ -17937,9 +17937,6 @@ var DataMapper = class {
       throw "Cannot delete without a type";
     if (typeof this.schema[type] == "undefined")
       throw "Unknown object type for save: " + type;
-    if (!params2.id) {
-      throw "Delete requires an id parameter";
-    }
     let query = `DELETE FROM ${type}`;
     if (params2) {
       query += this.whereString(type, params2);

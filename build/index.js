@@ -17640,7 +17640,6 @@ function debug() {
   }
 }
 function firstOrDefault(list, def = null) {
-  console.log("firstOrDefault", list, def);
   if (typeof list.length != "undefined") {
     if (list.length > 0)
       return list[0];

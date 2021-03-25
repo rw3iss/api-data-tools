@@ -47,7 +47,7 @@ export default class DbHelper {
             try {
                 dbConfig = DbHelper.getDbConfig();
                 //console.log('DbHelper.getDbConfig() => ', dbConfig);
-
+                
                 if (!dbConfig) {
                     if (!Config.database) {
                         throw new Error("Could not find database config in environment variables or config.json");

@@ -192,6 +192,7 @@ export class DataMapper {
         return query;
     }
 
+    // Add support for IS NULL and LIKE '%${pVal}'
     whereString(type, params) {
         let str = '';
         var delim = ' WHERE ';

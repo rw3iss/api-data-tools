@@ -2,6 +2,11 @@
 
 # TODO
 
+** Fix dropping foreign keys with constraints: delete the constraint first.. ?
+    [ERROR] Error: ER_FK_COLUMN_CANNOT_DROP: Cannot drop column 'lastEventId': needed in a foreign key constraint 'user_last_event_id_fk'
+
+** If migrations fail, don't save that they've run... or rather start them all in a transaction?
+
 * Main add Validation, Serialization, and Lazy Loading of related model as config options.
     
 ** Need options to serialize and deserialize fields per model... 

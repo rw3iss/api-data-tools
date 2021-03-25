@@ -67,7 +67,6 @@ export function debug() {
 // Returns first element of the array, if exists, 
 // or otherwise the element itself if not an array.
 export function firstOrDefault(list, def = null) {
-    console.log('firstOrDefault', list, def);
     if (typeof list.length != 'undefined') {
         if (list.length > 0) 
             return list[0]; 

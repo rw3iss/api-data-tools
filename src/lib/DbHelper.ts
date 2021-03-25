@@ -7,6 +7,8 @@ import * as mysql from 'mysql';
 import Config from './Config';
 import { mysqlDate, debug, firstOrDefault } from '../utils/utils';
 
+/* Todo: Possibly use a separate sql command parser... */
+
 export default class DbHelper {
     private static _pool: any;
     private static _isInitialized = false;

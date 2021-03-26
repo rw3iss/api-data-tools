@@ -8,6 +8,8 @@ import Config from './Config';
 import { mysqlDate, debug, firstOrDefault } from '../utils/utils';
 
 /* Todo: Possibly use a separate sql command parser... */
+    
+const DEFAULT_CHARSET = 'utf8mb4';
 
 export default class DbHelper {
     private static _pool: any;
@@ -28,7 +30,8 @@ export default class DbHelper {
                 user: process.env.DB_USER,
                 password: process.env.DB_PASSWORD,
                 database: process.env.DB_DATABASE,
-                multipleStatement: typeof process.env.DB_MULTI_STATEMENTS == 'undefined' ? false : process.env.DB_MULTI_STATEMENTS
+                multipleStatements: typeof process.env.DB_MULTI_STATEMENTS == 'undefined' ? false : process.env.DB_MULTI_STATEMENTS,
+                charset: typeof process.env.DB_CHARSET == 'undefined' ? DEFAULT_CHARSET : process.env.DB_CHARSET
             }
             
             return dbConfig;
@@ -46,7 +49,7 @@ export default class DbHelper {
             // prefer Config from environment variables, or fallback to config:
             try {
                 dbConfig = DbHelper.getDbConfig();
-                //console.log('DbHelper.getDbConfig() => ', dbConfig);
+                console.log('DbHelper.getDbConfig() => ', dbConfig);
                 
                 if (!dbConfig) {
                     if (!Config.database) {
@@ -69,7 +72,8 @@ export default class DbHelper {
                     user            : dbConfig.user,
                     password        : dbConfig.password,
                     database        : dbConfig.database,
-                    multipleStatements: typeof dbConfig.multipleStatements == 'undefined' ? true : dbConfig.multipleStatements
+                    multipleStatements: typeof dbConfig.multipleStatements == 'undefined' ? true : dbConfig.multipleStatements,
+                    charset         : dbConfig.charset || DEFAULT_CHARSET
                 });
             }
 

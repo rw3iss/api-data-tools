@@ -17650,6 +17650,7 @@ function firstOrDefault(list, def = null) {
 }
 
 // src/lib/DbHelper.ts
+var DEFAULT_CHARSET = "utf8mb4";
 var _DbHelper = class {
   static getDbConfig() {
     let dbConfig;
@@ -17664,7 +17665,8 @@ var _DbHelper = class {
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_DATABASE,
-        multipleStatement: typeof process.env.DB_MULTI_STATEMENTS == "undefined" ? false : process.env.DB_MULTI_STATEMENTS
+        multipleStatements: typeof process.env.DB_MULTI_STATEMENTS == "undefined" ? false : process.env.DB_MULTI_STATEMENTS,
+        charset: typeof process.env.DB_CHARSET == "undefined" ? DEFAULT_CHARSET : process.env.DB_CHARSET
       };
       return dbConfig;
     }
@@ -17676,6 +17678,7 @@ var _DbHelper = class {
       let dbConfig;
       try {
         dbConfig = _DbHelper.getDbConfig();
+        console.log("DbHelper.getDbConfig() => ", dbConfig);
         if (!dbConfig) {
           if (!Config_default.database) {
             throw new Error("Could not find database config in environment variables or config.json");
@@ -17696,7 +17699,8 @@ var _DbHelper = class {
           user: dbConfig.user,
           password: dbConfig.password,
           database: dbConfig.database,
-          multipleStatements: typeof dbConfig.multipleStatements == "undefined" ? true : dbConfig.multipleStatements
+          multipleStatements: typeof dbConfig.multipleStatements == "undefined" ? true : dbConfig.multipleStatements,
+          charset: dbConfig.charset || DEFAULT_CHARSET
         });
       }
       this._isInitialized = true;

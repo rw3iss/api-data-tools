@@ -11,6 +11,9 @@
         "compile": "node ./scripts/compilePackage.js",
         "migrate": "echo todo: this is incomplete && node build/generateMigrations"
     },
+    "bin": {
+        "adt": "./bin/adt.js"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/rw3iss/api-schema-tools.git"

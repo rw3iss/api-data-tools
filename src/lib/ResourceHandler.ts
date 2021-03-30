@@ -16,11 +16,6 @@ validateTypeRequest should parse body only for put post and patch.
 each handler should validate param
 
 
-
-
-
-
-
 */
 
 
@@ -36,7 +31,7 @@ export default class ResourceHandler {
      * @static
      */
     static async get(req, res, ctx?) {
-        debug('ResourceHandler.get', req.url, ctx);
+        debug('ResourceHandler.get', req.url, typeof res, ctx);
         let type = _validateTypeRequest(req, ctx);
         let d = await DataMapper.get(type, ctx);
         Response.success(res, d);
@@ -63,7 +58,7 @@ export default class ResourceHandler {
             let body: any = await parseBody(req);
             debug('ResourceHandler.post', req.url, ctx, body);
             let type = _validateTypeRequest(req, ctx, body);
-            d = await DataMapper.save(type, body);
+            let d = await DataMapper.save(type, body);
             Response.success(res, d);
         } catch(e) {
             console.log("Error parsing post request body:", e);
@@ -140,7 +135,7 @@ function _isValidTypeRequest(type: string, body?: object, method?: string) {
         if (body) {
             // make sure body only includes properties of the type
             let s = schema[type].properties;
-            for (var p in params) {
+            for (var p in body) {
                 if (body.hasOwnProperty(p)) {
                     if (!s.hasOwnProperty(p)) {
                         // extra param in req

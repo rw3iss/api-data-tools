@@ -1,4 +1,5 @@
 export default class Response {
+
 	static success(res, data) {
 		const r = {
 			success: true
@@ -8,7 +9,9 @@ export default class Response {
 			r.data = data
 		}
 
-		res.status(200).send(r)
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+		res.write(JSON.stringify(r));
+        res.end();
 	}
 
 	static error(res, error, status = 500) {
@@ -26,6 +29,9 @@ export default class Response {
 			r.error = error // JSON.stringify(error);
 		}
 
-		res.status(status).send(r)
+        res.writeHead(status, {'Content-Type': 'text/plain'});
+		res.write(JSON.stringify(r))
+        res.end();
 	}
+
 }

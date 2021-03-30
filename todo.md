@@ -1,6 +1,27 @@
+# DOING:
+* ADD: client api mapper... small JS client which can just do .save('type', data); and talk to the backend api...
 
 
 # TODO
+-change code to use async/await
+
+-make migrations interface to go forward/backward, clear migrations, clear database, etc.
+
+-break out lib into internal Helpers and public classes.
+
+-add method to DataMapper to just generate sql query string.
+
+-objectify "schema" property into a Schema class?
+
+** Add a generate model command, or regenerate all models, and option to re-generate models on miration changes.
+    -Model files generated can then be extended, add hooks for serialization/deserialization.
+    
+** Generate and update model files from schema config?
+    -model-dir
+    -rapi gen model modelName --model-dir=src/data/models
+    * - rapi gen rebuildModels
+        -run schema, migrations
+        -rebuild model files from schema
 
 ** Fix dropping foreign keys with constraints: delete the constraint first.. ?
     [ERROR] Error: ER_FK_COLUMN_CANNOT_DROP: Cannot drop column 'lastEventId': needed in a foreign key constraint 'user_last_event_id_fk'
@@ -12,12 +33,6 @@
 ** Need options to serialize and deserialize fields per model... 
     -ie. object to strings...
 
-** Generate and update model files from schema config?
-    -model-dir
-    rapi gen model modelName --model-dir=src/data/models
-    * - rapi gen rebuildModels
-        -run schema, migrations
-        -rebuild model files from schema
 
 ** need to load in command line args to global config state (ie. whether entering from script or native API)
     -each class should ask Config.get('VAR'), and Config should manage loading from either config file, or environments, or CLI, etc.
@@ -31,6 +46,9 @@
 
 ** Add a /api/routes endpoint which shows API docs
 
+-migration helper/creator should have an option to just print out the sql statements independent of the db-migrate platform.
+    -sql statements could be stored to another file, or pass option 'format=db-migrate|raw'
+
 * ResourceHandler:
     -Enable validation through config property... Config.validateApiParameters
     -add more robust Validation: _validateTypeFromRequest. Use Validation library.
@@ -39,22 +57,15 @@
 
 * remove id/primary key field from DataMapper.save/update.
 
+** make section for envionrment variables:
+ADT_CONFIG = config/config.json
+ADT_SCHEMA_FILE = config/schema.json
 
-# DATABASE BOOTSTRAPPING
-    -add config option to auto-run migrations on recompile (or app startup).
 
-
-
--add method to DataMapper to just generate sql query string.
--change code to use async/await
--generate Model files file the given schema?
--generate optional controller, service, or repository classes from the schema?
--make migrations interface to go forward/backward, clear migrations, clear database, etc.
--break out livb into internal Helpers and public classes.
--objectify "schema" property into a Schema class?
--migration helper/creator should have an option to just print out the sql statements independent of the db-migrate platform.
-    -sql statements could be stored to another file, or pass option 'format=db-migrate|raw'
-
+# LATER:
+-integrate an auxiliary user/authentication system:
+-add feature to add dummy data to DB based on schema models
+-add config option to auto-run migrations on recompile (or app startup).
 -integrate node-db-migrate full environment variable support:
 {
   "dev": {
@@ -73,15 +84,6 @@
   }
 }
 
-** make section for envionrment variables:
-RAPI_CONFIG = config/config.json
-RAPI_SCHEMA_FILE = config/schema.json
-
-
-# BUGS:
--diff code sees 'email' data type as a changing field from original schema.
-
-
 # DONE:
 -cleaned up DbHelper and DataMapper code.
 -added debug() method to print trace/debug logs if process.env.DEBUG = true.
@@ -90,9 +92,10 @@ RAPI_SCHEMA_FILE = config/schema.json
 -added DataMapper.getOne() function.
 -automatically make migrations folder if it doesn't exist.
 -changed RestAPI.handle() to RestApi.handler()
+-bug: diff code sees 'email' data type as a changing field from original schema.
 
 
-
+# DATABASE BOOTSTRAPPING
 
 
 # NAME

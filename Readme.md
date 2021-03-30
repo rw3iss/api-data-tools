@@ -23,7 +23,7 @@ import { RestAPI } from 'api-data-tools';
 
 let api = new RestAPI();
 
-const apiServer = http.createServer((req, res) {
+const apiServer = http.createServer((req, res) => {
     api.handle(req, res);
 });
 apiServer.listen(8080);
@@ -31,7 +31,7 @@ apiServer.listen(8080);
 
 ## 2. CRUD data objects (based on schema.json):
 ```
-import { DataMapper } from 'api-data-tools';t8
+import { DataMapper } from 'api-data-tools';
 let data = { someData: "update" };
 DataMapper.save('modelName', data);
 ```

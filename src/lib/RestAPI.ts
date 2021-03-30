@@ -1,6 +1,7 @@
 import RouteHelper from './RouteHelper';
 import Config from './Config';
 import DbHelper from './DbHelper';
+import { enableCors } from '../utils/cors';
 
 const generateApiDocs = () => {
     // go through schema file and get all routes
@@ -15,7 +16,7 @@ export default class RestAPI {
 
     constructor(configPath?, schemaPath?) {
 
-        // Need to initialize DB on app start...
+        // Todo: move this to data layer. Need to initialize DB on app start...
         DbHelper.initialize();
         
         if (configPath && schemaPath) {
@@ -49,6 +50,7 @@ export default class RestAPI {
         if (registerRoutes) {
             this.registerRoutes();
         }
+        
     }
 
     registerRoutes() {        
@@ -62,6 +64,7 @@ export default class RestAPI {
             this.routesRegistered = true;
         }
         
+        // TODO:
         if (Config.generateApiDocs) {
             console.log('generate api documentation route')
             this.router.on('GET', '/api/docs', (req, res, ctx) => { 
@@ -73,9 +76,16 @@ export default class RestAPI {
 
     // Will try and handle the given request with default handlers generated from the schema.
     // Can be called directly, or passed into an application as middleware, ie. 'app.use(RestAPI.handler)' 
-    handler(request, response, context?) {
+    handler(req, res, context?) {
+        if (Config.enableCors) {
+            console.log('enabling cors');
+            enableCors(req, res);
+            if (req.method === 'OPTIONS') {
+                return;
+            }
+        }
         // Todo: need to extend this method to not end the request if no route is found?
-        this.router.lookup(request, response, context);
+        this.router.lookup(req, res, context);
         return true;
     }
 

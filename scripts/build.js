@@ -22,4 +22,5 @@ function build(entryFile, outFile) {
 }
 
 build(`${SRC_DIR}/index.ts`, `${OUTPUT_DIR}/index.js`);
+build(`${SRC_DIR}/client-sdk/index.ts`, `${OUTPUT_DIR}/client-sdk/index.js`);
 build(`${SRC_DIR}/scripts/generateMigrations.ts`, `${OUTPUT_DIR}/generateMigrations.js`);

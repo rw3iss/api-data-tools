@@ -5,6 +5,8 @@ import MigrationHelper from './lib/MigrationHelper';
 import ResourceHandler from './lib/ResourceHandler';
 import DbHelper from './lib/DbHelper';
 import DataMapper from './lib/DataMapper';
+import CLI from './lib/CLI';
+import APIClient from './client-sdk/APIClient';
 
 export { 
 
@@ -21,6 +23,12 @@ export {
     DataMapper,
 
     // Interface to work with the underlying database directly.
-    DbHelper
+    DbHelper,
+
+    // If wanting to use the CLI interface.
+    CLI,
+
+    // temporarily putting Client here, but should be a separate package?
+    APIClient
 
 };

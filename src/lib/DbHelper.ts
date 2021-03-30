@@ -8,7 +8,7 @@ import Config from './Config';
 import { mysqlDate, debug, firstOrDefault } from '../utils/utils';
 
 /* Todo: Possibly use a separate sql command parser... */
-    
+
 const DEFAULT_CHARSET = 'utf8mb4';
 
 export default class DbHelper {
@@ -21,7 +21,7 @@ export default class DbHelper {
         if (process.env.DATABASE_URL) {
             return process.env.DATABASE_URL;
         }
-    
+
         if (process.env.DB_HOST && process.env.DB_USER && process.env.DB_PASSWORD && process.env.DB_DATABASE) {
             dbConfig = {
                 driver: process.env.DB_DRIVER || 'mysql',
@@ -33,10 +33,10 @@ export default class DbHelper {
                 multipleStatements: typeof process.env.DB_MULTI_STATEMENTS == 'undefined' ? false : process.env.DB_MULTI_STATEMENTS,
                 charset: typeof process.env.DB_CHARSET == 'undefined' ? DEFAULT_CHARSET : process.env.DB_CHARSET
             }
-            
+
             return dbConfig;
         }
-            
+
         return null;
     }
 
@@ -50,30 +50,30 @@ export default class DbHelper {
             try {
                 dbConfig = DbHelper.getDbConfig();
                 console.log('DbHelper.getDbConfig() => ', dbConfig);
-                
+
                 if (!dbConfig) {
                     if (!Config.database) {
-                        throw new Error("Could not find database config in environment variables or config.json");
+                        throw "Could not find database config in process.env.DATABASE_URL or config.json. Define the environment variable or define the config file location with --config if a CLI command. Or otherwise pass in the configuration to the constructor of what class you are using.";
                     }
                     dbConfig = Config.database;
                 }
-            } catch(e) {
-                console.log('Error initialize()', e, 'Config:', dbConfig)
-                throw 'Error loading database configuration. Cannot proceed. ' + JSON.stringify(e);
+            } catch (e) {
+                console.log('Error initialize()', e, 'Config value:', dbConfig)
+                throw e;
             }
 
             if (typeof dbConfig == 'string') {
                 DbHelper._pool = mysql.createPool(dbConfig);
             } else {
                 DbHelper._pool = mysql.createPool({
-                    connectionLimit : 100,
-                    host            : dbConfig.host,
-                    port            : dbConfig.port || 3306,
-                    user            : dbConfig.user,
-                    password        : dbConfig.password,
-                    database        : dbConfig.database,
+                    connectionLimit: 100,
+                    host: dbConfig.host,
+                    port: dbConfig.port || 3306,
+                    user: dbConfig.user,
+                    password: dbConfig.password,
+                    database: dbConfig.database,
                     multipleStatements: typeof dbConfig.multipleStatements == 'undefined' ? true : dbConfig.multipleStatements,
-                    charset         : dbConfig.charset || DEFAULT_CHARSET
+                    charset: dbConfig.charset || DEFAULT_CHARSET
                 });
             }
 
@@ -98,14 +98,14 @@ export default class DbHelper {
             DbHelper._pool.getConnection((err: any, connection: any) => {
                 if (err) {
                     console.log("DbHelper.getConnection() error -> ", err);
-                    return reject({ error: err, query: sql, data: data }); 
+                    return reject({ error: err, query: sql, data: data });
                 }
- 
+
                 debug("DbHelper.query", sql, data);
                 connection.query(sql, data, (err: any, qr: T) => {
                     connection.release();
                     if (err) {
-                        console.log("DbHelper.queryOne() error -> ", err);
+                        console.log("DbHelper.query() error -> ", err);
                         return reject({ error: err, query: sql, data: data });
                     } else {
                         return resolve(qr as T);
@@ -114,8 +114,8 @@ export default class DbHelper {
             });
         });
     }
-    
-    public static async queryOne<T>(sql: string, data?: {[index: string]: any}): Promise<T | null> {
+
+    public static async queryOne<T>(sql: string, data?: { [index: string]: any }): Promise<T | null> {
         return new Promise<T | null>(async (resolve, reject) => {
             try {
                 let qr = await DbHelper.query<T>(sql, data);
@@ -123,12 +123,12 @@ export default class DbHelper {
                 return resolve(result as T);
             }
             catch (err) {
-                debug("DbHelper.query error", err, sql);
+                debug("DbHelper.queryOne error", err, sql);
                 return reject(err);
             }
         });
-        
-    } 
+
+    }
 
     // Helper methods...
 
@@ -140,7 +140,7 @@ export default class DbHelper {
 
         if (typeof data != 'object')
             throw new Error("Upsert data must be an object.");
-        
+
         return new Promise<T>(async (resolve, reject) => {
             // If no index, assume insert
             if (typeof data[indexName] == 'undefined') {
@@ -157,10 +157,10 @@ export default class DbHelper {
                     upsertResult = await DbHelper.update<T>(table, data, indexName);
                 }
             }
-            
+
             return resolve(upsertResult as T);
         });
-    } 
+    }
 
     public static async insert<T>(table: string, data: any, indexName: string = 'id'): Promise<T> {
         return new Promise<T>(async (resolve, reject) => {
@@ -199,7 +199,7 @@ export default class DbHelper {
     }
 
     // Utility methods...
- 
+
     // Will generate a 'col1, col2, ...' etc string, ignoring the given indexName, if any.
     private static _generateTableCols(data: any, indexName: string | null = null, updateIndex: boolean = false) {
         const cols: any = [];
@@ -224,10 +224,10 @@ export default class DbHelper {
                 if ((prop == indexName && !updateIndex) || data[prop] == undefined)
                     continue;
 
-                const propVal = 
-                    (typeof data[prop] == 'string' ? this.escapeString(data[prop]) : 
-                    (data[prop] instanceof Date ? this.escapeString(mysqlDate(data[prop])) :
-                        data[prop]));
+                const propVal =
+                    (typeof data[prop] == 'string' ? this.escapeString(data[prop]) :
+                        (data[prop] instanceof Date ? this.escapeString(mysqlDate(data[prop])) :
+                            data[prop]));
 
                 colVals += delim + propVal;
                 delim = ', ';
@@ -245,9 +245,9 @@ export default class DbHelper {
                 //console.log("Column value in data", prop, data[prop]);
                 if ((prop == indexName && !updateIndex) || data[prop] == undefined)
                     continue;
-                const propVal = (typeof data[prop] == 'string' ? this.escapeString(data[prop]) : 
+                const propVal = (typeof data[prop] == 'string' ? this.escapeString(data[prop]) :
                     (data[prop] instanceof Date ? this.escapeString(mysqlDate(data[prop])) :
-                    data[prop]));
+                        data[prop]));
 
                 updateVals += delim + `${prop}=${propVal}`;
                 delim = ', ';

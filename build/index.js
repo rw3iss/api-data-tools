@@ -7050,11 +7050,11 @@ var require_stream_readable = __commonJS((exports2, module2) => {
   var util = Object.create(require_util());
   util.inherits = require_inherits();
   var debugUtil = require("util");
-  var debug3 = void 0;
+  var debug2 = void 0;
   if (debugUtil && debugUtil.debuglog) {
-    debug3 = debugUtil.debuglog("stream");
+    debug2 = debugUtil.debuglog("stream");
   } else {
-    debug3 = function() {
+    debug2 = function() {
     };
   }
   var BufferList = require_BufferList2();
@@ -7281,14 +7281,14 @@ var require_stream_readable = __commonJS((exports2, module2) => {
     return state.length;
   }
   Readable.prototype.read = function(n) {
-    debug3("read", n);
+    debug2("read", n);
     n = parseInt(n, 10);
     var state = this._readableState;
     var nOrig = n;
     if (n !== 0)
       state.emittedReadable = false;
     if (n === 0 && state.needReadable && (state.length >= state.highWaterMark || state.ended)) {
-      debug3("read: emitReadable", state.length, state.ended);
+      debug2("read: emitReadable", state.length, state.ended);
       if (state.length === 0 && state.ended)
         endReadable(this);
       else
@@ -7302,16 +7302,16 @@ var require_stream_readable = __commonJS((exports2, module2) => {
       return null;
     }
     var doRead = state.needReadable;
-    debug3("need readable", doRead);
+    debug2("need readable", doRead);
     if (state.length === 0 || state.length - n < state.highWaterMark) {
       doRead = true;
-      debug3("length less than watermark", doRead);
+      debug2("length less than watermark", doRead);
     }
     if (state.ended || state.reading) {
       doRead = false;
-      debug3("reading or ended", doRead);
+      debug2("reading or ended", doRead);
     } else if (doRead) {
-      debug3("do read");
+      debug2("do read");
       state.reading = true;
       state.sync = true;
       if (state.length === 0)
@@ -7359,7 +7359,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
     var state = stream._readableState;
     state.needReadable = false;
     if (!state.emittedReadable) {
-      debug3("emitReadable", state.flowing);
+      debug2("emitReadable", state.flowing);
       state.emittedReadable = true;
       if (state.sync)
         pna.nextTick(emitReadable_, stream);
@@ -7368,7 +7368,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
     }
   }
   function emitReadable_(stream) {
-    debug3("emit readable");
+    debug2("emit readable");
     stream.emit("readable");
     flow(stream);
   }
@@ -7381,7 +7381,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
   function maybeReadMore_(stream, state) {
     var len = state.length;
     while (!state.reading && !state.flowing && !state.ended && state.length < state.highWaterMark) {
-      debug3("maybeReadMore read 0");
+      debug2("maybeReadMore read 0");
       stream.read(0);
       if (len === state.length)
         break;
@@ -7408,7 +7408,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
         break;
     }
     state.pipesCount += 1;
-    debug3("pipe count=%d opts=%j", state.pipesCount, pipeOpts);
+    debug2("pipe count=%d opts=%j", state.pipesCount, pipeOpts);
     var doEnd = (!pipeOpts || pipeOpts.end !== false) && dest !== process.stdout && dest !== process.stderr;
     var endFn = doEnd ? onend : unpipe;
     if (state.endEmitted)
@@ -7417,7 +7417,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
       src.once("end", endFn);
     dest.on("unpipe", onunpipe);
     function onunpipe(readable, unpipeInfo) {
-      debug3("onunpipe");
+      debug2("onunpipe");
       if (readable === src) {
         if (unpipeInfo && unpipeInfo.hasUnpiped === false) {
           unpipeInfo.hasUnpiped = true;
@@ -7426,14 +7426,14 @@ var require_stream_readable = __commonJS((exports2, module2) => {
       }
     }
     function onend() {
-      debug3("onend");
+      debug2("onend");
       dest.end();
     }
     var ondrain = pipeOnDrain(src);
     dest.on("drain", ondrain);
     var cleanedUp = false;
     function cleanup() {
-      debug3("cleanup");
+      debug2("cleanup");
       dest.removeListener("close", onclose);
       dest.removeListener("finish", onfinish);
       dest.removeListener("drain", ondrain);
@@ -7449,12 +7449,12 @@ var require_stream_readable = __commonJS((exports2, module2) => {
     var increasedAwaitDrain = false;
     src.on("data", ondata);
     function ondata(chunk) {
-      debug3("ondata");
+      debug2("ondata");
       increasedAwaitDrain = false;
       var ret = dest.write(chunk);
       if (ret === false && !increasedAwaitDrain) {
         if ((state.pipesCount === 1 && state.pipes === dest || state.pipesCount > 1 && indexOf(state.pipes, dest) !== -1) && !cleanedUp) {
-          debug3("false write response, pause", src._readableState.awaitDrain);
+          debug2("false write response, pause", src._readableState.awaitDrain);
           src._readableState.awaitDrain++;
           increasedAwaitDrain = true;
         }
@@ -7462,7 +7462,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
       }
     }
     function onerror(er) {
-      debug3("onerror", er);
+      debug2("onerror", er);
       unpipe();
       dest.removeListener("error", onerror);
       if (EElistenerCount(dest, "error") === 0)
@@ -7475,18 +7475,18 @@ var require_stream_readable = __commonJS((exports2, module2) => {
     }
     dest.once("close", onclose);
     function onfinish() {
-      debug3("onfinish");
+      debug2("onfinish");
       dest.removeListener("close", onclose);
       unpipe();
     }
     dest.once("finish", onfinish);
     function unpipe() {
-      debug3("unpipe");
+      debug2("unpipe");
       src.unpipe(dest);
     }
     dest.emit("pipe", src);
     if (!state.flowing) {
-      debug3("pipe resume");
+      debug2("pipe resume");
       src.resume();
     }
     return dest;
@@ -7494,7 +7494,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
   function pipeOnDrain(src) {
     return function() {
       var state = src._readableState;
-      debug3("pipeOnDrain", state.awaitDrain);
+      debug2("pipeOnDrain", state.awaitDrain);
       if (state.awaitDrain)
         state.awaitDrain--;
       if (state.awaitDrain === 0 && EElistenerCount(src, "data")) {
@@ -7562,13 +7562,13 @@ var require_stream_readable = __commonJS((exports2, module2) => {
   };
   Readable.prototype.addListener = Readable.prototype.on;
   function nReadingNextTick(self2) {
-    debug3("readable nexttick read 0");
+    debug2("readable nexttick read 0");
     self2.read(0);
   }
   Readable.prototype.resume = function() {
     var state = this._readableState;
     if (!state.flowing) {
-      debug3("resume");
+      debug2("resume");
       state.flowing = true;
       resume(this, state);
     }
@@ -7582,7 +7582,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
   }
   function resume_(stream, state) {
     if (!state.reading) {
-      debug3("resume read 0");
+      debug2("resume read 0");
       stream.read(0);
     }
     state.resumeScheduled = false;
@@ -7593,9 +7593,9 @@ var require_stream_readable = __commonJS((exports2, module2) => {
       stream.read(0);
   }
   Readable.prototype.pause = function() {
-    debug3("call pause flowing=%j", this._readableState.flowing);
+    debug2("call pause flowing=%j", this._readableState.flowing);
     if (this._readableState.flowing !== false) {
-      debug3("pause");
+      debug2("pause");
       this._readableState.flowing = false;
       this.emit("pause");
     }
@@ -7603,7 +7603,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
   };
   function flow(stream) {
     var state = stream._readableState;
-    debug3("flow", state.flowing);
+    debug2("flow", state.flowing);
     while (state.flowing && stream.read() !== null) {
     }
   }
@@ -7612,7 +7612,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
     var state = this._readableState;
     var paused = false;
     stream.on("end", function() {
-      debug3("wrapped end");
+      debug2("wrapped end");
       if (state.decoder && !state.ended) {
         var chunk = state.decoder.end();
         if (chunk && chunk.length)
@@ -7621,7 +7621,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
       _this.push(null);
     });
     stream.on("data", function(chunk) {
-      debug3("wrapped data");
+      debug2("wrapped data");
       if (state.decoder)
         chunk = state.decoder.write(chunk);
       if (state.objectMode && (chunk === null || chunk === void 0))
@@ -7647,7 +7647,7 @@ var require_stream_readable = __commonJS((exports2, module2) => {
       stream.on(kProxyEvents[n], this.emit.bind(this, kProxyEvents[n]));
     }
     this._read = function(n2) {
-      debug3("wrapped _read", n2);
+      debug2("wrapped _read", n2);
       if (paused) {
         paused = false;
         stream.resume();
@@ -17455,7 +17455,7 @@ var require_main = __commonJS((exports2, module2) => {
   var RE_NEWLINES = /\\n/g;
   var NEWLINES_MATCH = /\n|\r|\r\n/;
   function parse(src, options) {
-    const debug3 = Boolean(options && options.debug);
+    const debug2 = Boolean(options && options.debug);
     const obj = {};
     src.toString().split(NEWLINES_MATCH).forEach(function(line, idx) {
       const keyValueArr = line.match(RE_INI_KEY_VAL);
@@ -17474,7 +17474,7 @@ var require_main = __commonJS((exports2, module2) => {
           val = val.trim();
         }
         obj[key] = val;
-      } else if (debug3) {
+      } else if (debug2) {
         log(`did not match key and value when parsing line ${idx + 1}: ${line}`);
       }
     });
@@ -17483,7 +17483,7 @@ var require_main = __commonJS((exports2, module2) => {
   function config(options) {
     let dotenvPath = path2.resolve(process.cwd(), ".env");
     let encoding = "utf8";
-    let debug3 = false;
+    let debug2 = false;
     if (options) {
       if (options.path != null) {
         dotenvPath = options.path;
@@ -17492,15 +17492,15 @@ var require_main = __commonJS((exports2, module2) => {
         encoding = options.encoding;
       }
       if (options.debug != null) {
-        debug3 = true;
+        debug2 = true;
       }
     }
     try {
-      const parsed = parse(fs2.readFileSync(dotenvPath, {encoding}), {debug: debug3});
+      const parsed = parse(fs2.readFileSync(dotenvPath, {encoding}), {debug: debug2});
       Object.keys(parsed).forEach(function(key) {
         if (!Object.prototype.hasOwnProperty.call(process.env, key)) {
           process.env[key] = parsed[key];
-        } else if (debug3) {
+        } else if (debug2) {
           log(`"${key}" is already defined in \`process.env\` and will not be overwritten`);
         }
       });
@@ -17650,7 +17650,7 @@ function mkDirSync(dir) {
     }
   }
 }
-function debug2() {
+function debug() {
   if (process.env.DEBUG == "true") {
     console.log.apply(console, arguments);
   }
@@ -17737,7 +17737,7 @@ var _DbHelper = class {
           console.log("DbHelper.getConnection() error -> ", err);
           return reject({error: err, query: sql, data});
         }
-        debug2("DbHelper.query", sql, data);
+        debug("DbHelper.query", sql, data);
         connection.query(sql, data, (err2, qr) => {
           connection.release();
           if (err2) {
@@ -17757,7 +17757,7 @@ var _DbHelper = class {
         let result = firstOrDefault(qr, null);
         return resolve4(result);
       } catch (err) {
-        debug2("DbHelper.queryOne error", err, sql);
+        debug("DbHelper.queryOne error", err, sql);
         return reject(err);
       }
     });
@@ -17860,7 +17860,7 @@ var DataMapper = class {
       try {
         let query = this.selectQueryString(type, params, limit);
         let r = await DbHelper_default.query(query);
-        debug2("DataMapper.get result", r);
+        debug("DataMapper.get result", r);
         return r;
       } catch (e) {
         console.log("DataMapper.get error", e);
@@ -17873,21 +17873,22 @@ var DataMapper = class {
         let query = this.upsertQueryString(type, o);
         let r = await DbHelper_default.query(query);
         o.id = o.id || ((_a = r[r.length - 1][0]) == null ? void 0 : _a.last_id);
-        debug2("DataMapper.save result", o);
+        debug("DataMapper.save result", o);
         return o;
       } catch (e) {
-        debug2("DataMapper.save error", e);
+        debug("DataMapper.save error", e);
         throw e;
       }
     };
     this.delete = async (type, params) => {
       try {
         let query = this.deleteQueryString(type, params);
+        console.log("Delete.....", query);
         let r = await DbHelper_default.query(query);
-        debug2("DataMapper.delete result", r);
+        debug("DataMapper.delete result", r);
         return r;
       } catch (e) {
-        debug2("DataMapper.delete error", e);
+        debug("DataMapper.delete error", e);
         throw e;
       }
     };
@@ -17972,7 +17973,7 @@ var DataMapper = class {
         let pDef = this.schema[type][pName];
         let pQuery = this._makePropValString(pName, pVal, pDef);
         str += delim + pQuery;
-        delim = " AND";
+        delim = " AND ";
       }
     }
     return str;
@@ -18053,14 +18054,14 @@ var Response_default = Response;
 var schema2 = SchemaHelper_default.getSchema();
 var ResourceHandler = class {
   static async get(req, res, ctx) {
-    debug2("ResourceHandler.get", req.url, typeof res, ctx);
+    debug("ResourceHandler.get", req.url, typeof res, ctx);
     let type = _validateTypeRequest(req, ctx);
     let d = await DataMapper_default.get(type, ctx);
     Response_default.success(res, d);
   }
   static async put(req, res, ctx) {
     let body = await parseBody(req);
-    debug2("ResourceHandler.put", req.url, ctx, body);
+    debug("ResourceHandler.put", req.url, ctx, body);
     let type = _validateTypeRequest(req, ctx, body);
     let d = await DataMapper_default.save(type, body);
     Response_default.success(res, d);
@@ -18068,7 +18069,7 @@ var ResourceHandler = class {
   static async post(req, res, ctx) {
     try {
       let body = await parseBody(req);
-      debug2("ResourceHandler.post", req.url, ctx, body);
+      debug("ResourceHandler.post", req.url, ctx, body);
       let type = _validateTypeRequest(req, ctx, body);
       let d = await DataMapper_default.save(type, body);
       Response_default.success(res, d);
@@ -18079,13 +18080,13 @@ var ResourceHandler = class {
   }
   static async patch(req, res, ctx) {
     let body = await parseBody(req);
-    debug2("ResourceHandler.;patch", req.url, ctx, body);
+    debug("ResourceHandler.;patch", req.url, ctx, body);
     let type = _validateTypeRequest(req, ctx, body);
     let d = await DataMapper_default.save(type, body);
     res.end(JSON.stringify({success: true, data: d}));
   }
   static async delete(req, res, ctx) {
-    debug2("ResourceHandler.delete", req.url, ctx);
+    debug("ResourceHandler.delete", req.url, ctx);
     let type = _validateTypeRequest(req, ctx);
     let d = await DataMapper_default.delete(type, ctx);
     res.end(JSON.stringify({success: true, data: d}));
@@ -18314,6 +18315,12 @@ var RestAPI = class {
       this.registerRoutes();
     }
   }
+  route(method, url, handler) {
+    if (!Config_default.apiEnabled) {
+      throw "API is not enabled. Please set 'apiEnabled' to true in config.json";
+    }
+    this.router.on(method, url, handler);
+  }
   registerRoutes() {
     if (!Config_default.apiEnabled) {
       throw "API is not enabled. Please set 'apiEnabled' to true in config.json";
@@ -18534,10 +18541,6 @@ var CLI = class {
 var CLI_default = new CLI();
 
 // src/client-sdk/Request.ts
-function _makeRequestOptions(opts) {
-  opts = opts || {};
-  return opts;
-}
 var Request = class {
   static async get(url, headers) {
     let opts = {
@@ -18546,7 +18549,6 @@ var Request = class {
       headers,
       redirect: "follow"
     };
-    opts = _makeRequestOptions(opts);
     return await fetch(url, opts);
   }
   static async post(url, data, headers) {
@@ -18560,7 +18562,6 @@ var Request = class {
       },
       redirect: "follow"
     };
-    opts = _makeRequestOptions(opts);
     return await fetch(url, opts).catch((e) => {
       console.log("caught request", e);
     });
@@ -18575,7 +18576,6 @@ var Request = class {
         ...headers
       }
     };
-    opts = _makeRequestOptions(opts);
     return await fetch(url, opts);
   }
   static async delete(url, headers) {
@@ -18583,7 +18583,6 @@ var Request = class {
       method: "DELETE",
       headers
     };
-    opts = _makeRequestOptions(opts);
     return await fetch(url, opts);
   }
   static findError(res) {
@@ -18594,17 +18593,17 @@ var Request_default = Request;
 
 // src/client-sdk/HttpClient.ts
 var HttpClient = class {
-  get(url) {
-    return this.request(url, "GET");
+  get(url, options) {
+    return this.request(url, "GET", null, options.headers);
   }
-  post(url, body) {
-    return this.request(url, "POST", body);
+  post(url, body, options) {
+    return this.request(url, "POST", body, options.headers);
   }
-  put(url, body) {
-    return this.request(url, "PUT", body);
+  put(url, body, options) {
+    return this.request(url, "PUT", body, options.headers);
   }
-  delete(url) {
-    return this.request(url, "DELETE");
+  delete(url, options) {
+    return this.request(url, "DELETE", null, options.headers);
   }
   async request(url, method = "GET", body = void 0, headers = void 0) {
     return new Promise((resolve4, reject) => {
@@ -18652,12 +18651,13 @@ var HttpClient_default = HttpClient;
 
 // src/client-sdk/APIClient.ts
 var APIClient = class extends HttpClient_default {
-  constructor(apiBase) {
+  constructor(apiBase, options) {
     super();
     this.get = async (type, params, limit) => {
       try {
         let url = `${this.apiBase}/${type}${limit ? "?limit=" + limit : ""}`;
-        return await super.get(url);
+        console.log("get", this.options);
+        return await super.get(url, this.options);
       } catch (e) {
         console.log("Client.get error", e);
         throw e;
@@ -18667,9 +18667,12 @@ var APIClient = class extends HttpClient_default {
       console.log("save");
       try {
         let url = `${this.apiBase}/${type}`;
-        if (o.id)
+        if (o.id) {
           url += `/${o.id}`;
-        return await this.post(url, o);
+          return await super.put(url, o, this.options);
+        } else {
+          return await super.post(url, o, this.options);
+        }
       } catch (e) {
         console.log("Client.save error", e);
         throw e;
@@ -18677,25 +18680,26 @@ var APIClient = class extends HttpClient_default {
     };
     this.delete = async (type, params) => {
       try {
-        if (!params.id)
+        console.log("delete >", type, params);
+        if (typeof params.id == "undefined")
           throw "delete requires an id parameter";
         let url = `${this.apiBase}/${type}/${params.id}`;
-        return await this.delete(url);
+        console.log("calling delete...", this.options);
+        return await super.delete(url, this.options);
       } catch (e) {
-        debug("Client.delete error", e);
+        console.log("Client.delete error", e);
         throw e;
       }
     };
     if (!apiBase)
       throw "APIClient requires the base URI of the API as an argument.";
-    console.log("APIClient initialized with:", apiBase);
     this.apiBase = apiBase;
+    this.options = options;
   }
   async getOne(type, params, serialize = false) {
     console.log("getone");
     try {
       let r = await this.get(type, params, 1);
-      console.log("getone response", r);
       return r.length ? r[0] : null;
     } catch (e) {
       console.log("Client.getOne error", e);

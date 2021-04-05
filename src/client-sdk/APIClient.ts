@@ -7,27 +7,31 @@ import HttpClient from './HttpClient';
 
 export default class APIClient extends HttpClient {
 
-    constructor(apiBase) {
+    apiBase;
+    options;
+
+    constructor(apiBase, options?) {
         super();
         if (!apiBase)
             throw "APIClient requires the base URI of the API as an argument.";
         // todo: load extensions from config...
-        console.log('APIClient initialized with:', apiBase);
         this.apiBase = apiBase;
+        this.options = options;
     }
 
     /**
      * @description Get an instance of the given type, according to parameters.
      * @param {string} type
-     * @param {*} [params]
+     * @param {*} [params]      
      * @param {*} [limit]
      * @return {$type} Set of matching objects.
      */
     get = async (type: string, params?, limit?) => {
         try {
-            let url = `${this.apiBase}/${type}${limit ? ('?limit='+limit) : ''}`;
-            return await super.get(url);
-        } catch(e) {
+            let url = `${this.apiBase}/${type}${limit ? ('?limit=' + limit) : ''}`;
+            console.log('get', this.options)
+            return await super.get(url, this.options);
+        } catch (e) {
             console.log('Client.get error', e)
             throw e;
         }
@@ -44,9 +48,8 @@ export default class APIClient extends HttpClient {
         console.log('getone')
         try {
             let r = await this.get(type, params, 1);
-            console.log('getone response', r)
             return r.length ? r[0] : null;
-        } catch(e) {
+        } catch (e) {
             console.log('Client.getOne error', e)
             throw e;
         }
@@ -62,9 +65,13 @@ export default class APIClient extends HttpClient {
         console.log('save')
         try {
             let url = `${this.apiBase}/${type}`;
-            if (o.id) url += `/${o.id}`;
-            return await this.post(url, o);
-        } catch(e) {
+            if (o.id) {
+                url += `/${o.id}`;
+                return await super.put(url, o, this.options);
+            } else {
+                return await super.post(url, o, this.options);
+            }
+        } catch (e) {
             console.log('Client.save error', e)
             throw e;
         }
@@ -78,11 +85,13 @@ export default class APIClient extends HttpClient {
      */
     delete = async (type: string, params) => {
         try {
-            if (!params.id) throw "delete requires an id parameter";
+            console.log('delete >', type, params)
+            if (typeof params.id == 'undefined') throw "delete requires an id parameter";
             let url = `${this.apiBase}/${type}/${params.id}`;
-            return await this.delete(url);
-        } catch(e) {
-            debug('Client.delete error', e);
+            console.log('calling delete...', this.options)
+            return await super.delete(url, this.options);
+        } catch (e) {
+            console.log('Client.delete error', e);
             throw e;
         }
     }

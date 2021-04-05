@@ -5,17 +5,17 @@ import Request from './Request';
 export default class HttpClient {
 
     // shortcuts
-    public get<T>(url) {
-        return this.request(url, 'GET');
+    public get<T>(url, options) {
+        return this.request(url, 'GET', null, options.headers);
     }
-    public post<T>(url, body) {
-        return this.request(url, 'POST', body);
+    public post<T>(url, body, options) {
+        return this.request(url, 'POST', body, options.headers);
     }
-    public put<T>(url, body) {
-        return this.request(url, 'PUT', body);
+    public put<T>(url, body, options) {
+        return this.request(url, 'PUT', body, options.headers);
     }
-    public delete<T>(url) {
-        return this.request(url, 'DELETE');
+    public delete<T>(url, options) {
+        return this.request(url, 'DELETE', null, options.headers);
     }
 
     // underlying Request wrapper

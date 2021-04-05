@@ -58,7 +58,7 @@ export function mkDirSync(dir) {
 }
 
 export function debug() {
-    if (process.env.DEBUG == "true") {
+    if (process.env.ADT_DEBUG == "true") {
 	    console.log.apply(console, arguments);
     }
 }

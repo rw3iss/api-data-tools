@@ -12,10 +12,6 @@ __export(exports, {
 });
 
 // src/client-sdk/Request.ts
-function _makeRequestOptions(opts) {
-  opts = opts || {};
-  return opts;
-}
 var Request = class {
   static async get(url, headers) {
     let opts = {
@@ -24,7 +20,6 @@ var Request = class {
       headers,
       redirect: "follow"
     };
-    opts = _makeRequestOptions(opts);
     return await fetch(url, opts);
   }
   static async post(url, data, headers) {
@@ -38,7 +33,6 @@ var Request = class {
       },
       redirect: "follow"
     };
-    opts = _makeRequestOptions(opts);
     return await fetch(url, opts).catch((e) => {
       console.log("caught request", e);
     });
@@ -53,7 +47,6 @@ var Request = class {
         ...headers
       }
     };
-    opts = _makeRequestOptions(opts);
     return await fetch(url, opts);
   }
   static async delete(url, headers) {
@@ -61,7 +54,6 @@ var Request = class {
       method: "DELETE",
       headers
     };
-    opts = _makeRequestOptions(opts);
     return await fetch(url, opts);
   }
   static findError(res) {
@@ -72,17 +64,17 @@ var Request_default = Request;
 
 // src/client-sdk/HttpClient.ts
 var HttpClient = class {
-  get(url) {
-    return this.request(url, "GET");
+  get(url, options) {
+    return this.request(url, "GET", null, options.headers);
   }
-  post(url, body) {
-    return this.request(url, "POST", body);
+  post(url, body, options) {
+    return this.request(url, "POST", body, options.headers);
   }
-  put(url, body) {
-    return this.request(url, "PUT", body);
+  put(url, body, options) {
+    return this.request(url, "PUT", body, options.headers);
   }
-  delete(url) {
-    return this.request(url, "DELETE");
+  delete(url, options) {
+    return this.request(url, "DELETE", null, options.headers);
   }
   async request(url, method = "GET", body = void 0, headers = void 0) {
     return new Promise((resolve, reject) => {
@@ -130,12 +122,13 @@ var HttpClient_default = HttpClient;
 
 // src/client-sdk/APIClient.ts
 var APIClient = class extends HttpClient_default {
-  constructor(apiBase) {
+  constructor(apiBase, options) {
     super();
     this.get = async (type, params, limit) => {
       try {
         let url = `${this.apiBase}/${type}${limit ? "?limit=" + limit : ""}`;
-        return await super.get(url);
+        console.log("get", this.options);
+        return await super.get(url, this.options);
       } catch (e) {
         console.log("Client.get error", e);
         throw e;
@@ -145,9 +138,12 @@ var APIClient = class extends HttpClient_default {
       console.log("save");
       try {
         let url = `${this.apiBase}/${type}`;
-        if (o.id)
+        if (o.id) {
           url += `/${o.id}`;
-        return await this.post(url, o);
+          return await super.put(url, o, this.options);
+        } else {
+          return await super.post(url, o, this.options);
+        }
       } catch (e) {
         console.log("Client.save error", e);
         throw e;
@@ -155,25 +151,26 @@ var APIClient = class extends HttpClient_default {
     };
     this.delete = async (type, params) => {
       try {
-        if (!params.id)
+        console.log("delete >", type, params);
+        if (typeof params.id == "undefined")
           throw "delete requires an id parameter";
         let url = `${this.apiBase}/${type}/${params.id}`;
-        return await this.delete(url);
+        console.log("calling delete...", this.options);
+        return await super.delete(url, this.options);
       } catch (e) {
-        debug("Client.delete error", e);
+        console.log("Client.delete error", e);
         throw e;
       }
     };
     if (!apiBase)
       throw "APIClient requires the base URI of the API as an argument.";
-    console.log("APIClient initialized with:", apiBase);
     this.apiBase = apiBase;
+    this.options = options;
   }
   async getOne(type, params, serialize = false) {
     console.log("getone");
     try {
       let r = await this.get(type, params, 1);
-      console.log("getone response", r);
       return r.length ? r[0] : null;
     } catch (e) {
       console.log("Client.getOne error", e);

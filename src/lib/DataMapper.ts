@@ -70,6 +70,8 @@ export class DataMapper {
         // todo: should allow editing of fields but return full object...
         try {
             let query = this.upsertQueryString(type, o);
+            console.log('query', query)
+            debug('adt debug', query);
             let r = await DbHelper.query(query);
             // todo: check if id property exists on schema
             o.id = o.id || r[r.length-1][0]?.last_id;
@@ -90,6 +92,7 @@ export class DataMapper {
     delete = async (type: string, params) => {
         try {
             let query = this.deleteQueryString(type, params);
+            console.log('Delete.....', query)
             let r = await DbHelper.query(query);
             debug('DataMapper.delete result', r);
             return r;
@@ -198,7 +201,7 @@ export class DataMapper {
                 let pDef = this.schema[type][pName];
                 let pQuery = this._makePropValString(pName, pVal, pDef);
                 str += delim + pQuery;
-                delim = ' AND';
+                delim = ' AND ';
             }
         }
         return str;
@@ -231,7 +234,7 @@ export class DataMapper {
         let pType = this._getPropType(pVal, pDef);
         let eVal = this.escape(pVal, pType);
         return `${pName}=${eVal}`;
-    }
+    }   
 
     _getPropType(propVal, propDef?) {
         let type = '';

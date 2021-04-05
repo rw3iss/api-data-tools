@@ -1,6 +1,14 @@
 # DOING:
-* ADD: client api mapper... small JS client which can just do .save('type', data); and talk to the backend api...
+* ClientAPI:
+    -add authentication header
 
+-add user system:
+    -r = APIClient.auth.login(...): response stores token
+    -APIClient.get/post/put, etc:
+        -run hooks through all extensions to modify the request headers, etc...
+        -auth extension should add Authorization header
+        -backend should pass request through all extensions
+            -auth extension should see Auth header, and look user up and put into request
 
 # TODO
 -change code to use async/await
@@ -12,6 +20,8 @@
 -add method to DataMapper to just generate sql query string.
 
 -objectify "schema" property into a Schema class?
+
+** add in APIClient caching layer option...
 
 ** Add a generate model command, or regenerate all models, and option to re-generate models on miration changes.
     -Model files generated can then be extended, add hooks for serialization/deserialization.
@@ -32,7 +42,6 @@
     
 ** Need options to serialize and deserialize fields per model... 
     -ie. object to strings...
-
 
 ** need to load in command line args to global config state (ie. whether entering from script or native API)
     -each class should ask Config.get('VAR'), and Config should manage loading from either config file, or environments, or CLI, etc.

@@ -50,10 +50,18 @@ export default class RestAPI {
         if (registerRoutes) {
             this.registerRoutes();
         }
-        
     }
 
-    registerRoutes() {        
+    // register a route outside the context of this RestAPI (ie. custom client-app routes)
+    route(method, url, handler) {
+        if (!Config.apiEnabled) {
+            throw "API is not enabled. Please set 'apiEnabled' to true in config.json";
+        }
+        this.router.on(method, url, handler);
+    }
+
+    // registers the default routes
+    registerRoutes() {
         if (!Config.apiEnabled) {
             throw "API is not enabled. Please set 'apiEnabled' to true in config.json";
         }

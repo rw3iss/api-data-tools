@@ -1,18 +1,5 @@
 //const fetch = require('node-fetch').default;
 
-// adds Authorization header with JWT token, etc...
-function _makeRequestOptions(opts) {
-	opts = opts || {}
-
-	// let token = _getAccessToken();
-	// if (token) {
-	//     opts.headers = opts.headers || {};
-	//     opts.headers["Authorization"] = opts.headers["Authorization"] || `Bearer ${token}`;
-	// }
-
-	return opts
-}
-
 export default class Request {
     
 	static async get(url, headers) {
@@ -22,8 +9,8 @@ export default class Request {
 			// credentials: 'include',
 			headers: headers,
             redirect: 'follow'
-		}
-		opts = _makeRequestOptions(opts)
+        }
+
 		return await fetch(url, opts)
 	}
 
@@ -39,8 +26,6 @@ export default class Request {
 			},
             redirect: 'follow'
 		}
-		opts = _makeRequestOptions(opts)
-
 		return await fetch(url, opts).catch(e => {
 			console.log('caught request', e)
 		})
@@ -57,7 +42,6 @@ export default class Request {
 				...headers
 			}
 		}
-		opts = _makeRequestOptions(opts)
 		return await fetch(url, opts)
 	}
 
@@ -66,7 +50,6 @@ export default class Request {
 			method: 'DELETE',
 			headers: headers
 		}
-		opts = _makeRequestOptions(opts)
 		return await fetch(url, opts)
 	}
 

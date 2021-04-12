@@ -33,6 +33,7 @@ export default class RestAPI {
         this.router = require('find-my-way')({  
             ignoreTrailingSlash: true,
             defaultRoute: (req, res) => {
+                res.statusCode = 404;
                 res.end(JSON.stringify({
                     success: false,
                     message: 'Endpoint not found.'

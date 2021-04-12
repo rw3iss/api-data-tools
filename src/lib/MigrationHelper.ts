@@ -140,8 +140,8 @@ export default class MigrationHelper {
     }
 
     writeMigration(migrationCode, migrationsDir) {
-        let migrationFilePath = resolve(migrationsDir, this._formatDate(new Date()) + '-generated.js');
         mkDirSync(migrationsDir);
+        let migrationFilePath = resolve(migrationsDir, this._formatDate(new Date()) + '-generated.js');
         writeFile(migrationFilePath, migrationCode, (err) => {
             if (err) console.log(err);
             console.log("Successfully generated migration file:\n", migrationFilePath);

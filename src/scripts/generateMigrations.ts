@@ -29,14 +29,11 @@ try {
 // Todo:
 // this needs to lead to 
 
-console.log('generateMigrations...', process.env.DATABASE_URL);
-
 const cwd = process.cwd();
 const basePath = path.resolve(cwd, opts.config ? opts.config : DEFAULT_DIR);
 
 const schemaFile = path.resolve(cwd, opts['schema-file'] ? opts['schema-file'] : DEFAULT_SCHEMA_FILE);
 const schemaDir = schemaFile.substring(0, schemaFile.lastIndexOf('/'));
-console.log('schema dir', schemaDir);
 const prevSchemaFile = path.resolve(schemaDir, '.curr.schema.json');
 
 const migrationsDir = path.resolve(process.cwd(), opts['migrations-dir'] ? opts['migrations-dir'] : DEFAULT_MIGRATIONS_DIR);

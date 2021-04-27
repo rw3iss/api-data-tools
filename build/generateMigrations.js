@@ -6720,8 +6720,8 @@ var MigrationHelper = class {
     }
   }
   writeMigration(migrationCode, migrationsDir2) {
-    let migrationFilePath = import_path3.resolve(migrationsDir2, this._formatDate(new Date()) + "-generated.js");
     mkDirSync(migrationsDir2);
+    let migrationFilePath = import_path3.resolve(migrationsDir2, this._formatDate(new Date()) + "-generated.js");
     import_fs4.writeFile(migrationFilePath, migrationCode, (err) => {
       if (err)
         console.log(err);
@@ -6817,12 +6817,10 @@ try {
 } catch (e) {
   console.log("Error parsing command line arguments:", e);
 }
-console.log("generateMigrations...", process.env.DATABASE_URL);
 var cwd = process.cwd();
 var basePath = path2.resolve(cwd, opts.config ? opts.config : DEFAULT_DIR);
 var schemaFile = path2.resolve(cwd, opts["schema-file"] ? opts["schema-file"] : DEFAULT_SCHEMA_FILE);
 var schemaDir = schemaFile.substring(0, schemaFile.lastIndexOf("/"));
-console.log("schema dir", schemaDir);
 var prevSchemaFile = path2.resolve(schemaDir, ".curr.schema.json");
 var migrationsDir = path2.resolve(process.cwd(), opts["migrations-dir"] ? opts["migrations-dir"] : DEFAULT_MIGRATIONS_DIR);
 var currSchema = {};

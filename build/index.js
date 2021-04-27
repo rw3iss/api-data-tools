@@ -17651,7 +17651,7 @@ function mkDirSync(dir) {
   }
 }
 function debug() {
-  if (process.env.DEBUG == "true") {
+  if (process.env.ADT_DEBUG == "true") {
     console.log.apply(console, arguments);
   }
 }
@@ -17871,6 +17871,8 @@ var DataMapper = class {
       var _a;
       try {
         let query = this.upsertQueryString(type, o);
+        console.log("query", query);
+        debug("adt debug", query);
         let r = await DbHelper_default.query(query);
         o.id = o.id || ((_a = r[r.length - 1][0]) == null ? void 0 : _a.last_id);
         debug("DataMapper.save result", o);
@@ -17971,7 +17973,7 @@ var DataMapper = class {
       if (params.hasOwnProperty(pName)) {
         let pVal = params[pName];
         let pDef = this.schema[type][pName];
-        let pQuery = this._makePropValString(pName, pVal, pDef);
+        let pQuery = this._makePropQueryString(pName, pVal, pDef);
         str += delim + pQuery;
         delim = " AND ";
       }
@@ -17993,11 +17995,17 @@ var DataMapper = class {
     }
     return propVal;
   }
-  _makePropValString(pName, pVal, pDef) {
-    let q = pName;
+  _makePropQueryString(pName, pVal, pDef) {
     let pType = this._getPropType(pVal, pDef);
-    let eVal = this.escape(pVal, pType);
-    return `${pName}=${eVal}`;
+    if (typeof pVal == "object") {
+      if (typeof pVal.like != "undefined") {
+        return `${pName} LIKE '%${this.escape(pVal.like, pType)}%'`;
+      } else {
+        throw "Object value isn't supported for query strings without a 'like' property";
+      }
+    } else {
+      return `${pName}=${this.escape(pVal, pType)}`;
+    }
   }
   _getPropType(propVal, propDef) {
     let type = "";
@@ -18299,6 +18307,7 @@ var RestAPI = class {
     this.router = require_find_my_way()({
       ignoreTrailingSlash: true,
       defaultRoute: (req, res) => {
+        res.statusCode = 404;
         res.end(JSON.stringify({
           success: false,
           message: "Endpoint not found."
@@ -18457,8 +18466,8 @@ var MigrationHelper = class {
     }
   }
   writeMigration(migrationCode, migrationsDir) {
-    let migrationFilePath = import_path3.resolve(migrationsDir, this._formatDate(new Date()) + "-generated.js");
     mkDirSync(migrationsDir);
+    let migrationFilePath = import_path3.resolve(migrationsDir, this._formatDate(new Date()) + "-generated.js");
     import_fs4.writeFile(migrationFilePath, migrationCode, (err) => {
       if (err)
         console.log(err);

@@ -6,7 +6,6 @@ function gen_new_site(args) {
     console.log('Gen new site...', args)
 }
 
-
 function add_item(args) {
     console.log('Add item...', args)
 }

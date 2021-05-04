@@ -19,6 +19,7 @@ export class DataMapper {
      * Creates an instance of DataMapper.
      */
     constructor() {
+        //DbHelper.initialize();
 		// validate the schemas on loadup?
         // Todo: can also `check database to verify the tables match
         this.schema = SchemaHelper.getSchema();

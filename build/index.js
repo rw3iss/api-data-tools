@@ -18296,7 +18296,6 @@ var generateApiDocs = () => {
 var RestAPI = class {
   constructor(configPath, schemaPath) {
     this.routesRegistered = false;
-    DbHelper_default.initialize();
     if (configPath && schemaPath) {
       process.env["CONFIG_PATH"] = configPath;
       process.env["SCHEMA_PATH"] = schemaPath;

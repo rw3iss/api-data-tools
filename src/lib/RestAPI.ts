@@ -87,7 +87,6 @@ export default class RestAPI {
     // Can be called directly, or passed into an application as middleware, ie. 'app.use(RestAPI.handler)' 
     handler(req, res, context?) {
         if (Config.enableCors) {
-            console.log('enabling cors');
             enableCors(req, res);
             if (req.method === 'OPTIONS') {
                 return;

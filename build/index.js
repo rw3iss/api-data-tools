@@ -17860,6 +17860,7 @@ var DataMapper = class {
       try {
         let query = this.selectQueryString(type, params, limit);
         let r = await DbHelper_default.query(query);
+        console.log("DM.get", type, params, query, r);
         debug("DataMapper.get result", r);
         return r;
       } catch (e) {
@@ -17996,6 +17997,7 @@ var DataMapper = class {
     return propVal;
   }
   _makePropQueryString(pName, pVal, pDef) {
+    console.log("_makePropQueryString", pName, pVal, typeof pVal, pDef);
     let pType = this._getPropType(pVal, pDef);
     if (typeof pVal == "object") {
       if (typeof pVal.like != "undefined") {
@@ -18348,7 +18350,6 @@ var RestAPI = class {
   }
   handler(req, res, context) {
     if (Config_default.enableCors) {
-      console.log("enabling cors");
       import_cors.enableCors(req, res);
       if (req.method === "OPTIONS") {
         return;

@@ -35,6 +35,8 @@ export class DataMapper {
         try {
             let query = this.selectQueryString(type, params, limit);
             let r = await DbHelper.query(query);
+            
+            console.log('DM.get', type, params, query, r);
 
 //#ifdef SERIALIZE_DATA_MODELS
             //console.log("TODO: serialize data model...");
@@ -230,6 +232,8 @@ export class DataMapper {
 
     // makes a 'prop=val' string, where val is properly escaped depending on its type
     _makePropQueryString(pName, pVal, pDef) {
+        console.log('_makePropQueryString', pName, pVal, typeof pVal, pDef);
+
         let pType = this._getPropType(pVal, pDef);
         if (typeof pVal == 'object') {
             if (typeof pVal.like != 'undefined') {

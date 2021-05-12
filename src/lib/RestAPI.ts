@@ -16,9 +16,6 @@ export default class RestAPI {
 
     constructor(configPath?, schemaPath?) {
 
-        // Todo: move this to data layer. Need to initialize DB on app start...
-        DbHelper.initialize();
-        
         if (configPath && schemaPath) {
             // hack to pass to Config class, for now
             process.env['CONFIG_PATH'] = configPath;

@@ -17,7 +17,7 @@ export {
     MigrationHelper,
 
     // Exposes CRUD API endpoints for models based on the schema.
-    //ResourceHandler,
+    // ResourceHandler,
 
     // Object serialization interface to database.
     DataMapper,

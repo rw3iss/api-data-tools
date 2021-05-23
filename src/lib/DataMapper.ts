@@ -37,8 +37,6 @@ export class DataMapper {
             let query = this.selectQueryString(type, params, limit);
             let r = await DbHelper.query(query);
             
-            console.log('DM.get', type, params, query, r);
-
 //#ifdef SERIALIZE_DATA_MODELS
             //console.log("TODO: serialize data model...");
 //#endif
@@ -73,7 +71,6 @@ export class DataMapper {
         // todo: should allow editing of fields but return full object...
         try {
             let query = this.upsertQueryString(type, o);
-            console.log('query', query)
             debug('adt debug', query);
             let r = await DbHelper.query(query);
             // todo: check if id property exists on schema
@@ -95,7 +92,6 @@ export class DataMapper {
     delete = async (type: string, params) => {
         try {
             let query = this.deleteQueryString(type, params);
-            console.log('Delete.....', query)
             let r = await DbHelper.query(query);
             debug('DataMapper.delete result', r);
             return r;
@@ -211,8 +207,10 @@ export class DataMapper {
     }
 
 	escape(propVal, propType?) {
-        if (propVal == null) return null;
-        
+        if (propVal == null || typeof propVal == 'undefined') {
+            return 'null';
+        }
+
 		if (typeof propType == 'undefined')
             propType = typeof propVal;
 
@@ -222,19 +220,19 @@ export class DataMapper {
             propVal = JSON.stringify(propVal);
         } else if (propVal instanceof Date) {
             return `'${propVal.toISOString().slice(0, 19).replace('T', ' ')}'`;
+        } else if (['Number', 'int', 'float'].includes(propType)) {
+            if (propVal == '') return 'null';
+            return propVal;
         }
         
         if (['string', 'text', 'char', 'enum', 'datetime'].includes(propType)) {
 			return DbHelper.escapeString(propVal)
         }
-
-		return propVal;
+        return propVal;
     }
 
     // makes a 'prop=val' string, where val is properly escaped depending on its type
     _makePropQueryString(pName, pVal, pDef) {
-        console.log('_makePropQueryString', pName, pVal, typeof pVal, pDef);
-
         let pType = this._getPropType(pVal, pDef);
         if (typeof pVal == 'object') {
             if (typeof pVal.like != 'undefined') {
